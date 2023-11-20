@@ -18,9 +18,9 @@ export abstract class Plot {
   private canvas: HTMLCanvasElement;
 
   constructor(
-    public width: number,
-    public height: number,
-    public depth: number
+    protected width: number,
+    protected height: number,
+    protected depth: number
   ) {
     this.scene = new Scene();
     this.scene.background = new Color(0xffffff);

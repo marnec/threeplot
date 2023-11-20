@@ -9,7 +9,7 @@ export class ScatterPlot extends Plot {
   public withData(data: Vector3[]): this {
     data
       .map((v) => {
-        const g = new SphereGeometry(1);
+        const g = new SphereGeometry(Math.max(this.width, this.height, this.depth) * 0.02);
         const m = new MeshBasicMaterial({ color: 0x00ff00 });
         const obj = new Mesh(g, m);
         obj.position.set(v.x, v.y, v.z);

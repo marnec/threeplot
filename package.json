@@ -5,6 +5,7 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
+    "dev": "npx tsc --watch",
     "build": "npx tsc",
     "link": "npm run build && npm link"
   },
@@ -16,6 +17,7 @@
   },
   "devDependencies": {
     "@types/three": "0.158.2",
+    "parcel": "^2.10.3",
     "typescript": "5.2.2"
   }
 }
