@@ -1,9 +1,15 @@
 {
   "name": "threeplot",
-  "version": "0.2.4",
+  "version": "0.2.5",
   "description": "programmatically create 3d plots with threejs",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org"
+  },
+  "repository": {
+    "url": "https://github.com/marnec/threeplot"
+  },
   "scripts": {
     "dev": "npx tsc --watch",
     "test": "jest",
