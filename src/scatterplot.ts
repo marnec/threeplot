@@ -2,23 +2,21 @@ import { Mesh, MeshBasicMaterial, SphereGeometry, Vector3 } from "three";
 import { Plot } from "./plot";
 
 export class ScatterPlot extends Plot {
-  constructor(width: number, height: number, depth: number) {
-    super(width, height, depth);
+  points: Mesh[];
+
+  constructor(points: Vector3[], pointRadius = 0.2) {
+    super();
+
+    this.points = points.map((v) => {
+      const geometry = new SphereGeometry(pointRadius);
+      const material = new MeshBasicMaterial({ color: 0x00ff00 });
+      const obj = new Mesh(geometry, material);
+      obj.position.set(v.x, v.y, v.z);
+      return obj;
+    });
   }
 
-  public withData(data: Vector3[]): this {
-    data
-      .map((v) => {
-        const g = new SphereGeometry(Math.max(this.width, this.height, this.depth) * 0.02);
-        const m = new MeshBasicMaterial({ color: 0x00ff00 });
-        const obj = new Mesh(g, m);
-        obj.position.set(v.x, v.y, v.z);
-        return obj;
-      })
-      .forEach((obj) => this.scene.add(obj));
-
-    this.update();
-
-    return this;
+  getFrameable() {
+    return this.points;
   }
 }
