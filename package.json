@@ -16,6 +16,9 @@
     "e2e": "npx parcel test-page/index.html",
     "build": "npx tsc"
   },
+  "alias": {
+    "three": "./node_modules/three"
+  },
   "files": [
     "dist/"
   ],
