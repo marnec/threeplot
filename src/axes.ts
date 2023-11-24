@@ -1,4 +1,6 @@
-import { ArrowHelper, Color, GridHelper, Vector3 } from "three";
+import { ArrowHelper, GridHelper, Vector3 } from "three";
+
+
 
 class Axis extends ArrowHelper {
   constructor(direction: Vector3, length: number) {

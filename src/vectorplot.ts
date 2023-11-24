@@ -3,8 +3,8 @@ import {
   BufferGeometry,
   EllipseCurve,
   Line,
-  Line3,
   LineBasicMaterial,
+  LineDashedMaterial,
   Object3D,
   Object3DEventMap,
   Vector3,
@@ -23,9 +23,10 @@ export class VectorPlot extends Plot {
     const projection = this.createProjection("xy");
     const angle = this.createAngle("x");
 
-    console.log(angle);
     this.drawables.push(vector);
-    this.drawables.push(projection);
+    this.drawables.push(...projection);
+    this.drawables.push(...this.createProjection("yz"));
+    this.drawables.push(...this.createProjection("xz"));
     // this.drawables.push(angle);
   }
 
@@ -59,13 +60,37 @@ export class VectorPlot extends Plot {
     return new Line(geometry, material);
   }
 
-  private createProjection(axis: "xy" | "xz" | "yz") {
-    const targetProjection = this.target.projectOnPlane(new Vector3(1, 0, 0));
+  private createProjection(plane: "xy" | "xz" | "yz") {
+    const lineMaterial = new LineDashedMaterial({
+      color: 0x000000,
+      linewidth: 1,
+      scale: 1,
+      dashSize: 0.25,
+      gapSize: 0.1,
+    });
 
-    const line = new Line3(targetProjection, new Vector3(0, 0, this.target.z));
-    const material = new LineBasicMaterial({ color: 0x000000 });
-    const geometry = new BufferGeometry().setFromPoints([line.start, line.end]);
-    return new Line(geometry, material);
+    const planeNormal = new Vector3(
+      plane === "yz" ? 1 : 0,
+      plane === "xz" ? 1 : 0,
+      plane === "xy" ? 1 : 0
+    );
+
+    const projectedVector = this.target.clone().projectOnPlane(planeNormal);
+
+    const projectionGeometry = new BufferGeometry().setFromPoints([
+      projectedVector,
+      this.origin,
+    ]);
+
+    const connectionGeometry = new BufferGeometry().setFromPoints([
+      projectedVector,
+      this.target,
+    ]);
+
+    return [
+      new Line(projectionGeometry, lineMaterial).computeLineDistances(),
+      new Line(connectionGeometry, lineMaterial).computeLineDistances(),
+    ];
   }
 
   public getFrameable(): Object3D<Object3DEventMap>[] {
