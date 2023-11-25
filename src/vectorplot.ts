@@ -28,6 +28,7 @@ export class VectorPlot extends Plot {
     this.drawables.push(this.createAngleToProjection("xz"));
     this.drawables.push(this.createAngleToProjection("xy"));
     this.drawables.push(this.createAngleToProjection("yz"));
+    this.drawables.push(this.createAngleToTarget("y"));
   }
 
   private createVector(origin: Vector3, target: Vector3) {
@@ -49,11 +50,20 @@ export class VectorPlot extends Plot {
     const plane = AxesPlane[planeIdx];
     const planeNormal = plane.normal;
     const projectedVector = this.target.clone().projectOnPlane(planeNormal);
-    const radius = projectedVector.distanceTo(this.origin);
+    const radius = projectedVector.distanceTo(this.origin) * 0.5;
 
     let initialRotation = 0;
-    if (planeIdx === "xz") initialRotation = -Math.PI / 2;
-    if (planeIdx === "yz") initialRotation = Math.PI / 2;
+    let angleToProjection = projectedVector.angleTo(UnitVector.i);
+
+    if (planeIdx === "xz") {
+      initialRotation = -Math.PI / 2;
+      angleToProjection = projectedVector.angleTo(UnitVector.k);
+    }
+
+    if (planeIdx === "yz") {
+      initialRotation = Math.PI / 2;
+      angleToProjection = projectedVector.angleTo(UnitVector.j);
+    }
 
     const curve = new EllipseCurve(
       this.origin.x,
@@ -61,7 +71,7 @@ export class VectorPlot extends Plot {
       radius,
       radius,
       0,
-      Math.PI / 2,
+      angleToProjection,
       false,
       initialRotation
     );
@@ -75,6 +85,34 @@ export class VectorPlot extends Plot {
     );
 
     geometry.applyQuaternion(rotation);
+
+    return new Line(geometry, material);
+  }
+
+  private createAngleToTarget(axis: "x" | "y" | "z") {
+    const radius = this.target.clone().distanceTo(this.origin);
+
+    const projectedVector = this.target.clone().projectOnPlane(UnitVector.j);
+
+    const curve = new EllipseCurve(
+      this.origin.x,
+      this.origin.y,
+      radius,
+      radius,
+      0,
+      this.target.angleTo(projectedVector),
+      false,
+      0
+    );
+
+    const material = new LineBasicMaterial({ color: 0x000000 });
+    const geometry = new BufferGeometry().setFromPoints(curve.getPoints(50));
+    geometry.applyQuaternion(
+      new Quaternion().setFromAxisAngle(
+        UnitVector.j,
+        -UnitVector.i.angleTo(projectedVector)
+      )
+    );
 
     return new Line(geometry, material);
   }
