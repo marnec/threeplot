@@ -7,9 +7,11 @@ import {
   LineDashedMaterial,
   Object3D,
   Object3DEventMap,
+  Quaternion,
   Vector3,
 } from "three";
 import { Plot } from "./plot";
+import { AxesPlane, UnitVector } from "./axes";
 
 export class VectorPlot extends Plot {
   private drawables: (ArrowHelper | Line)[];
@@ -19,15 +21,13 @@ export class VectorPlot extends Plot {
 
     this.drawables = [];
 
-    const vector = this.createVector(origin, target);
-    const projection = this.createProjection("xy");
-    const angle = this.createAngle("x");
-
-    this.drawables.push(vector);
-    this.drawables.push(...projection);
+    this.drawables.push(this.createVector(origin, target));
+    this.drawables.push(...this.createProjection("xy"));
     this.drawables.push(...this.createProjection("yz"));
     this.drawables.push(...this.createProjection("xz"));
-    // this.drawables.push(angle);
+    this.drawables.push(this.createAngleToProjection("xz"));
+    this.drawables.push(this.createAngleToProjection("xy"));
+    this.drawables.push(this.createAngleToProjection("yz"));
   }
 
   private createVector(origin: Vector3, target: Vector3) {
@@ -43,24 +43,43 @@ export class VectorPlot extends Plot {
     );
   }
 
-  private createAngle(axis: "x" | "y" | "z") {
+  private createAngleToProjection<P extends keyof typeof AxesPlane>(
+    planeIdx: P
+  ) {
+    const plane = AxesPlane[planeIdx];
+    const planeNormal = plane.normal;
+    const projectedVector = this.target.clone().projectOnPlane(planeNormal);
+    const radius = projectedVector.distanceTo(this.origin);
+
+    let initialRotation = 0;
+    if (planeIdx === "xz") initialRotation = -Math.PI / 2;
+    if (planeIdx === "yz") initialRotation = Math.PI / 2;
+
     const curve = new EllipseCurve(
+      this.origin.x,
+      this.origin.y,
+      radius,
+      radius,
       0,
-      0, // ax, aY
-      10,
-      10, // xRadius, yRadius
-      0,
-      2 * Math.PI, // aStartAngle, aEndAngle
-      false, // aClockwise
-      0 // aRotation
+      Math.PI / 2,
+      false,
+      initialRotation
     );
 
     const material = new LineBasicMaterial({ color: 0x000000 });
     const geometry = new BufferGeometry().setFromPoints(curve.getPoints(50));
+
+    const rotation = new Quaternion().setFromUnitVectors(
+      UnitVector.k,
+      plane.normal
+    );
+
+    geometry.applyQuaternion(rotation);
+
     return new Line(geometry, material);
   }
 
-  private createProjection(plane: "xy" | "xz" | "yz") {
+  private createProjection<P extends keyof typeof AxesPlane>(plane: P) {
     const lineMaterial = new LineDashedMaterial({
       color: 0x000000,
       linewidth: 1,
@@ -69,11 +88,7 @@ export class VectorPlot extends Plot {
       gapSize: 0.1,
     });
 
-    const planeNormal = new Vector3(
-      plane === "yz" ? 1 : 0,
-      plane === "xz" ? 1 : 0,
-      plane === "xy" ? 1 : 0
-    );
+    const planeNormal = AxesPlane[plane].normal;
 
     const projectedVector = this.target.clone().projectOnPlane(planeNormal);
 

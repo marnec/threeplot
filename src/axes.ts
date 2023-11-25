@@ -1,6 +1,16 @@
 import { ArrowHelper, GridHelper, Vector3 } from "three";
 
+export const UnitVector = {
+  i: new Vector3(1, 0, 0),
+  j: new Vector3(0, 1, 0),
+  k: new Vector3(0, 0, 1),
+} as const;
 
+export const AxesPlane = {
+  xy: { normal: UnitVector.k, unit: { x: UnitVector.i, y: UnitVector.j } },
+  xz: { normal: UnitVector.j, unit: { x: UnitVector.i, z: UnitVector.k } },
+  yz: { normal: UnitVector.i, unit: { y: UnitVector.j, z: UnitVector.k } },
+} as const;
 
 class Axis extends ArrowHelper {
   constructor(direction: Vector3, length: number) {
@@ -42,6 +52,5 @@ export class Axes {
     this.gridYZ.position.setY(this.lengthY / 2);
     this.gridYZ.position.setZ(this.lengthZ / 2);
     this.gridYZ.rotateOnAxis(new Vector3(0, 0, 1), Math.PI / 2);
-
   }
 }
