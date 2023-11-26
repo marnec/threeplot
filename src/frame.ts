@@ -1,15 +1,8 @@
-import {
-  AxesHelper,
-  Color,
-  GridHelper,
-  PerspectiveCamera,
-  Scene,
-  Vector3,
-  WebGLRenderer,
-} from "three";
+import { Color, PerspectiveCamera, Scene, WebGLRenderer } from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { Axes } from "./axes";
 import { Plot } from "./plot";
+import { FallbackLabel, Label } from "./label";
 
 export class Frame extends Scene {
   protected scene: Scene;
@@ -21,10 +14,7 @@ export class Frame extends Scene {
 
   // TODO: at the moment only one size bc grid can only be squared
   // look into this for solution https://discourse.threejs.org/t/rectangular-gridhelper-possibility/37812
-  constructor(
-    protected canvas: HTMLCanvasElement,
-    protected size = 10
-  ) {
+  constructor(protected canvas: HTMLCanvasElement, protected size = 10) {
     super();
     this.scene = new Scene();
     this.scene.background = new Color(0xffffff);
@@ -79,7 +69,21 @@ export class Frame extends Scene {
   }
 
   public addPlot(plot: Plot) {
-    this.scene.add(...plot.getFrameable())
+    this.scene.add(...plot.getFrameable());
     this.update();
+  }
+
+  private async addFallbackLabel(text: FallbackLabel) {
+    this.scene.add(...text.getFrameable());
+    this.update();
+  }
+
+  public async addLabel(text: Label) {
+    this.scene.add(...text.getFrameable());
+
+    text.text.addEventListener("synccomplete", () => {
+      this.update();
+    });
+
   }
 }
