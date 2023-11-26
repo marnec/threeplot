@@ -1,4 +1,4 @@
-name: Build and Deploy Angular App
+name: Build and Deploy
 
 on:
   push:
@@ -21,7 +21,7 @@ jobs:
       - name: Install Dependencies
         run: npm install
 
-      - name: Build Angular App
+      - name: Build With Parcel
         run: npm run build-all
 
       - name: Deploy to GitHub Pages
@@ -30,4 +30,4 @@ jobs:
           target-folder: docs
           token: ${{ secrets.TOKEN }}
           branch: main
-          folder: docs # Change this to the path of your Angular app build output
+          folder: docs 
