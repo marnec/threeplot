@@ -22,7 +22,7 @@
     "dev": "npx tsc --watch",
     "test": "jest",
     "e2e": "npx parcel test/e2e/index.html --dist-dir=docs",
-    "build-all": "npx tsc && npx parcel build test/e2e/index.html --dist-dir=docs",
+    "build-all": "npx tsc && npx parcel build test/e2e/index.html --dist-dir=docs --public-url https://marnec.github.io/threeplot/",
     "build": "npx tsc"
   },
   "alias": {
