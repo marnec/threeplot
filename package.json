@@ -4,16 +4,25 @@
   "description": "programmatically create 3d plots with threejs",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "targets": {
+    "types": false,
+    "main": false
+  },
   "publishConfig": {
     "registry": "https://registry.npmjs.org"
   },
   "repository": {
     "url": "https://github.com/marnec/threeplot"
   },
+  "funding": {
+    "type": "patreon",
+    "url": "https://patreon.com/marnec"
+  },
   "scripts": {
     "dev": "npx tsc --watch",
     "test": "jest",
-    "e2e": "npx parcel test-page/index.html",
+    "e2e": "npx parcel test/e2e/index.html --dist-dir=docs",
+    "build-all": "npx tsc && npx parcel build test/e2e/index.html --dist-dir=docs",
     "build": "npx tsc"
   },
   "alias": {

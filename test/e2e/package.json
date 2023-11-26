@@ -1,0 +1,9 @@
+{
+  "name": "threeplot-docs",
+  "private": true,
+  "source": "index.html",
+
+  "dependencies": {
+    "three": "0.158.0"
+  }
+}
