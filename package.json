@@ -23,7 +23,7 @@
     "dev": "npm run copy-fonts && npx tsc --watch",
     "test": "jest",
     "e2e": "npx parcel test/e2e/index.html --dist-dir=docs",
-    "build-all": "build && npx parcel build test/e2e/index.html --dist-dir=docs --public-url https://marnec.github.io/threeplot/",
+    "build-all": "npm run build && npx parcel build test/e2e/index.html --dist-dir=docs --public-url https://marnec.github.io/threeplot/",
     "build": "npm run copy-fonts && npx tsc"
   },
   "alias": {
