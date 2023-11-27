@@ -19,7 +19,7 @@
     "url": "https://patreon.com/marnec"
   },
   "scripts": {
-    "copy-fonts": "mkdir-p dist/fonts && cp -r src/fonts dist/fonts",
+    "copy-fonts": "mkdir -p dist/fonts && cp -r src/fonts dist/fonts",
     "dev": "npm run copy-fonts && npx tsc --watch",
     "test": "jest",
     "e2e": "npx parcel test/e2e/index.html --dist-dir=docs",
