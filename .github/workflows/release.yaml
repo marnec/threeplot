@@ -23,7 +23,6 @@ jobs:
           release_name: Release ${{ github.ref }}
           body: |
             Changes in this Release
-            - First Release
-            - Add `ScatterPlot` API
+            - Add `Label` API
           draft: false
           prerelease: false
