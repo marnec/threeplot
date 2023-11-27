@@ -4,56 +4,26 @@ import {
   EllipseCurve,
   Line,
   LineBasicMaterial,
-  LineBasicMaterialParameters,
   LineDashedMaterial,
-  LineDashedMaterialParameters,
   Object3D,
   Object3DEventMap,
   Quaternion,
   Vector3,
 } from "three";
-import { Plot } from "./plot";
-import { AxesPlane, UnitVector } from "./axes";
-
-export interface ProjectionConfiguration<T extends "xy" | "xz" | "yz"> {
-  linestyle: LineBasicMaterialParameters | LineDashedMaterialParameters;
-  components: Omit<
-    {
-      xy: LineBasicMaterialParameters | LineDashedMaterialParameters;
-      xz: LineBasicMaterialParameters | LineDashedMaterialParameters;
-      yz: LineBasicMaterialParameters | LineDashedMaterialParameters;
-    },
-    T
-  >;
-}
-
-export interface VectorPlotConfiguration {
-  projections: {
-    xy: ProjectionConfiguration<"xy"> | false;
-    xz: ProjectionConfiguration<"xz"> | false;
-    yz: ProjectionConfiguration<"yz"> | false;
-  };
-  linestyle: LineBasicMaterialParameters;
-}
-
-class VectorPlotConfig {
-  static default: VectorPlotConfiguration = {
-    projections: { xy: false, xz: false, yz: false },
-    linestyle: { color: 0x000000 },
-  };
-}
+import { Plot } from "../plot";
+import { AxesPlane, UnitVector } from "../axes";
+import { VectorPlotConfiguration, vectorplotDefaultConfig } from "./vectorplot.config";
 
 export class VectorPlot extends Plot {
-  private drawables: (ArrowHelper | Line)[];
+  private static readonly defaultConfig = vectorplotDefaultConfig;
 
-  constructor(
-    private origin: Vector3,
-    private target: Vector3,
-    config?: VectorPlotConfiguration
-  ) {
+  private drawables: (ArrowHelper | Line)[];
+  private config: VectorPlotConfiguration;
+
+  constructor(private origin: Vector3, private target: Vector3, config?: VectorPlotConfiguration) {
     super();
 
-    config = { ...VectorPlotConfig.default, ...config };
+    this.config = { ...VectorPlot.defaultConfig, ...config };
 
     this.drawables = [];
 
@@ -70,19 +40,10 @@ export class VectorPlot extends Plot {
   private createVector(origin: Vector3, target: Vector3) {
     const length = Math.abs(origin.distanceTo(target));
 
-    return new ArrowHelper(
-      target.clone().normalize(),
-      origin,
-      length,
-      0x000000,
-      length * 0.2,
-      length * 0.1
-    );
+    return new ArrowHelper(target.clone().normalize(), origin, length, 0x000000, length * 0.2, length * 0.1);
   }
 
-  private createAngleToProjection<P extends keyof typeof AxesPlane>(
-    planeIdx: P
-  ) {
+  private createAngleToProjection<P extends keyof typeof AxesPlane>(planeIdx: P) {
     const plane = AxesPlane[planeIdx];
     const planeNormal = plane.normal;
     const projectedVector = this.target.clone().projectOnPlane(planeNormal);
@@ -115,10 +76,7 @@ export class VectorPlot extends Plot {
     const material = new LineBasicMaterial({ color: 0x000000 });
     const geometry = new BufferGeometry().setFromPoints(curve.getPoints(50));
 
-    const rotation = new Quaternion().setFromUnitVectors(
-      UnitVector.k,
-      plane.normal
-    );
+    const rotation = new Quaternion().setFromUnitVectors(UnitVector.k, plane.normal);
 
     geometry.applyQuaternion(rotation);
 
@@ -143,17 +101,16 @@ export class VectorPlot extends Plot {
 
     const material = new LineBasicMaterial({ color: 0x000000 });
     const geometry = new BufferGeometry().setFromPoints(curve.getPoints(50));
-    geometry.applyQuaternion(
-      new Quaternion().setFromAxisAngle(
-        UnitVector.j,
-        -UnitVector.i.angleTo(projectedVector)
-      )
-    );
+    geometry.applyQuaternion(new Quaternion().setFromAxisAngle(UnitVector.j, -UnitVector.i.angleTo(projectedVector)));
 
     return new Line(geometry, material);
   }
 
   private createProjection<P extends keyof typeof AxesPlane>(plane: P) {
+    const drawables = [];
+
+    const projectionConfig = this.config[plane].projection;
+
     const lineMaterial = new LineDashedMaterial({
       color: 0x000000,
       linewidth: 1,
@@ -166,20 +123,17 @@ export class VectorPlot extends Plot {
 
     const projectedVector = this.target.clone().projectOnPlane(planeNormal);
 
-    const projectionGeometry = new BufferGeometry().setFromPoints([
-      projectedVector,
-      this.origin,
-    ]);
+    const projectionGeometry = new BufferGeometry().setFromPoints([projectedVector, this.origin]);
 
-    const connectionGeometry = new BufferGeometry().setFromPoints([
-      projectedVector,
-      this.target,
-    ]);
+    const projectionLine = new Line(projectionGeometry, lineMaterial).computeLineDistances();
 
-    return [
-      new Line(projectionGeometry, lineMaterial).computeLineDistances(),
-      new Line(connectionGeometry, lineMaterial).computeLineDistances(),
-    ];
+    const connectionGeometry = new BufferGeometry().setFromPoints([projectedVector, this.target]);
+
+    if (projectionConfig) {
+      drawables.push(projectionLine);
+    }
+
+    return [new Line(connectionGeometry, lineMaterial).computeLineDistances()];
   }
 
   public getFrameable(): Object3D<Object3DEventMap>[] {

@@ -1,5 +1,5 @@
 import { Mesh, MeshBasicMaterial, SphereGeometry, Vector3 } from "three";
-import { Plot } from "./plot";
+import { Plot } from "../plot";
 
 export class ScatterPlot extends Plot {
   points: Mesh[];
