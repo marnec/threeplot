@@ -4,7 +4,9 @@ import {
   EllipseCurve,
   Line,
   LineBasicMaterial,
+  LineBasicMaterialParameters,
   LineDashedMaterial,
+  LineDashedMaterialParameters,
   Object3D,
   Object3DEventMap,
   Quaternion,
@@ -13,11 +15,45 @@ import {
 import { Plot } from "./plot";
 import { AxesPlane, UnitVector } from "./axes";
 
+export interface ProjectionConfiguration<T extends "xy" | "xz" | "yz"> {
+  linestyle: LineBasicMaterialParameters | LineDashedMaterialParameters;
+  components: Omit<
+    {
+      xy: LineBasicMaterialParameters | LineDashedMaterialParameters;
+      xz: LineBasicMaterialParameters | LineDashedMaterialParameters;
+      yz: LineBasicMaterialParameters | LineDashedMaterialParameters;
+    },
+    T
+  >;
+}
+
+export interface VectorPlotConfiguration {
+  projections: {
+    xy: ProjectionConfiguration<"xy"> | false;
+    xz: ProjectionConfiguration<"xz"> | false;
+    yz: ProjectionConfiguration<"yz"> | false;
+  };
+  linestyle: LineBasicMaterialParameters;
+}
+
+class VectorPlotConfig {
+  static default: VectorPlotConfiguration = {
+    projections: { xy: false, xz: false, yz: false },
+    linestyle: { color: 0x000000 },
+  };
+}
+
 export class VectorPlot extends Plot {
   private drawables: (ArrowHelper | Line)[];
 
-  constructor(private origin: Vector3, private target: Vector3) {
+  constructor(
+    private origin: Vector3,
+    private target: Vector3,
+    config?: VectorPlotConfiguration
+  ) {
     super();
+
+    config = { ...VectorPlotConfig.default, ...config };
 
     this.drawables = [];
 
