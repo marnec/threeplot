@@ -1,21 +1,26 @@
-import { LineBasicMaterialParameters, LineDashedMaterialParameters } from "three";
+import { LineBasicMaterialParameters } from "three";
 import { PlaneAxes } from "../axes";
+import { ConfigParams } from "./base.config";
+import { LineConfig } from "./line.config";
 
-export type LineStyle =
-  | {
-      linetype: "dashed";
-      linestyle: LineDashedMaterialParameters;
-    }
-  | {
-      linetype: "solid";
-      linestyle: LineBasicMaterialParameters;
-    };
-
-type VectorPlotPlaneConfig = {
-  projection?: LineStyle | boolean;
-  component?: LineStyle | boolean;
-  projectionAngle?: LineStyle | boolean;
+export const defaultSecondaryLine: LineConfig = {
+  line: {
+    type: "dashed",
+    style: {
+      color: 0x000000,
+      linewidth: 1,
+      scale: 1,
+      dashSize: 0.25,
+      gapSize: 0.1,
+    },
+  },
 };
+
+interface VectorPlotPlaneConfig {
+  projection?: LineConfig | boolean;
+  component?: LineConfig | boolean;
+  projectionAngle?: LineConfig | boolean;
+}
 
 export interface VectorPlotConfiguration
   extends Partial<Record<keyof typeof PlaneAxes, VectorPlotPlaneConfig | boolean>> {
@@ -23,7 +28,7 @@ export interface VectorPlotConfiguration
   angle?: LineBasicMaterialParameters | boolean;
 }
 
-export class VectorPlotConfigurationParams implements VectorPlotConfiguration {
+export class VectorPlotConfigurationParams extends ConfigParams implements VectorPlotConfiguration {
   color: number;
   angle?: LineBasicMaterialParameters;
   xy?: VectorPlotPlaneConfigParams;
@@ -31,61 +36,30 @@ export class VectorPlotConfigurationParams implements VectorPlotConfiguration {
   yz?: VectorPlotPlaneConfigParams;
 
   constructor(config: VectorPlotConfiguration | undefined) {
+    super();
     const { angle, color, xy, xz, yz } = config || {};
+    this.color = color || 0x000000;
 
-    this.setColorOrDefault(color);
-    if (angle) this.setAngle(angle);
+    if (angle) this.angle = this.valueOrDefault(angle, { color: 0x000000 });
     if (xy) this.xy = new VectorPlotPlaneConfigParams(xy);
     if (xz) this.xz = new VectorPlotPlaneConfigParams(xz);
     if (yz) this.yz = new VectorPlotPlaneConfigParams(yz);
   }
-
-  private setColorOrDefault(colorHex?: number) {
-    colorHex = colorHex || 0x000000;
-
-    this.color = colorHex;
-  }
-
-  private setAngle(angle: LineBasicMaterialParameters | true) {
-    this.angle = angle === true ? { color: 0x000000 } : angle;
-  }
 }
 
-export class VectorPlotPlaneConfigParams implements VectorPlotPlaneConfig {
-  projection?: LineStyle;
-  component?: LineStyle;
-  projectionAngle?: LineStyle;
+export class VectorPlotPlaneConfigParams extends ConfigParams implements VectorPlotPlaneConfig {
+  projection?: LineConfig;
+  component?: LineConfig;
+  projectionAngle?: LineConfig;
 
   constructor(plane: VectorPlotPlaneConfig | true) {
-    plane = plane === true ? { projection: true, component: true, projectionAngle: true } : plane;
+    super();
 
+    plane = this.valueOrDefault(plane, { projection: true, component: true, projectionAngle: true });
     const { component, projection, projectionAngle } = plane;
 
-    if (projection) this.setProjection(projection);
-    if (component) this.setComponent(component);
-    if (projectionAngle) this.setProjectionAngle(projectionAngle);
-  }
-
-  private setProjection(projection: LineStyle | true) {
-    this.projection = projection === true ? defaultDashedLine : projection;
-  }
-
-  private setComponent(component: LineStyle | true) {
-    this.component = component === true ? defaultDashedLine : component;
-  }
-
-  private setProjectionAngle(projectionAngle: LineStyle | true) {
-    this.projectionAngle = projectionAngle === true ? defaultDashedLine : projectionAngle;
+    if (projection) this.projection = this.valueOrDefault(projection, defaultSecondaryLine);
+    if (component) this.component = this.valueOrDefault(component, defaultSecondaryLine);
+    if (projectionAngle) this.projectionAngle = this.valueOrDefault(projectionAngle, defaultSecondaryLine);
   }
 }
-
-export const defaultDashedLine: LineStyle = {
-  linetype: "dashed",
-  linestyle: {
-    color: 0x000000,
-    linewidth: 1,
-    scale: 1,
-    dashSize: 0.25,
-    gapSize: 0.1,
-  },
-};

@@ -12,7 +12,8 @@ import {
 } from "three";
 import { Plot } from "../plot";
 import { PlaneAxes, UnitVector } from "../axes";
-import { LineStyle, VectorPlotConfiguration, VectorPlotConfigurationParams } from "./vectorplot.config";
+import { VectorPlotConfiguration, VectorPlotConfigurationParams } from "./vectorplot.config";
+import { LineConfig, LineStyle } from "./line.config";
 
 export class VectorPlot extends Plot {
   private drawables: (ArrowHelper | Line)[];
@@ -43,9 +44,7 @@ export class VectorPlot extends Plot {
     return new ArrowHelper(target.clone().normalize(), origin, length, this.config.color, length * 0.2, length * 0.1);
   }
 
-  private createAngleToProjection<P extends keyof typeof PlaneAxes>(planeIdx: P, config: LineStyle) {
-
-
+  private createAngleToProjection<P extends keyof typeof PlaneAxes>(planeIdx: P, config: LineConfig) {
     const plane = PlaneAxes[planeIdx];
     const planeNormal = plane.normal;
     const projectedVector = this.target.clone().projectOnPlane(planeNormal);
@@ -75,8 +74,7 @@ export class VectorPlot extends Plot {
       initialRotation
     );
 
-
-    const { linetype, linestyle } = config;
+    const { type: linetype, style: linestyle } = config.line;
     const LineMaterialType = linetype === "dashed" ? LineDashedMaterial : LineBasicMaterial;
     const material = new LineMaterialType(linestyle);
     const geometry = new BufferGeometry().setFromPoints(curve.getPoints(50));
@@ -111,8 +109,8 @@ export class VectorPlot extends Plot {
     return new Line(geometry, material);
   }
 
-  private createProjection<P extends keyof typeof PlaneAxes>(plane: P, config: LineStyle): Line {
-    const { linetype, linestyle } = config;
+  private createProjection<P extends keyof typeof PlaneAxes>(plane: P, config: LineConfig): Line {
+    const { type: linetype, style: linestyle } = config.line;
 
     const LineMaterialType = linetype === "dashed" ? LineDashedMaterial : LineBasicMaterial;
     const lineMaterial = new LineMaterialType(linestyle);
@@ -126,8 +124,8 @@ export class VectorPlot extends Plot {
     return new Line(projectionGeometry, lineMaterial).computeLineDistances();
   }
 
-  private createComponent<P extends keyof typeof PlaneAxes>(plane: P, config: LineStyle): Line {
-    const { linetype, linestyle } = config;
+  private createComponent<P extends keyof typeof PlaneAxes>(plane: P, config: LineConfig): Line {
+    const { type: linetype, style: linestyle } = config.line;
     const LineMaterialType = linetype === "dashed" ? LineDashedMaterial : LineBasicMaterial;
     const lineMaterial = new LineMaterialType(linestyle);
 

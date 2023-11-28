@@ -1,8 +1,4 @@
-import {
-  VectorPlotConfigurationParams,
-  VectorPlotPlaneConfigParams,
-  defaultDashedLine,
-} from "../../src/plots/vectorplot.config";
+import { VectorPlotConfigurationParams, VectorPlotPlaneConfigParams, defaultSecondaryLine } from "../../src/plots/vectorplot.config";
 
 describe("VectorPlotConfigurationParams", () => {
   it("should set the color to the provided colorHex if it exists, otherwise set it to 0x000000", () => {
@@ -64,15 +60,15 @@ describe("VectorPlotPlaneConfigParams", () => {
   it("should initialize all properties to defaultDashedLine when true is passed as argument", () => {
     const configParams = new VectorPlotPlaneConfigParams(true);
 
-    expect(configParams.projection).toEqual(defaultDashedLine);
-    expect(configParams.component).toEqual(defaultDashedLine);
-    expect(configParams.projectionAngle).toEqual(defaultDashedLine);
+    expect(configParams.projection).toEqual(defaultSecondaryLine);
+    expect(configParams.component).toEqual(defaultSecondaryLine);
+    expect(configParams.projectionAngle).toEqual(defaultSecondaryLine);
   });
 
   it("should initialize projection property to defaultDashedLine when projection is true", () => {
     const configParams = new VectorPlotPlaneConfigParams({ projection: true });
 
-    expect(configParams.projection).toEqual(defaultDashedLine);
+    expect(configParams.projection).toEqual(defaultSecondaryLine);
     expect(configParams.component).toBeUndefined();
     expect(configParams.projectionAngle).toBeUndefined();
   });
@@ -81,7 +77,7 @@ describe("VectorPlotPlaneConfigParams", () => {
     const configParams = new VectorPlotPlaneConfigParams({ component: true });
 
     expect(configParams.projection).toBeUndefined();
-    expect(configParams.component).toEqual(defaultDashedLine);
+    expect(configParams.component).toEqual(defaultSecondaryLine);
     expect(configParams.projectionAngle).toBeUndefined();
   });
 
@@ -90,7 +86,7 @@ describe("VectorPlotPlaneConfigParams", () => {
 
     expect(configParams.projection).toBeUndefined();
     expect(configParams.component).toBeUndefined();
-    expect(configParams.projectionAngle).toEqual(defaultDashedLine);
+    expect(configParams.projectionAngle).toEqual(defaultSecondaryLine);
   });
 
   it("should initialize all properties to undefined when an empty object is passed as argument", () => {
@@ -116,8 +112,8 @@ describe("VectorPlotPlaneConfigParams", () => {
   it("should initialize all properties to defaultDashedLine when an object with all properties set to true is passed as argument", () => {
     const configParams = new VectorPlotPlaneConfigParams({ projection: true, component: true, projectionAngle: true });
 
-    expect(configParams.projection).toEqual(defaultDashedLine);
-    expect(configParams.component).toEqual(defaultDashedLine);
-    expect(configParams.projectionAngle).toEqual(defaultDashedLine);
+    expect(configParams.projection).toEqual(defaultSecondaryLine);
+    expect(configParams.component).toEqual(defaultSecondaryLine);
+    expect(configParams.projectionAngle).toEqual(defaultSecondaryLine);
   });
 });
