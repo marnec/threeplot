@@ -6,7 +6,7 @@ export const UnitVector = {
   k: new Vector3(0, 0, 1),
 } as const;
 
-export const AxesPlane = {
+export const PlaneAxes = {
   xy: { normal: UnitVector.k, unit: { x: UnitVector.i, y: UnitVector.j } },
   xz: { normal: UnitVector.j, unit: { x: UnitVector.i, z: UnitVector.k } },
   yz: { normal: UnitVector.i, unit: { y: UnitVector.j, z: UnitVector.k } },

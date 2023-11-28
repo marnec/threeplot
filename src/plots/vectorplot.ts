@@ -11,40 +11,40 @@ import {
   Vector3,
 } from "three";
 import { Plot } from "../plot";
-import { AxesPlane, UnitVector } from "../axes";
-import { VectorPlotConfiguration, vectorplotDefaultConfig } from "./vectorplot.config";
+import { PlaneAxes, UnitVector } from "../axes";
+import { VectorPlotConfiguration, VectorPlotConfigurationParams } from "./vectorplot.config";
 
 export class VectorPlot extends Plot {
-  private static readonly defaultConfig = vectorplotDefaultConfig;
-
   private drawables: (ArrowHelper | Line)[];
-  private config: VectorPlotConfiguration;
+  private config: VectorPlotConfigurationParams;
 
   constructor(private origin: Vector3, private target: Vector3, config?: VectorPlotConfiguration) {
     super();
 
-    this.config = { ...VectorPlot.defaultConfig, ...config };
+    this.config = new VectorPlotConfigurationParams(config);
 
     this.drawables = [];
 
     this.drawables.push(this.createVector(origin, target));
-    this.drawables.push(...this.createProjection("xy"));
-    this.drawables.push(...this.createProjection("yz"));
-    this.drawables.push(...this.createProjection("xz"));
-    this.drawables.push(this.createAngleToProjection("xz"));
-    this.drawables.push(this.createAngleToProjection("xy"));
-    this.drawables.push(this.createAngleToProjection("yz"));
-    this.drawables.push(this.createAngleToTarget("y"));
+
+    for (const p in PlaneAxes) {
+      const plane = p as keyof typeof PlaneAxes;
+      const conf = this.config[plane];
+      if (conf?.projection) this.drawables.push(this.createProjection(plane));
+      if (conf?.component) this.drawables.push(this.createComponent(plane));
+      if (conf?.projectionAngle) this.drawables.push(this.createAngleToProjection(plane));
+    }
+    if (this.config.angle) this.drawables.push(this.createAngleToTarget("y"));
   }
 
   private createVector(origin: Vector3, target: Vector3) {
     const length = Math.abs(origin.distanceTo(target));
 
-    return new ArrowHelper(target.clone().normalize(), origin, length, 0x000000, length * 0.2, length * 0.1);
+    return new ArrowHelper(target.clone().normalize(), origin, length, this.config.color, length * 0.2, length * 0.1);
   }
 
-  private createAngleToProjection<P extends keyof typeof AxesPlane>(planeIdx: P) {
-    const plane = AxesPlane[planeIdx];
+  private createAngleToProjection<P extends keyof typeof PlaneAxes>(planeIdx: P) {
+    const plane = PlaneAxes[planeIdx];
     const planeNormal = plane.normal;
     const projectedVector = this.target.clone().projectOnPlane(planeNormal);
     const radius = projectedVector.distanceTo(this.origin) * 0.5;
@@ -98,42 +98,39 @@ export class VectorPlot extends Plot {
       false,
       0
     );
-
-    const material = new LineBasicMaterial({ color: 0x000000 });
+    
+    const material = new LineBasicMaterial(this.config.angle);
     const geometry = new BufferGeometry().setFromPoints(curve.getPoints(50));
     geometry.applyQuaternion(new Quaternion().setFromAxisAngle(UnitVector.j, -UnitVector.i.angleTo(projectedVector)));
 
     return new Line(geometry, material);
   }
 
-  private createProjection<P extends keyof typeof AxesPlane>(plane: P) {
-    const drawables = [];
+  private createProjection<P extends keyof typeof PlaneAxes>(plane: P): Line {
+    const { linetype, linestyle } = this.config[plane].projection;
 
-    const projectionConfig = this.config[plane].projection;
+    const lineMaterialType = linetype === "dashed" ? LineDashedMaterial : LineBasicMaterial;
+    const lineMaterial = new lineMaterialType(linestyle);
 
-    const lineMaterial = new LineDashedMaterial({
-      color: 0x000000,
-      linewidth: 1,
-      scale: 1,
-      dashSize: 0.25,
-      gapSize: 0.1,
-    });
-
-    const planeNormal = AxesPlane[plane].normal;
+    const planeNormal = PlaneAxes[plane].normal;
 
     const projectedVector = this.target.clone().projectOnPlane(planeNormal);
 
     const projectionGeometry = new BufferGeometry().setFromPoints([projectedVector, this.origin]);
 
-    const projectionLine = new Line(projectionGeometry, lineMaterial).computeLineDistances();
+    return new Line(projectionGeometry, lineMaterial).computeLineDistances();
+  }
 
+  private createComponent<P extends keyof typeof PlaneAxes>(plane: P): Line {
+    const { linetype, linestyle } = this.config[plane].component;
+    const lineMaterialType = linetype === "dashed" ? LineDashedMaterial : LineBasicMaterial;
+    const lineMaterial = new lineMaterialType(linestyle);
+    
+    const planeNormal = PlaneAxes[plane].normal;
+    const projectedVector = this.target.clone().projectOnPlane(planeNormal);
     const connectionGeometry = new BufferGeometry().setFromPoints([projectedVector, this.target]);
 
-    if (projectionConfig) {
-      drawables.push(projectionLine);
-    }
-
-    return [new Line(connectionGeometry, lineMaterial).computeLineDistances()];
+    return new Line(connectionGeometry, lineMaterial).computeLineDistances();
   }
 
   public getFrameable(): Object3D<Object3DEventMap>[] {
