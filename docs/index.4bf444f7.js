@@ -777,9 +777,9 @@ class VectorPlot extends (0, _plot.Plot) {
         for(const p in 0, _axes.PlaneAxes){
             const plane = p;
             const conf = this.config[plane];
-            if (conf?.projection) this.drawables.push(this.createProjection(plane));
-            if (conf?.component) this.drawables.push(this.createComponent(plane));
-            if (conf?.projectionAngle) this.drawables.push(this.createAngleToProjection(plane));
+            if (conf?.projection) this.drawables.push(this.createProjection(plane, conf.projection));
+            if (conf?.component) this.drawables.push(this.createComponent(plane, conf.component));
+            if (conf?.projectionAngle) this.drawables.push(this.createAngleToProjection(plane, conf.projectionAngle));
         }
         if (this.config.angle) this.drawables.push(this.createAngleToTarget("y"));
     }
@@ -787,7 +787,7 @@ class VectorPlot extends (0, _plot.Plot) {
         const length = Math.abs(origin.distanceTo(target));
         return new (0, _three.ArrowHelper)(target.clone().normalize(), origin, length, this.config.color, length * 0.2, length * 0.1);
     }
-    createAngleToProjection(planeIdx) {
+    createAngleToProjection(planeIdx, config) {
         const plane = (0, _axes.PlaneAxes)[planeIdx];
         const planeNormal = plane.normal;
         const projectedVector = this.target.clone().projectOnPlane(planeNormal);
@@ -803,9 +803,9 @@ class VectorPlot extends (0, _plot.Plot) {
             angleToProjection = projectedVector.angleTo((0, _axes.UnitVector).j);
         }
         const curve = new (0, _three.EllipseCurve)(this.origin.x, this.origin.y, radius, radius, 0, angleToProjection, false, initialRotation);
-        const material = new (0, _three.LineBasicMaterial)({
-            color: 0x000000
-        });
+        const { linetype, linestyle } = config;
+        const LineMaterialType = linetype === "dashed" ? (0, _three.LineDashedMaterial) : (0, _three.LineBasicMaterial);
+        const material = new LineMaterialType(linestyle);
         const geometry = new (0, _three.BufferGeometry)().setFromPoints(curve.getPoints(50));
         const rotation = new (0, _three.Quaternion)().setFromUnitVectors((0, _axes.UnitVector).k, plane.normal);
         geometry.applyQuaternion(rotation);
@@ -820,10 +820,10 @@ class VectorPlot extends (0, _plot.Plot) {
         geometry.applyQuaternion(new (0, _three.Quaternion)().setFromAxisAngle((0, _axes.UnitVector).j, -(0, _axes.UnitVector).i.angleTo(projectedVector)));
         return new (0, _three.Line)(geometry, material);
     }
-    createProjection(plane) {
-        const { linetype, linestyle } = this.config[plane].projection;
-        const lineMaterialType = linetype === "dashed" ? (0, _three.LineDashedMaterial) : (0, _three.LineBasicMaterial);
-        const lineMaterial = new lineMaterialType(linestyle);
+    createProjection(plane, config) {
+        const { linetype, linestyle } = config;
+        const LineMaterialType = linetype === "dashed" ? (0, _three.LineDashedMaterial) : (0, _three.LineBasicMaterial);
+        const lineMaterial = new LineMaterialType(linestyle);
         const planeNormal = (0, _axes.PlaneAxes)[plane].normal;
         const projectedVector = this.target.clone().projectOnPlane(planeNormal);
         const projectionGeometry = new (0, _three.BufferGeometry)().setFromPoints([
@@ -832,10 +832,10 @@ class VectorPlot extends (0, _plot.Plot) {
         ]);
         return new (0, _three.Line)(projectionGeometry, lineMaterial).computeLineDistances();
     }
-    createComponent(plane) {
-        const { linetype, linestyle } = this.config[plane].component;
-        const lineMaterialType = linetype === "dashed" ? (0, _three.LineDashedMaterial) : (0, _three.LineBasicMaterial);
-        const lineMaterial = new lineMaterialType(linestyle);
+    createComponent(plane, config) {
+        const { linetype, linestyle } = config;
+        const LineMaterialType = linetype === "dashed" ? (0, _three.LineDashedMaterial) : (0, _three.LineBasicMaterial);
+        const lineMaterial = new LineMaterialType(linestyle);
         const planeNormal = (0, _axes.PlaneAxes)[plane].normal;
         const projectedVector = this.target.clone().projectOnPlane(planeNormal);
         const connectionGeometry = new (0, _three.BufferGeometry)().setFromPoints([
@@ -854,14 +854,15 @@ var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "VectorPlotConfigurationParams", ()=>VectorPlotConfigurationParams);
 parcelHelpers.export(exports, "VectorPlotPlaneConfigParams", ()=>VectorPlotPlaneConfigParams);
+parcelHelpers.export(exports, "defaultDashedLine", ()=>defaultDashedLine);
 class VectorPlotConfigurationParams {
     constructor(config){
-        const { angle, color, xy, xz, yz } = config;
+        const { angle, color, xy, xz, yz } = config || {};
         this.setColorOrDefault(color);
         if (angle) this.setAngle(angle);
         if (xy) this.xy = new VectorPlotPlaneConfigParams(xy);
         if (xz) this.xz = new VectorPlotPlaneConfigParams(xz);
-        if (yz) this.xz = new VectorPlotPlaneConfigParams(yz);
+        if (yz) this.yz = new VectorPlotPlaneConfigParams(yz);
     }
     setColorOrDefault(colorHex) {
         colorHex = colorHex || 0x000000;

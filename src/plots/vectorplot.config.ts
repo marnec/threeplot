@@ -1,7 +1,7 @@
 import { LineBasicMaterialParameters, LineDashedMaterialParameters } from "three";
 import { PlaneAxes } from "../axes";
 
-type LineStyle =
+export type LineStyle =
   | {
       linetype: "dashed";
       linestyle: LineDashedMaterialParameters;
@@ -30,14 +30,14 @@ export class VectorPlotConfigurationParams implements VectorPlotConfiguration {
   xz?: VectorPlotPlaneConfigParams;
   yz?: VectorPlotPlaneConfigParams;
 
-  constructor(config: VectorPlotConfiguration) {
-    const { angle, color, xy, xz, yz } = config;
+  constructor(config: VectorPlotConfiguration | undefined) {
+    const { angle, color, xy, xz, yz } = config || {};
 
     this.setColorOrDefault(color);
     if (angle) this.setAngle(angle);
     if (xy) this.xy = new VectorPlotPlaneConfigParams(xy);
     if (xz) this.xz = new VectorPlotPlaneConfigParams(xz);
-    if (yz) this.xz = new VectorPlotPlaneConfigParams(yz);
+    if (yz) this.yz = new VectorPlotPlaneConfigParams(yz);
   }
 
   private setColorOrDefault(colorHex?: number) {
@@ -79,7 +79,7 @@ export class VectorPlotPlaneConfigParams implements VectorPlotPlaneConfig {
   }
 }
 
-const defaultDashedLine: LineStyle = {
+export const defaultDashedLine: LineStyle = {
   linetype: "dashed",
   linestyle: {
     color: 0x000000,
