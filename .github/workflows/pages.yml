@@ -26,10 +26,10 @@ jobs:
       - name: Run tests
         run: npm run test
 
-      - name: Deploy to GitHub Pages
-        uses: JamesIves/github-pages-deploy-action@v4.4.3
-        with:
-          target-folder: docs
-          token: ${{ secrets.TOKEN }}
-          branch: main
-          folder: docs 
+      # - name: Deploy to GitHub Pages
+      #   uses: JamesIves/github-pages-deploy-action@v4.4.3
+      #   with:
+      #     target-folder: docs
+      #     token: ${{ secrets.TOKEN }}
+      #     branch: main
+      #     folder: docs 

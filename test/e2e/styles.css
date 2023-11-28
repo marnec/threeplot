@@ -10,5 +10,5 @@ canvas {
 }
 
 .grid-item {
-    height: calc(40vw - 15px);
+    height: calc(35vw - 15px);
 }
