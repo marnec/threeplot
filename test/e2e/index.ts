@@ -12,7 +12,7 @@ const frame1 = new Frame(canvas1, 10);
 frame1.addPlot(scatterPlot);
 
 const frame2 = new Frame(canvas2, 10);
-frame2.addLabel(new Label(new Vector3(3, 3, 3), Greek.lowercaseAlpha, 1));
+frame2.addLabel(new Label(new Vector3(3, 3, 3), `${Greek.lowercaseAlpha}=1/2${Greek.lowercasePi}`, 1));
 
 const frame3 = new Frame(canvas3, 10);
 frame3.addPlot(new VectorPlot(new Vector3(0, 0, 0), new Vector3(2.3, 3.2, 4.1), { angle: true, xy: true }));

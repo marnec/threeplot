@@ -34,7 +34,7 @@ export class Frame extends Scene {
 
   private setCamera(width: number, height: number) {
     this.camera = new PerspectiveCamera(45, width / height, 0.1, 1000);
-    this.camera.position.set(this.size * 2, this.size * 2, this.size * 2);
+    this.camera.position.set(this.size * 1.5, this.size * 1.2, this.size * 2.5);
     this.scene.add(this.camera);
   }
 
