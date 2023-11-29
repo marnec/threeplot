@@ -2,7 +2,7 @@ import { Color, PerspectiveCamera, Scene, WebGLRenderer } from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { Axes } from "./axes";
 import { Plot } from "./plot";
-import { FallbackLabel, Label } from "./label";
+import { Label } from "./label";
 
 export class Frame extends Scene {
   protected scene: Scene;
@@ -73,10 +73,10 @@ export class Frame extends Scene {
     this.update();
   }
 
-  private async addFallbackLabel(text: FallbackLabel) {
-    this.scene.add(...text.getFrameable());
-    this.update();
-  }
+  // private async addFallbackLabel(text: FallbackLabel) {
+  //   this.scene.add(...text.getFrameable());
+  //   this.update();
+  // }
 
   public async addLabel(text: Label) {
     this.scene.add(...text.getFrameable());
