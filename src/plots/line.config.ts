@@ -14,6 +14,6 @@ export type LineStyle =
 
 
 export interface LineConfig {
-  line: LineStyle;
+  line?: LineStyle; 
   label?: LabelParameters;
 }

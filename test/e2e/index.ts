@@ -20,6 +20,6 @@ const frame3 = new Frame(canvas3, 10);
 frame3.addPlot(
   new VectorPlot(new Vector3(0, 0, 0), new Vector3(2.3, 3.2, 4.1), {
     angle: true,
-    xy: { projection: { line: { type: "dashed", style: { color: 0x000000 } }, label: { text: "a" } } },
+    xy: { projection: { label: { text: "a",  } } },
   })
 );

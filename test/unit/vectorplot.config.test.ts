@@ -121,4 +121,47 @@ describe("VectorPlotPlaneConfigParams", () => {
     expect(configParams.projectionAngle).toBeUndefined();
   });
 
+  it("should initialize integrate a partial configuration defining only the label with the line options", () => {
+    const partialConfig = { label: { text: "s" } };
+
+    const configParams = new VectorPlotPlaneConfigParams({
+      projection: partialConfig,
+      component: partialConfig,
+      projectionAngle: partialConfig,
+    });
+
+    expect(configParams.projection).toEqual({ ...defaultSecondaryLine, ...partialConfig });
+    expect(configParams.component).toEqual({ ...defaultSecondaryLine, ...partialConfig });
+    expect(configParams.projectionAngle).toEqual({ ...defaultSecondaryLine, ...partialConfig });
+  });
+
+  it("for a single component, should initialize a default line if only the label is defined ", () => {
+    const partialConfig = { label: { text: "s" } };
+
+    const configParams = new VectorPlotPlaneConfigParams({
+      projection: partialConfig,
+    });
+
+    expect(configParams.projection?.line).toEqual(defaultSecondaryLine.line);
+  });
+
+  it("for a single component, should initialize a default line if only the label is defined ", () => {
+    const partialConfig = { label: { text: "s" } };
+
+    const configParams = new VectorPlotPlaneConfigParams({
+      component: partialConfig,
+    });
+
+    expect(configParams.component?.line).toEqual(defaultSecondaryLine.line);
+  });
+
+  it("for a single component, should initialize a default line if only the label is defined ", () => {
+    const partialConfig = { label: { text: "s" } };
+
+    const configParams = new VectorPlotPlaneConfigParams({
+      projectionAngle: partialConfig,
+    });
+
+    expect(configParams.projectionAngle?.line).toEqual(defaultSecondaryLine.line);
+  });
 });

@@ -1,9 +1,10 @@
-import { LineBasicMaterialParameters } from "three";
+import { Line, LineBasicMaterialParameters } from "three";
 import { PlaneAxes } from "../axes";
 import { ConfigParams } from "./base.config";
-import { LineConfig } from "./line.config";
+import { LineConfig, LineStyle } from "./line.config";
+import { LabelParameters } from "../label";
 
-export const defaultSecondaryLine: LineConfig = {
+export const defaultSecondaryLine = {
   line: {
     type: "dashed",
     style: {
@@ -14,7 +15,7 @@ export const defaultSecondaryLine: LineConfig = {
       gapSize: 0.1,
     },
   },
-};
+} as const;
 
 interface VectorPlotPlaneConfig {
   projection?: LineConfig | boolean;
@@ -48,9 +49,9 @@ export class VectorPlotConfigurationParams extends ConfigParams implements Vecto
 }
 
 export class VectorPlotPlaneConfigParams extends ConfigParams implements VectorPlotPlaneConfig {
-  projection?: LineConfig;
-  component?: LineConfig;
-  projectionAngle?: LineConfig;
+  projection?: LineConfigParams;
+  component?: LineConfigParams;
+  projectionAngle?: LineConfigParams;
 
   constructor(plane: VectorPlotPlaneConfig | true) {
     super();
@@ -58,8 +59,23 @@ export class VectorPlotPlaneConfigParams extends ConfigParams implements VectorP
     plane = this.valueOrDefault(plane, { projection: true, component: true, projectionAngle: true });
     const { component, projection, projectionAngle } = plane;
 
-    if (projection) this.projection = this.valueOrDefault(projection, defaultSecondaryLine);
-    if (component) this.component = this.valueOrDefault(component, defaultSecondaryLine);
-    if (projectionAngle) this.projectionAngle = this.valueOrDefault(projectionAngle, defaultSecondaryLine);
+    if (projection) this.projection = new LineConfigParams(this.valueOrDefault(projection, defaultSecondaryLine));
+    if (component) this.component = new LineConfigParams(this.valueOrDefault(component, defaultSecondaryLine));
+    if (projectionAngle)
+      this.projectionAngle = new LineConfigParams(this.valueOrDefault(projectionAngle, defaultSecondaryLine));
+  }
+}
+
+type VectorPlotLineConfig = LineConfig & Required<Pick<LineConfig, "line">>;
+
+export class LineConfigParams extends ConfigParams implements VectorPlotLineConfig {
+  line: LineStyle;
+  label?: LabelParameters;
+
+  constructor({ line, label }: LineConfig) {
+    super();
+
+    this.line = line || defaultSecondaryLine.line;
+    this.label = label;
   }
 }

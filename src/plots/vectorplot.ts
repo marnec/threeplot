@@ -25,8 +25,6 @@ export class VectorPlot extends Plot {
 
     this.config = new VectorPlotConfigurationParams(config);
 
-    this.drawables = [];
-
     this.drawables.push(this.createVector(origin, target));
 
     for (const p in PlaneAxes) {
