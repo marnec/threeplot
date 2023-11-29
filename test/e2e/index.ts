@@ -19,7 +19,14 @@ frame2.addLabel(
 const frame3 = new Frame(canvas3, 10);
 frame3.addPlot(
   new VectorPlot(new Vector3(0, 0, 0), new Vector3(2.3, 3.2, 4.1), {
-    angle: true, 
-    xy: { projection: { label: { text: "a", anchorY: 'bottom', anchorX: 'left' } } },
+    angle: true,
+    xy: {
+      projection: { label: { text: "a", anchorY: "bottom", anchorX: "left" } },
+      projectionAngle: { label: { text: Greek.lowercasePhi } },
+    },
+    xz: {
+      projection: { label: { text: "b", anchorY: "bottom", anchorX: "center" } },
+      projectionAngle: { label: { text: Greek.lowercaseBeta, anchorX: 'right', anchorY: 'bottom' } },
+    }
   })
 );

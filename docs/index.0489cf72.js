@@ -599,6 +599,27 @@ frame3.addPlot(new (0, _index.VectorPlot)(new (0, _three.Vector3)(0, 0, 0), new 
                 anchorY: "bottom",
                 anchorX: "left"
             }
+        },
+        projectionAngle: {
+            label: {
+                text: (0, _index.Greek).lowercasePhi
+            }
+        }
+    },
+    xz: {
+        projection: {
+            label: {
+                text: "b",
+                anchorY: "bottom",
+                anchorX: "center"
+            }
+        },
+        projectionAngle: {
+            label: {
+                text: (0, _index.Greek).lowercaseBeta,
+                anchorX: "right",
+                anchorY: "bottom"
+            }
         }
     }
 }));
@@ -39279,8 +39300,9 @@ class VectorPlot extends plot_1.Plot {
                 this.drawables.push(component);
             }
             if (conf === null || conf === void 0 ? void 0 : conf.projectionAngle) {
-                const angleToProjection = this.createAngleToProjection(plane, conf.projectionAngle.line);
-                this.drawables.push(angleToProjection);
+                const projectionAngle = this.createAngleToProjection(plane, conf.projectionAngle.line);
+                if (conf.projectionAngle.label) this.writables.push(this.createLineLabel(projectionAngle, conf.projectionAngle.label));
+                this.drawables.push(projectionAngle);
             }
         }
         if (this.config.angle) this.drawables.push(this.createAngleToTarget("y"));

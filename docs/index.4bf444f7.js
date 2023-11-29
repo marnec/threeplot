@@ -793,8 +793,9 @@ class VectorPlot extends (0, _plot.Plot) {
                 this.drawables.push(component);
             }
             if (conf?.projectionAngle) {
-                const angleToProjection = this.createAngleToProjection(plane, conf.projectionAngle.line);
-                this.drawables.push(angleToProjection);
+                const projectionAngle = this.createAngleToProjection(plane, conf.projectionAngle.line);
+                if (conf.projectionAngle.label) this.writables.push(this.createLineLabel(projectionAngle, conf.projectionAngle.label));
+                this.drawables.push(projectionAngle);
             }
         }
         if (this.config.angle) this.drawables.push(this.createAngleToTarget("y"));
