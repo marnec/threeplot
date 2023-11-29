@@ -747,25 +747,7 @@ const getRandomPoints = (n = 100, scale = 10)=>{
 },{"three":"ktPTu","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"dyAII":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "Label", ()=>Label) // class FallbackLabel implements FramedObject {
- //   drawable: Mesh;
- //   constructor(private position: Vector3, private text: string, private size = 1, private color = 0x000000) {
- //     const geometry = new TextGeometry(this.text, {
- //       font: new Font(fontJson),
- //       size: this.size,
- //       height: 0.01,
- //       curveSegments: 25,
- //       bevelEnabled: false,
- //     });
- //     const material = new MeshBasicMaterial({ color: this.color });
- //     this.drawable = new Mesh(geometry, material);
- //     this.drawable.position.set(...this.position.toArray());
- //   }
- //   getDrawables(): Mesh[] {
- //     return [this.drawable];
- //   }
- // }
-;
+parcelHelpers.export(exports, "Label", ()=>Label);
 var _troikaThreeText = require("troika-three-text");
 class Label extends (0, _troikaThreeText.Text) {
     constructor(position, params){
@@ -785,7 +767,6 @@ class Label extends (0, _troikaThreeText.Text) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "VectorPlot", ()=>VectorPlot);
-var _radash = require("radash");
 var _three = require("three");
 var _axes = require("../axes");
 var _label = require("../label");
@@ -803,12 +784,12 @@ class VectorPlot extends (0, _plot.Plot) {
             const conf = this.config[plane];
             if (conf?.projection) {
                 const projection = this.createProjection(plane, conf.projection.line);
-                if (conf.projection.label) this.writables.push(this.createProjectionLabel(plane, projection, conf.projection.label));
+                if (conf.projection.label) this.writables.push(this.createLineLabel(projection, conf.projection.label));
                 this.drawables.push(projection);
             }
             if (conf?.component) {
                 const component = this.createComponent(plane, conf.component.line);
-                if (conf.component.label) this.writables.push(this.createComponentLabel(plane, component, conf.component.label));
+                if (conf.component.label) this.writables.push(this.createLineLabel(component, conf.component.label));
                 this.drawables.push(component);
             }
             if (conf?.projectionAngle) {
@@ -867,18 +848,11 @@ class VectorPlot extends (0, _plot.Plot) {
         ]);
         return new (0, _three.Line)(projectionGeometry, lineMaterial).computeLineDistances();
     }
-    createProjectionLabel(plane, projection, config) {
-        const vertices = (0, _radash.cluster)(new Array(...projection.geometry.attributes.position.array), 3).map((v)=>new (0, _three.Vector3)(...v));
-        // https://stackoverflow.com/questions/14211627/three-js-how-to-get-position-of-a-mesh
-        const p = new (0, _three.Vector3)();
+    createLineLabel(projection, config) {
         projection.geometry.computeBoundingBox();
         const bbox = projection.geometry.boundingBox;
-        p.subVectors(bbox.max, bbox.min);
-        p.multiplyScalar(0.5);
-        p.add(bbox.min);
-        const pos = p.applyMatrix4(projection.matrixWorld);
-        return new (0, _label.Label)(pos, {
-            text: config.text
+        return new (0, _label.Label)(bbox.max, {
+            ...config
         });
     }
     createComponent(plane, config) {
@@ -893,22 +867,9 @@ class VectorPlot extends (0, _plot.Plot) {
         ]);
         return new (0, _three.Line)(connectionGeometry, lineMaterial).computeLineDistances();
     }
-    createComponentLabel(plane, projection, config) {
-        // https://stackoverflow.com/questions/14211627/three-js-how-to-get-position-of-a-mesh
-        const p = new (0, _three.Vector3)();
-        projection.geometry.computeBoundingBox();
-        const bbox = projection.geometry.boundingBox;
-        p.subVectors(bbox.max, bbox.min);
-        p.multiplyScalar(0.5);
-        p.add(bbox.min);
-        const pos = p.applyMatrix4(projection.matrixWorld);
-        return new (0, _label.Label)(pos, {
-            text: "b"
-        });
-    }
 }
 
-},{"three":"ktPTu","../axes":"2EXQV","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","../plot":"hsxxN","./vectorplot.config":"2jQnK","radash":"c2UA1","../label":"dyAII"}],"hsxxN":[function(require,module,exports) {
+},{"three":"ktPTu","../axes":"2EXQV","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","../plot":"hsxxN","./vectorplot.config":"2jQnK","../label":"dyAII"}],"hsxxN":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "Plot", ()=>Plot);

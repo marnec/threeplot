@@ -1,8 +1,8 @@
-import { Line, LineBasicMaterialParameters } from "three";
+import { LineBasicMaterialParameters } from "three";
 import { PlaneAxes } from "../axes";
 import { ConfigParams } from "./base.config";
 import { LineConfig, LineStyle } from "./line.config";
-import { LabelParameters } from "../label";
+import { LabelProperties } from "../label";
 
 export const defaultSecondaryLine = {
   line: {
@@ -70,7 +70,7 @@ type VectorPlotLineConfig = LineConfig & Required<Pick<LineConfig, "line">>;
 
 export class LineConfigParams extends ConfigParams implements VectorPlotLineConfig {
   line: LineStyle;
-  label?: LabelParameters;
+  label?: LabelProperties;
 
   constructor({ line, label }: LineConfig) {
     super();
