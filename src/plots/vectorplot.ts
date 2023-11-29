@@ -1,22 +1,23 @@
+import { cluster } from "radash";
 import {
   ArrowHelper,
+  Box3,
   BufferGeometry,
   EllipseCurve,
   Line,
   LineBasicMaterial,
   LineDashedMaterial,
-  Object3D,
-  Object3DEventMap,
   Quaternion,
   Vector3,
 } from "three";
-import { Plot } from "../plot";
+import { Text } from "troika-three-text";
 import { PlaneAxes, UnitVector } from "../axes";
+import { Label, LabelParameters } from "../label";
+import { Plot } from "../plot";
+import { LineStyle } from "./line.config";
 import { VectorPlotConfiguration, VectorPlotConfigurationParams } from "./vectorplot.config";
-import { LineConfig, LineStyle } from "./line.config";
 
 export class VectorPlot extends Plot {
-  private drawables: (ArrowHelper | Line)[];
   private config: VectorPlotConfigurationParams;
 
   constructor(private origin: Vector3, private target: Vector3, config?: VectorPlotConfiguration) {
@@ -31,9 +32,27 @@ export class VectorPlot extends Plot {
     for (const p in PlaneAxes) {
       const plane = p as keyof typeof PlaneAxes;
       const conf = this.config[plane];
-      if (conf?.projection) this.drawables.push(this.createProjection(plane, conf.projection));
-      if (conf?.component) this.drawables.push(this.createComponent(plane, conf.component));
-      if (conf?.projectionAngle) this.drawables.push(this.createAngleToProjection(plane, conf.projectionAngle));
+
+      if (conf?.projection) {
+        const projection = this.createProjection(plane, conf.projection.line);
+        if (conf.projection.label) {
+          this.writables.push(this.createProjectionLabel(plane, projection, conf.projection.label));
+        }
+        this.drawables.push(projection);
+      }
+
+      if (conf?.component) {
+        const component = this.createComponent(plane, conf.component.line);
+        if (conf.component.label) {
+          this.writables.push(this.createComponentLabel(plane, component, conf.component.label));
+        }
+        this.drawables.push(component);
+      }
+
+      if (conf?.projectionAngle) {
+        const angleToProjection = this.createAngleToProjection(plane, conf.projectionAngle.line);
+        this.drawables.push(angleToProjection);
+      }
     }
     if (this.config.angle) this.drawables.push(this.createAngleToTarget("y"));
   }
@@ -44,7 +63,7 @@ export class VectorPlot extends Plot {
     return new ArrowHelper(target.clone().normalize(), origin, length, this.config.color, length * 0.2, length * 0.1);
   }
 
-  private createAngleToProjection<P extends keyof typeof PlaneAxes>(planeIdx: P, config: LineConfig) {
+  private createAngleToProjection<P extends keyof typeof PlaneAxes>(planeIdx: P, config: LineStyle) {
     const plane = PlaneAxes[planeIdx];
     const planeNormal = plane.normal;
     const projectedVector = this.target.clone().projectOnPlane(planeNormal);
@@ -74,7 +93,7 @@ export class VectorPlot extends Plot {
       initialRotation
     );
 
-    const { type: linetype, style: linestyle } = config.line;
+    const { type: linetype, style: linestyle } = config;
     const LineMaterialType = linetype === "dashed" ? LineDashedMaterial : LineBasicMaterial;
     const material = new LineMaterialType(linestyle);
     const geometry = new BufferGeometry().setFromPoints(curve.getPoints(50));
@@ -109,10 +128,11 @@ export class VectorPlot extends Plot {
     return new Line(geometry, material);
   }
 
-  private createProjection<P extends keyof typeof PlaneAxes>(plane: P, config: LineConfig): Line {
-    const { type: linetype, style: linestyle } = config.line;
+  private createProjection<P extends keyof typeof PlaneAxes>(plane: P, config: LineStyle): Line {
+    const { type: linetype, style: linestyle } = config;
 
     const LineMaterialType = linetype === "dashed" ? LineDashedMaterial : LineBasicMaterial;
+
     const lineMaterial = new LineMaterialType(linestyle);
 
     const planeNormal = PlaneAxes[plane].normal;
@@ -124,8 +144,31 @@ export class VectorPlot extends Plot {
     return new Line(projectionGeometry, lineMaterial).computeLineDistances();
   }
 
-  private createComponent<P extends keyof typeof PlaneAxes>(plane: P, config: LineConfig): Line {
-    const { type: linetype, style: linestyle } = config.line;
+  private createProjectionLabel<P extends keyof typeof PlaneAxes>(
+    plane: P,
+    projection: Line,
+    config: LabelParameters
+  ): Text {
+    const vertices = cluster(new Array(...projection.geometry.attributes.position.array), 3).map(
+      (v) => new Vector3(...v)
+    );
+
+    // https://stackoverflow.com/questions/14211627/three-js-how-to-get-position-of-a-mesh
+    const p = new Vector3();
+    projection.geometry.computeBoundingBox();
+    const bbox = projection.geometry.boundingBox as Box3;
+
+    p.subVectors(bbox.max, bbox.min);
+    p.multiplyScalar(0.5);
+    p.add(bbox.min);
+
+    const pos = p.applyMatrix4(projection.matrixWorld);
+
+    return new Label(pos, { text: config.text });
+  }
+
+  private createComponent<P extends keyof typeof PlaneAxes>(plane: P, config: LineStyle): Line {
+    const { type: linetype, style: linestyle } = config;
     const LineMaterialType = linetype === "dashed" ? LineDashedMaterial : LineBasicMaterial;
     const lineMaterial = new LineMaterialType(linestyle);
 
@@ -136,7 +179,22 @@ export class VectorPlot extends Plot {
     return new Line(connectionGeometry, lineMaterial).computeLineDistances();
   }
 
-  public getFrameable(): Object3D<Object3DEventMap>[] {
-    return this.drawables;
+  private createComponentLabel<P extends keyof typeof PlaneAxes>(
+    plane: P,
+    projection: Line,
+    config: LabelParameters
+  ): Text {
+    // https://stackoverflow.com/questions/14211627/three-js-how-to-get-position-of-a-mesh
+    const p = new Vector3();
+    projection.geometry.computeBoundingBox();
+    const bbox = projection.geometry.boundingBox as Box3;
+
+    p.subVectors(bbox.max, bbox.min);
+    p.multiplyScalar(0.5);
+    p.add(bbox.min);
+
+    const pos = p.applyMatrix4(projection.matrixWorld);
+
+    return new Label(pos, { text: "b" });
   }
 }

@@ -68,8 +68,10 @@ export class Frame extends Scene {
     const base64 = this.canvas.toDataURL("img/png");
   }
 
-  public addPlot(plot: Plot) {
-    this.scene.add(...plot.getFrameable());
+  public async addPlot(plot: Plot) {
+    this.scene.add(...plot.getDrawables());
+    plot.getWritables().forEach((l) => this.addLabel(l));
+
     this.update();
   }
 
@@ -78,12 +80,11 @@ export class Frame extends Scene {
   //   this.update();
   // }
 
-  public async addLabel(text: Label) {
-    this.scene.add(...text.getFrameable());
+  public addLabel(text: Label) {
+    this.scene.add(text);
 
-    text.text.addEventListener("synccomplete", () => {
+    text.addEventListener("synccomplete", () => {
       this.update();
     });
-
   }
 }
