@@ -12,7 +12,7 @@ import {
 } from "three";
 import { Text } from "troika-three-text";
 import { PlaneAxes, UnitVector } from "../axes";
-import { Label, LabelParameters } from "../label";
+import { Label, LabelProperties } from "../label";
 import { Plot } from "../plot";
 import { LineStyle } from "./line.config";
 import { VectorPlotConfiguration, VectorPlotConfigurationParams } from "./vectorplot.config";
@@ -25,8 +25,6 @@ export class VectorPlot extends Plot {
 
     this.config = new VectorPlotConfigurationParams(config);
 
-    this.drawables = [];
-
     this.drawables.push(this.createVector(origin, target));
 
     for (const p in PlaneAxes) {
@@ -36,7 +34,7 @@ export class VectorPlot extends Plot {
       if (conf?.projection) {
         const projection = this.createProjection(plane, conf.projection.line);
         if (conf.projection.label) {
-          this.writables.push(this.createProjectionLabel(plane, projection, conf.projection.label));
+          this.writables.push(this.createLineLabel(projection, conf.projection.label));
         }
         this.drawables.push(projection);
       }
@@ -44,14 +42,18 @@ export class VectorPlot extends Plot {
       if (conf?.component) {
         const component = this.createComponent(plane, conf.component.line);
         if (conf.component.label) {
-          this.writables.push(this.createComponentLabel(plane, component, conf.component.label));
+          this.writables.push(this.createLineLabel(component, conf.component.label));
         }
         this.drawables.push(component);
       }
 
       if (conf?.projectionAngle) {
-        const angleToProjection = this.createAngleToProjection(plane, conf.projectionAngle.line);
-        this.drawables.push(angleToProjection);
+        const projectionAngle = this.createAngleToProjection(plane, conf.projectionAngle.line);
+        if (conf.projectionAngle.label) {
+          this.writables.push(this.createLineLabel(projectionAngle, conf.projectionAngle.label));
+        }
+
+        this.drawables.push(projectionAngle);
       }
     }
     if (this.config.angle) this.drawables.push(this.createAngleToTarget("y"));
@@ -144,27 +146,12 @@ export class VectorPlot extends Plot {
     return new Line(projectionGeometry, lineMaterial).computeLineDistances();
   }
 
-  private createProjectionLabel<P extends keyof typeof PlaneAxes>(
-    plane: P,
-    projection: Line,
-    config: LabelParameters
-  ): Text {
-    const vertices = cluster(new Array(...projection.geometry.attributes.position.array), 3).map(
-      (v) => new Vector3(...v)
-    );
-
-    // https://stackoverflow.com/questions/14211627/three-js-how-to-get-position-of-a-mesh
-    const p = new Vector3();
+  private createLineLabel(projection: Line, config: LabelProperties): Text {
     projection.geometry.computeBoundingBox();
+
     const bbox = projection.geometry.boundingBox as Box3;
 
-    p.subVectors(bbox.max, bbox.min);
-    p.multiplyScalar(0.5);
-    p.add(bbox.min);
-
-    const pos = p.applyMatrix4(projection.matrixWorld);
-
-    return new Label(pos, { text: config.text });
+    return new Label(bbox.max, { ...config });
   }
 
   private createComponent<P extends keyof typeof PlaneAxes>(plane: P, config: LineStyle): Line {
@@ -177,24 +164,5 @@ export class VectorPlot extends Plot {
     const connectionGeometry = new BufferGeometry().setFromPoints([projectedVector, this.target]);
 
     return new Line(connectionGeometry, lineMaterial).computeLineDistances();
-  }
-
-  private createComponentLabel<P extends keyof typeof PlaneAxes>(
-    plane: P,
-    projection: Line,
-    config: LabelParameters
-  ): Text {
-    // https://stackoverflow.com/questions/14211627/three-js-how-to-get-position-of-a-mesh
-    const p = new Vector3();
-    projection.geometry.computeBoundingBox();
-    const bbox = projection.geometry.boundingBox as Box3;
-
-    p.subVectors(bbox.max, bbox.min);
-    p.multiplyScalar(0.5);
-    p.add(bbox.min);
-
-    const pos = p.applyMatrix4(projection.matrixWorld);
-
-    return new Label(pos, { text: "b" });
   }
 }

@@ -594,14 +594,31 @@ frame3.addPlot(new (0, _index.VectorPlot)(new (0, _three.Vector3)(0, 0, 0), new 
     angle: true,
     xy: {
         projection: {
-            line: {
-                type: "dashed",
-                style: {
-                    color: 0x000000
-                }
-            },
             label: {
-                text: "a"
+                text: "a",
+                anchorY: "bottom",
+                anchorX: "left"
+            }
+        },
+        projectionAngle: {
+            label: {
+                text: (0, _index.Greek).lowercasePhi
+            }
+        }
+    },
+    xz: {
+        projection: {
+            label: {
+                text: "b",
+                anchorY: "bottom",
+                anchorX: "center"
+            }
+        },
+        projectionAngle: {
+            label: {
+                text: (0, _index.Greek).lowercaseBeta,
+                anchorX: "right",
+                anchorY: "bottom"
             }
         }
     }
@@ -30827,7 +30844,7 @@ Object.defineProperty(exports, "getRandomPoints", {
     }
 });
 
-},{"215f7dd545fdf515":"aZCSM","e96aea7a50efa03d":"l2FBx","d7f95678130dc19f":"h9FVt","b9e0994b3b3b625e":"97qss","c777f63bd7f0095d":"cFD2Z","a61a1d76f8019ba0":"7Fxc8"}],"aZCSM":[function(require,module,exports) {
+},{"215f7dd545fdf515":"aZCSM","c777f63bd7f0095d":"cFD2Z","b9e0994b3b3b625e":"97qss","d7f95678130dc19f":"h9FVt","e96aea7a50efa03d":"l2FBx","a61a1d76f8019ba0":"7Fxc8"}],"aZCSM":[function(require,module,exports) {
 "use strict";
 Object.defineProperty(exports, "__esModule", {
     value: true
@@ -31722,1312 +31739,26 @@ class Axes {
 }
 exports.Axes = Axes;
 
-},{"7ed57e95efabdbea":"ktPTu"}],"l2FBx":[function(require,module,exports) {
+},{"7ed57e95efabdbea":"ktPTu"}],"cFD2Z":[function(require,module,exports) {
 "use strict";
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-exports.ScatterPlot = void 0;
-const three_1 = require("cad200b045fed7ff");
-const plot_1 = require("92af7b8a63346e44");
-class ScatterPlot extends plot_1.Plot {
-    constructor(points, pointRadius = 0.2){
-        super();
-        this.drawables = points.map((v)=>{
-            const geometry = new three_1.SphereGeometry(pointRadius);
-            const material = new three_1.MeshBasicMaterial({
-                color: 0x00ff00
-            });
-            const obj = new three_1.Mesh(geometry, material);
-            obj.position.set(v.x, v.y, v.z);
-            return obj;
-        });
+exports.getRandomPoints = void 0;
+const three_1 = require("d4c7f7327af123e8");
+const getRandomPoints = (n = 100, scale = 10)=>{
+    const points = [];
+    for(let index = 0; index < n; index++){
+        const x = Math.random() * scale;
+        const y = Math.random() * scale;
+        const z = Math.random() * scale;
+        points.push(new three_1.Vector3(x, y, z));
     }
-}
-exports.ScatterPlot = ScatterPlot;
+    return points;
+};
+exports.getRandomPoints = getRandomPoints;
 
-},{"cad200b045fed7ff":"ktPTu","92af7b8a63346e44":"huEe3"}],"huEe3":[function(require,module,exports) {
-"use strict";
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-exports.Plot = void 0;
-class Plot {
-    getDrawables() {
-        return this.drawables;
-    }
-    getWritables() {
-        return this.writables;
-    }
-    constructor(){
-        this.drawables = [];
-        this.writables = [];
-    }
-}
-exports.Plot = Plot;
-
-},{}],"h9FVt":[function(require,module,exports) {
-"use strict";
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-exports.VectorPlot = void 0;
-const radash_1 = require("3679f2c8e0f33dd2");
-const three_1 = require("9b906e1e658875f1");
-const axes_1 = require("4a9305d9f3430951");
-const label_1 = require("982a54a3217ea03b");
-const plot_1 = require("79ab2e2dd16040cd");
-const vectorplot_config_1 = require("d433448abd0df740");
-class VectorPlot extends plot_1.Plot {
-    constructor(origin, target, config){
-        super();
-        this.origin = origin;
-        this.target = target;
-        this.config = new vectorplot_config_1.VectorPlotConfigurationParams(config);
-        this.drawables = [];
-        this.drawables.push(this.createVector(origin, target));
-        for(const p in axes_1.PlaneAxes){
-            const plane = p;
-            const conf = this.config[plane];
-            if (conf === null || conf === void 0 ? void 0 : conf.projection) {
-                const projection = this.createProjection(plane, conf.projection.line);
-                if (conf.projection.label) this.writables.push(this.createProjectionLabel(plane, projection, conf.projection.label));
-                this.drawables.push(projection);
-            }
-            if (conf === null || conf === void 0 ? void 0 : conf.component) {
-                const component = this.createComponent(plane, conf.component.line);
-                if (conf.component.label) this.writables.push(this.createComponentLabel(plane, component, conf.component.label));
-                this.drawables.push(component);
-            }
-            if (conf === null || conf === void 0 ? void 0 : conf.projectionAngle) {
-                const angleToProjection = this.createAngleToProjection(plane, conf.projectionAngle.line);
-                this.drawables.push(angleToProjection);
-            }
-        }
-        if (this.config.angle) this.drawables.push(this.createAngleToTarget("y"));
-    }
-    createVector(origin, target) {
-        const length = Math.abs(origin.distanceTo(target));
-        return new three_1.ArrowHelper(target.clone().normalize(), origin, length, this.config.color, length * 0.2, length * 0.1);
-    }
-    createAngleToProjection(planeIdx, config) {
-        const plane = axes_1.PlaneAxes[planeIdx];
-        const planeNormal = plane.normal;
-        const projectedVector = this.target.clone().projectOnPlane(planeNormal);
-        const radius = projectedVector.distanceTo(this.origin) * 0.5;
-        let initialRotation = 0;
-        let angleToProjection = projectedVector.angleTo(axes_1.UnitVector.i);
-        if (planeIdx === "xz") {
-            initialRotation = -Math.PI / 2;
-            angleToProjection = projectedVector.angleTo(axes_1.UnitVector.k);
-        }
-        if (planeIdx === "yz") {
-            initialRotation = Math.PI / 2;
-            angleToProjection = projectedVector.angleTo(axes_1.UnitVector.j);
-        }
-        const curve = new three_1.EllipseCurve(this.origin.x, this.origin.y, radius, radius, 0, angleToProjection, false, initialRotation);
-        const { type: linetype, style: linestyle } = config;
-        const LineMaterialType = linetype === "dashed" ? three_1.LineDashedMaterial : three_1.LineBasicMaterial;
-        const material = new LineMaterialType(linestyle);
-        const geometry = new three_1.BufferGeometry().setFromPoints(curve.getPoints(50));
-        const rotation = new three_1.Quaternion().setFromUnitVectors(axes_1.UnitVector.k, plane.normal);
-        geometry.applyQuaternion(rotation);
-        return new three_1.Line(geometry, material);
-    }
-    createAngleToTarget(axis) {
-        const radius = this.target.clone().distanceTo(this.origin);
-        const projectedVector = this.target.clone().projectOnPlane(axes_1.UnitVector.j);
-        const curve = new three_1.EllipseCurve(this.origin.x, this.origin.y, radius, radius, 0, this.target.angleTo(projectedVector), false, 0);
-        const material = new three_1.LineBasicMaterial(this.config.angle);
-        const geometry = new three_1.BufferGeometry().setFromPoints(curve.getPoints(50));
-        geometry.applyQuaternion(new three_1.Quaternion().setFromAxisAngle(axes_1.UnitVector.j, -axes_1.UnitVector.i.angleTo(projectedVector)));
-        return new three_1.Line(geometry, material);
-    }
-    createProjection(plane, config) {
-        const { type: linetype, style: linestyle } = config;
-        const LineMaterialType = linetype === "dashed" ? three_1.LineDashedMaterial : three_1.LineBasicMaterial;
-        const lineMaterial = new LineMaterialType(linestyle);
-        const planeNormal = axes_1.PlaneAxes[plane].normal;
-        const projectedVector = this.target.clone().projectOnPlane(planeNormal);
-        const projectionGeometry = new three_1.BufferGeometry().setFromPoints([
-            projectedVector,
-            this.origin
-        ]);
-        return new three_1.Line(projectionGeometry, lineMaterial).computeLineDistances();
-    }
-    createProjectionLabel(plane, projection, config) {
-        const vertices = (0, radash_1.cluster)(new Array(...projection.geometry.attributes.position.array), 3).map((v)=>new three_1.Vector3(...v));
-        // https://stackoverflow.com/questions/14211627/three-js-how-to-get-position-of-a-mesh
-        const p = new three_1.Vector3();
-        projection.geometry.computeBoundingBox();
-        const bbox = projection.geometry.boundingBox;
-        p.subVectors(bbox.max, bbox.min);
-        p.multiplyScalar(0.5);
-        p.add(bbox.min);
-        const pos = p.applyMatrix4(projection.matrixWorld);
-        return new label_1.Label(pos, {
-            text: config.text
-        });
-    }
-    createComponent(plane, config) {
-        const { type: linetype, style: linestyle } = config;
-        const LineMaterialType = linetype === "dashed" ? three_1.LineDashedMaterial : three_1.LineBasicMaterial;
-        const lineMaterial = new LineMaterialType(linestyle);
-        const planeNormal = axes_1.PlaneAxes[plane].normal;
-        const projectedVector = this.target.clone().projectOnPlane(planeNormal);
-        const connectionGeometry = new three_1.BufferGeometry().setFromPoints([
-            projectedVector,
-            this.target
-        ]);
-        return new three_1.Line(connectionGeometry, lineMaterial).computeLineDistances();
-    }
-    createComponentLabel(plane, projection, config) {
-        // https://stackoverflow.com/questions/14211627/three-js-how-to-get-position-of-a-mesh
-        const p = new three_1.Vector3();
-        projection.geometry.computeBoundingBox();
-        const bbox = projection.geometry.boundingBox;
-        p.subVectors(bbox.max, bbox.min);
-        p.multiplyScalar(0.5);
-        p.add(bbox.min);
-        const pos = p.applyMatrix4(projection.matrixWorld);
-        return new label_1.Label(pos, {
-            text: "b"
-        });
-    }
-}
-exports.VectorPlot = VectorPlot;
-
-},{"9b906e1e658875f1":"ktPTu","79ab2e2dd16040cd":"huEe3","4a9305d9f3430951":"dL76P","d433448abd0df740":"83aZr","3679f2c8e0f33dd2":"c2UA1","982a54a3217ea03b":"97qss"}],"83aZr":[function(require,module,exports) {
-"use strict";
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-exports.VectorPlotPlaneConfigParams = exports.VectorPlotConfigurationParams = exports.defaultSecondaryLine = void 0;
-const base_config_1 = require("cedecb93afa1f123");
-exports.defaultSecondaryLine = {
-    line: {
-        type: "dashed",
-        style: {
-            color: 0x000000,
-            linewidth: 1,
-            scale: 1,
-            dashSize: 0.25,
-            gapSize: 0.1
-        }
-    }
-};
-class VectorPlotConfigurationParams extends base_config_1.ConfigParams {
-    constructor(config){
-        super();
-        const { angle, color, xy, xz, yz } = config || {};
-        this.color = color || 0x000000;
-        if (angle) this.angle = this.valueOrDefault(angle, {
-            color: 0x000000
-        });
-        if (xy) this.xy = new VectorPlotPlaneConfigParams(xy);
-        if (xz) this.xz = new VectorPlotPlaneConfigParams(xz);
-        if (yz) this.yz = new VectorPlotPlaneConfigParams(yz);
-    }
-}
-exports.VectorPlotConfigurationParams = VectorPlotConfigurationParams;
-class VectorPlotPlaneConfigParams extends base_config_1.ConfigParams {
-    constructor(plane){
-        super();
-        plane = this.valueOrDefault(plane, {
-            projection: true,
-            component: true,
-            projectionAngle: true
-        });
-        const { component, projection, projectionAngle } = plane;
-        if (projection) this.projection = this.valueOrDefault(projection, exports.defaultSecondaryLine);
-        if (component) this.component = this.valueOrDefault(component, exports.defaultSecondaryLine);
-        if (projectionAngle) this.projectionAngle = this.valueOrDefault(projectionAngle, exports.defaultSecondaryLine);
-    }
-}
-exports.VectorPlotPlaneConfigParams = VectorPlotPlaneConfigParams;
-
-},{"cedecb93afa1f123":"aDjE7"}],"aDjE7":[function(require,module,exports) {
-"use strict";
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-exports.ConfigParams = void 0;
-class ConfigParams {
-    valueOrDefault(value, defaultValue) {
-        return value === true ? defaultValue : value;
-    }
-}
-exports.ConfigParams = ConfigParams;
-
-},{}],"c2UA1":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "alphabetical", ()=>(0, _arrayMjs.alphabetical));
-parcelHelpers.export(exports, "boil", ()=>(0, _arrayMjs.boil));
-parcelHelpers.export(exports, "cluster", ()=>(0, _arrayMjs.cluster));
-parcelHelpers.export(exports, "counting", ()=>(0, _arrayMjs.counting));
-parcelHelpers.export(exports, "diff", ()=>(0, _arrayMjs.diff));
-parcelHelpers.export(exports, "first", ()=>(0, _arrayMjs.first));
-parcelHelpers.export(exports, "flat", ()=>(0, _arrayMjs.flat));
-parcelHelpers.export(exports, "fork", ()=>(0, _arrayMjs.fork));
-parcelHelpers.export(exports, "group", ()=>(0, _arrayMjs.group));
-parcelHelpers.export(exports, "intersects", ()=>(0, _arrayMjs.intersects));
-parcelHelpers.export(exports, "iterate", ()=>(0, _arrayMjs.iterate));
-parcelHelpers.export(exports, "last", ()=>(0, _arrayMjs.last));
-parcelHelpers.export(exports, "list", ()=>(0, _arrayMjs.list));
-parcelHelpers.export(exports, "max", ()=>(0, _arrayMjs.max));
-parcelHelpers.export(exports, "merge", ()=>(0, _arrayMjs.merge));
-parcelHelpers.export(exports, "min", ()=>(0, _arrayMjs.min));
-parcelHelpers.export(exports, "objectify", ()=>(0, _arrayMjs.objectify));
-parcelHelpers.export(exports, "range", ()=>(0, _arrayMjs.range));
-parcelHelpers.export(exports, "replace", ()=>(0, _arrayMjs.replace));
-parcelHelpers.export(exports, "replaceOrAppend", ()=>(0, _arrayMjs.replaceOrAppend));
-parcelHelpers.export(exports, "select", ()=>(0, _arrayMjs.select));
-parcelHelpers.export(exports, "shift", ()=>(0, _arrayMjs.shift));
-parcelHelpers.export(exports, "sift", ()=>(0, _arrayMjs.sift));
-parcelHelpers.export(exports, "sort", ()=>(0, _arrayMjs.sort));
-parcelHelpers.export(exports, "sum", ()=>(0, _arrayMjs.sum));
-parcelHelpers.export(exports, "toggle", ()=>(0, _arrayMjs.toggle));
-parcelHelpers.export(exports, "unique", ()=>(0, _arrayMjs.unique));
-parcelHelpers.export(exports, "zip", ()=>(0, _arrayMjs.zip));
-parcelHelpers.export(exports, "zipToObject", ()=>(0, _arrayMjs.zipToObject));
-parcelHelpers.export(exports, "all", ()=>(0, _asyncMjs.all));
-parcelHelpers.export(exports, "defer", ()=>(0, _asyncMjs.defer));
-parcelHelpers.export(exports, "guard", ()=>(0, _asyncMjs.guard));
-parcelHelpers.export(exports, "map", ()=>(0, _asyncMjs.map));
-parcelHelpers.export(exports, "parallel", ()=>(0, _asyncMjs.parallel));
-parcelHelpers.export(exports, "reduce", ()=>(0, _asyncMjs.reduce));
-parcelHelpers.export(exports, "retry", ()=>(0, _asyncMjs.retry));
-parcelHelpers.export(exports, "sleep", ()=>(0, _asyncMjs.sleep));
-parcelHelpers.export(exports, "try", ()=>(0, _asyncMjs.tryit));
-parcelHelpers.export(exports, "tryit", ()=>(0, _asyncMjs.tryit));
-parcelHelpers.export(exports, "callable", ()=>(0, _curryMjs.callable));
-parcelHelpers.export(exports, "chain", ()=>(0, _curryMjs.chain));
-parcelHelpers.export(exports, "compose", ()=>(0, _curryMjs.compose));
-parcelHelpers.export(exports, "debounce", ()=>(0, _curryMjs.debounce));
-parcelHelpers.export(exports, "memo", ()=>(0, _curryMjs.memo));
-parcelHelpers.export(exports, "partial", ()=>(0, _curryMjs.partial));
-parcelHelpers.export(exports, "partob", ()=>(0, _curryMjs.partob));
-parcelHelpers.export(exports, "proxied", ()=>(0, _curryMjs.proxied));
-parcelHelpers.export(exports, "throttle", ()=>(0, _curryMjs.throttle));
-parcelHelpers.export(exports, "toFloat", ()=>(0, _numberMjs.toFloat));
-parcelHelpers.export(exports, "toInt", ()=>(0, _numberMjs.toInt));
-parcelHelpers.export(exports, "assign", ()=>(0, _objectMjs.assign));
-parcelHelpers.export(exports, "clone", ()=>(0, _objectMjs.clone));
-parcelHelpers.export(exports, "construct", ()=>(0, _objectMjs.construct));
-parcelHelpers.export(exports, "crush", ()=>(0, _objectMjs.crush));
-parcelHelpers.export(exports, "get", ()=>(0, _objectMjs.get));
-parcelHelpers.export(exports, "invert", ()=>(0, _objectMjs.invert));
-parcelHelpers.export(exports, "keys", ()=>(0, _objectMjs.keys));
-parcelHelpers.export(exports, "listify", ()=>(0, _objectMjs.listify));
-parcelHelpers.export(exports, "lowerize", ()=>(0, _objectMjs.lowerize));
-parcelHelpers.export(exports, "mapEntries", ()=>(0, _objectMjs.mapEntries));
-parcelHelpers.export(exports, "mapKeys", ()=>(0, _objectMjs.mapKeys));
-parcelHelpers.export(exports, "mapValues", ()=>(0, _objectMjs.mapValues));
-parcelHelpers.export(exports, "omit", ()=>(0, _objectMjs.omit));
-parcelHelpers.export(exports, "pick", ()=>(0, _objectMjs.pick));
-parcelHelpers.export(exports, "set", ()=>(0, _objectMjs.set));
-parcelHelpers.export(exports, "shake", ()=>(0, _objectMjs.shake));
-parcelHelpers.export(exports, "upperize", ()=>(0, _objectMjs.upperize));
-parcelHelpers.export(exports, "draw", ()=>(0, _randomMjs.draw));
-parcelHelpers.export(exports, "random", ()=>(0, _randomMjs.random));
-parcelHelpers.export(exports, "shuffle", ()=>(0, _randomMjs.shuffle));
-parcelHelpers.export(exports, "uid", ()=>(0, _randomMjs.uid));
-parcelHelpers.export(exports, "series", ()=>(0, _seriesMjs.series));
-parcelHelpers.export(exports, "camel", ()=>(0, _stringMjs.camel));
-parcelHelpers.export(exports, "capitalize", ()=>(0, _stringMjs.capitalize));
-parcelHelpers.export(exports, "dash", ()=>(0, _stringMjs.dash));
-parcelHelpers.export(exports, "pascal", ()=>(0, _stringMjs.pascal));
-parcelHelpers.export(exports, "snake", ()=>(0, _stringMjs.snake));
-parcelHelpers.export(exports, "template", ()=>(0, _stringMjs.template));
-parcelHelpers.export(exports, "title", ()=>(0, _stringMjs.title));
-parcelHelpers.export(exports, "trim", ()=>(0, _stringMjs.trim));
-parcelHelpers.export(exports, "isArray", ()=>(0, _typedMjs.isArray));
-parcelHelpers.export(exports, "isDate", ()=>(0, _typedMjs.isDate));
-parcelHelpers.export(exports, "isEmpty", ()=>(0, _typedMjs.isEmpty));
-parcelHelpers.export(exports, "isEqual", ()=>(0, _typedMjs.isEqual));
-parcelHelpers.export(exports, "isFloat", ()=>(0, _typedMjs.isFloat));
-parcelHelpers.export(exports, "isFunction", ()=>(0, _typedMjs.isFunction));
-parcelHelpers.export(exports, "isInt", ()=>(0, _typedMjs.isInt));
-parcelHelpers.export(exports, "isNumber", ()=>(0, _typedMjs.isNumber));
-parcelHelpers.export(exports, "isObject", ()=>(0, _typedMjs.isObject));
-parcelHelpers.export(exports, "isPrimitive", ()=>(0, _typedMjs.isPrimitive));
-parcelHelpers.export(exports, "isPromise", ()=>(0, _typedMjs.isPromise));
-parcelHelpers.export(exports, "isString", ()=>(0, _typedMjs.isString));
-parcelHelpers.export(exports, "isSymbol", ()=>(0, _typedMjs.isSymbol));
-var _arrayMjs = require("./array.mjs");
-var _asyncMjs = require("./async.mjs");
-var _curryMjs = require("./curry.mjs");
-var _numberMjs = require("./number.mjs");
-var _objectMjs = require("./object.mjs");
-var _randomMjs = require("./random.mjs");
-var _seriesMjs = require("./series.mjs");
-var _stringMjs = require("./string.mjs");
-var _typedMjs = require("./typed.mjs");
-
-},{"./array.mjs":"3RRXn","./async.mjs":"ljGM8","./curry.mjs":"dO10c","./number.mjs":"b6PFb","./object.mjs":"5zYyO","./random.mjs":"phcgZ","./series.mjs":"fwJcn","./string.mjs":"5xrTo","./typed.mjs":"cevdx","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"3RRXn":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "alphabetical", ()=>alphabetical);
-parcelHelpers.export(exports, "boil", ()=>boil);
-parcelHelpers.export(exports, "cluster", ()=>cluster);
-parcelHelpers.export(exports, "counting", ()=>counting);
-parcelHelpers.export(exports, "diff", ()=>diff);
-parcelHelpers.export(exports, "first", ()=>first);
-parcelHelpers.export(exports, "flat", ()=>flat);
-parcelHelpers.export(exports, "fork", ()=>fork);
-parcelHelpers.export(exports, "group", ()=>group);
-parcelHelpers.export(exports, "intersects", ()=>intersects);
-parcelHelpers.export(exports, "iterate", ()=>iterate);
-parcelHelpers.export(exports, "last", ()=>last);
-parcelHelpers.export(exports, "list", ()=>list);
-parcelHelpers.export(exports, "max", ()=>max);
-parcelHelpers.export(exports, "merge", ()=>merge);
-parcelHelpers.export(exports, "min", ()=>min);
-parcelHelpers.export(exports, "objectify", ()=>objectify);
-parcelHelpers.export(exports, "range", ()=>range);
-parcelHelpers.export(exports, "replace", ()=>replace);
-parcelHelpers.export(exports, "replaceOrAppend", ()=>replaceOrAppend);
-parcelHelpers.export(exports, "select", ()=>select);
-parcelHelpers.export(exports, "shift", ()=>shift);
-parcelHelpers.export(exports, "sift", ()=>sift);
-parcelHelpers.export(exports, "sort", ()=>sort);
-parcelHelpers.export(exports, "sum", ()=>sum);
-parcelHelpers.export(exports, "toggle", ()=>toggle);
-parcelHelpers.export(exports, "unique", ()=>unique);
-parcelHelpers.export(exports, "zip", ()=>zip);
-parcelHelpers.export(exports, "zipToObject", ()=>zipToObject);
-var _typedMjs = require("./typed.mjs");
-const group = (array, getGroupId)=>{
-    return array.reduce((acc, item)=>{
-        const groupId = getGroupId(item);
-        if (!acc[groupId]) acc[groupId] = [];
-        acc[groupId].push(item);
-        return acc;
-    }, {});
-};
-function zip(...arrays) {
-    if (!arrays || !arrays.length) return [];
-    return new Array(Math.max(...arrays.map(({ length })=>length))).fill([]).map((_, idx)=>arrays.map((array)=>array[idx]));
-}
-function zipToObject(keys, values) {
-    if (!keys || !keys.length) return {};
-    const getValue = (0, _typedMjs.isFunction)(values) ? values : (0, _typedMjs.isArray)(values) ? (_k, i)=>values[i] : (_k, _i)=>values;
-    return keys.reduce((acc, key, idx)=>{
-        acc[key] = getValue(key, idx);
-        return acc;
-    }, {});
-}
-const boil = (array, compareFunc)=>{
-    if (!array || (array.length ?? 0) === 0) return null;
-    return array.reduce(compareFunc);
-};
-const sum = (array, fn)=>{
-    return (array || []).reduce((acc, item)=>acc + (fn ? fn(item) : item), 0);
-};
-const first = (array, defaultValue)=>{
-    return array?.length > 0 ? array[0] : defaultValue;
-};
-const last = (array, defaultValue)=>{
-    return array?.length > 0 ? array[array.length - 1] : defaultValue;
-};
-const sort = (array, getter, desc = false)=>{
-    if (!array) return [];
-    const asc = (a, b)=>getter(a) - getter(b);
-    const dsc = (a, b)=>getter(b) - getter(a);
-    return array.slice().sort(desc === true ? dsc : asc);
-};
-const alphabetical = (array, getter, dir = "asc")=>{
-    if (!array) return [];
-    const asc = (a, b)=>`${getter(a)}`.localeCompare(getter(b));
-    const dsc = (a, b)=>`${getter(b)}`.localeCompare(getter(a));
-    return array.slice().sort(dir === "desc" ? dsc : asc);
-};
-const counting = (list2, identity)=>{
-    if (!list2) return {};
-    return list2.reduce((acc, item)=>{
-        const id = identity(item);
-        acc[id] = (acc[id] ?? 0) + 1;
-        return acc;
-    }, {});
-};
-const replace = (list2, newItem, match)=>{
-    if (!list2) return [];
-    if (newItem === void 0) return [
-        ...list2
-    ];
-    for(let idx = 0; idx < list2.length; idx++){
-        const item = list2[idx];
-        if (match(item, idx)) return [
-            ...list2.slice(0, idx),
-            newItem,
-            ...list2.slice(idx + 1, list2.length)
-        ];
-    }
-    return [
-        ...list2
-    ];
-};
-const objectify = (array, getKey, getValue = (item)=>item)=>{
-    return array.reduce((acc, item)=>{
-        acc[getKey(item)] = getValue(item);
-        return acc;
-    }, {});
-};
-const select = (array, mapper, condition)=>{
-    if (!array) return [];
-    return array.reduce((acc, item, index)=>{
-        if (!condition(item, index)) return acc;
-        acc.push(mapper(item, index));
-        return acc;
-    }, []);
-};
-function max(array, getter) {
-    const get = getter ?? ((v)=>v);
-    return boil(array, (a, b)=>get(a) > get(b) ? a : b);
-}
-function min(array, getter) {
-    const get = getter ?? ((v)=>v);
-    return boil(array, (a, b)=>get(a) < get(b) ? a : b);
-}
-const cluster = (list2, size = 2)=>{
-    const clusterCount = Math.ceil(list2.length / size);
-    return new Array(clusterCount).fill(null).map((_c, i)=>{
-        return list2.slice(i * size, i * size + size);
-    });
-};
-const unique = (array, toKey)=>{
-    const valueMap = array.reduce((acc, item)=>{
-        const key = toKey ? toKey(item) : item;
-        if (acc[key]) return acc;
-        acc[key] = item;
-        return acc;
-    }, {});
-    return Object.values(valueMap);
-};
-function* range(startOrLength, end, valueOrMapper = (i)=>i, step = 1) {
-    const mapper = (0, _typedMjs.isFunction)(valueOrMapper) ? valueOrMapper : ()=>valueOrMapper;
-    const start = end ? startOrLength : 0;
-    const final = end ?? startOrLength;
-    for(let i = start; i <= final; i += step){
-        yield mapper(i);
-        if (i + step > final) break;
-    }
-}
-const list = (startOrLength, end, valueOrMapper, step)=>{
-    return Array.from(range(startOrLength, end, valueOrMapper, step));
-};
-const flat = (lists)=>{
-    return lists.reduce((acc, list2)=>{
-        acc.push(...list2);
-        return acc;
-    }, []);
-};
-const intersects = (listA, listB, identity)=>{
-    if (!listA || !listB) return false;
-    const ident = identity ?? ((x)=>x);
-    const dictB = listB.reduce((acc, item)=>{
-        acc[ident(item)] = true;
-        return acc;
-    }, {});
-    return listA.some((value)=>dictB[ident(value)]);
-};
-const fork = (list2, condition)=>{
-    if (!list2) return [
-        [],
-        []
-    ];
-    return list2.reduce((acc, item)=>{
-        const [a, b] = acc;
-        if (condition(item)) return [
-            [
-                ...a,
-                item
-            ],
-            b
-        ];
-        else return [
-            a,
-            [
-                ...b,
-                item
-            ]
-        ];
-    }, [
-        [],
-        []
-    ]);
-};
-const merge = (root, others, matcher)=>{
-    if (!others && !root) return [];
-    if (!others) return root;
-    if (!root) return [];
-    if (!matcher) return root;
-    return root.reduce((acc, r)=>{
-        const matched = others.find((o)=>matcher(r) === matcher(o));
-        if (matched) acc.push(matched);
-        else acc.push(r);
-        return acc;
-    }, []);
-};
-const replaceOrAppend = (list2, newItem, match)=>{
-    if (!list2 && !newItem) return [];
-    if (!newItem) return [
-        ...list2
-    ];
-    if (!list2) return [
-        newItem
-    ];
-    for(let idx = 0; idx < list2.length; idx++){
-        const item = list2[idx];
-        if (match(item, idx)) return [
-            ...list2.slice(0, idx),
-            newItem,
-            ...list2.slice(idx + 1, list2.length)
-        ];
-    }
-    return [
-        ...list2,
-        newItem
-    ];
-};
-const toggle = (list2, item, toKey, options)=>{
-    if (!list2 && !item) return [];
-    if (!list2) return [
-        item
-    ];
-    if (!item) return [
-        ...list2
-    ];
-    const matcher = toKey ? (x, idx)=>toKey(x, idx) === toKey(item, idx) : (x)=>x === item;
-    const existing = list2.find(matcher);
-    if (existing) return list2.filter((x, idx)=>!matcher(x, idx));
-    const strategy = options?.strategy ?? "append";
-    if (strategy === "append") return [
-        ...list2,
-        item
-    ];
-    return [
-        item,
-        ...list2
-    ];
-};
-const sift = (list2)=>{
-    return list2?.filter((x)=>!!x) ?? [];
-};
-const iterate = (count, func, initValue)=>{
-    let value = initValue;
-    for(let i = 1; i <= count; i++)value = func(value, i);
-    return value;
-};
-const diff = (root, other, identity = (t)=>t)=>{
-    if (!root?.length && !other?.length) return [];
-    if (root?.length === void 0) return [
-        ...other
-    ];
-    if (!other?.length) return [
-        ...root
-    ];
-    const bKeys = other.reduce((acc, item)=>{
-        acc[identity(item)] = true;
-        return acc;
-    }, {});
-    return root.filter((a)=>!bKeys[identity(a)]);
-};
-function shift(arr, n) {
-    if (arr.length === 0) return arr;
-    const shiftNumber = n % arr.length;
-    if (shiftNumber === 0) return arr;
-    return [
-        ...arr.slice(-shiftNumber, arr.length),
-        ...arr.slice(0, -shiftNumber)
-    ];
-}
-
-},{"./typed.mjs":"cevdx","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"cevdx":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "isArray", ()=>isArray);
-parcelHelpers.export(exports, "isDate", ()=>isDate);
-parcelHelpers.export(exports, "isEmpty", ()=>isEmpty);
-parcelHelpers.export(exports, "isEqual", ()=>isEqual);
-parcelHelpers.export(exports, "isFloat", ()=>isFloat);
-parcelHelpers.export(exports, "isFunction", ()=>isFunction);
-parcelHelpers.export(exports, "isInt", ()=>isInt);
-parcelHelpers.export(exports, "isNumber", ()=>isNumber);
-parcelHelpers.export(exports, "isObject", ()=>isObject);
-parcelHelpers.export(exports, "isPrimitive", ()=>isPrimitive);
-parcelHelpers.export(exports, "isPromise", ()=>isPromise);
-parcelHelpers.export(exports, "isString", ()=>isString);
-parcelHelpers.export(exports, "isSymbol", ()=>isSymbol);
-const isSymbol = (value)=>{
-    return !!value && value.constructor === Symbol;
-};
-const isArray = Array.isArray;
-const isObject = (value)=>{
-    return !!value && value.constructor === Object;
-};
-const isPrimitive = (value)=>{
-    return value === void 0 || value === null || typeof value !== "object" && typeof value !== "function";
-};
-const isFunction = (value)=>{
-    return !!(value && value.constructor && value.call && value.apply);
-};
-const isString = (value)=>{
-    return typeof value === "string" || value instanceof String;
-};
-const isInt = (value)=>{
-    return isNumber(value) && value % 1 === 0;
-};
-const isFloat = (value)=>{
-    return isNumber(value) && value % 1 !== 0;
-};
-const isNumber = (value)=>{
-    try {
-        return Number(value) === value;
-    } catch  {
-        return false;
-    }
-};
-const isDate = (value)=>{
-    return Object.prototype.toString.call(value) === "[object Date]";
-};
-const isPromise = (value)=>{
-    if (!value) return false;
-    if (!value.then) return false;
-    if (!isFunction(value.then)) return false;
-    return true;
-};
-const isEmpty = (value)=>{
-    if (value === true || value === false) return true;
-    if (value === null || value === void 0) return true;
-    if (isNumber(value)) return value === 0;
-    if (isDate(value)) return isNaN(value.getTime());
-    if (isFunction(value)) return false;
-    if (isSymbol(value)) return false;
-    const length = value.length;
-    if (isNumber(length)) return length === 0;
-    const size = value.size;
-    if (isNumber(size)) return size === 0;
-    const keys = Object.keys(value).length;
-    return keys === 0;
-};
-const isEqual = (x, y)=>{
-    if (Object.is(x, y)) return true;
-    if (x instanceof Date && y instanceof Date) return x.getTime() === y.getTime();
-    if (x instanceof RegExp && y instanceof RegExp) return x.toString() === y.toString();
-    if (typeof x !== "object" || x === null || typeof y !== "object" || y === null) return false;
-    const keysX = Reflect.ownKeys(x);
-    const keysY = Reflect.ownKeys(y);
-    if (keysX.length !== keysY.length) return false;
-    for(let i = 0; i < keysX.length; i++){
-        if (!Reflect.has(y, keysX[i])) return false;
-        if (!isEqual(x[keysX[i]], y[keysX[i]])) return false;
-    }
-    return true;
-};
-
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"ljGM8":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "AggregateError", ()=>AggregateError);
-parcelHelpers.export(exports, "all", ()=>all);
-parcelHelpers.export(exports, "defer", ()=>defer);
-parcelHelpers.export(exports, "guard", ()=>guard);
-parcelHelpers.export(exports, "map", ()=>map);
-parcelHelpers.export(exports, "parallel", ()=>parallel);
-parcelHelpers.export(exports, "reduce", ()=>reduce);
-parcelHelpers.export(exports, "retry", ()=>retry);
-parcelHelpers.export(exports, "sleep", ()=>sleep);
-parcelHelpers.export(exports, "tryit", ()=>tryit);
-var _arrayMjs = require("./array.mjs");
-var _typedMjs = require("./typed.mjs");
-const reduce = async (array, asyncReducer, initValue)=>{
-    const initProvided = initValue !== void 0;
-    if (!initProvided && array?.length < 1) throw new Error("Cannot reduce empty array with no init value");
-    const iter = initProvided ? array : array.slice(1);
-    let value = initProvided ? initValue : array[0];
-    for (const [i, item] of iter.entries())value = await asyncReducer(value, item, i);
-    return value;
-};
-const map = async (array, asyncMapFunc)=>{
-    if (!array) return [];
-    let result = [];
-    let index = 0;
-    for (const value of array){
-        const newValue = await asyncMapFunc(value, index++);
-        result.push(newValue);
-    }
-    return result;
-};
-const defer = async (func)=>{
-    const callbacks = [];
-    const register = (fn, options)=>callbacks.push({
-            fn,
-            rethrow: options?.rethrow ?? false
-        });
-    const [err, response] = await tryit(func)(register);
-    for (const { fn, rethrow } of callbacks){
-        const [rethrown] = await tryit(fn)(err);
-        if (rethrown && rethrow) throw rethrown;
-    }
-    if (err) throw err;
-    return response;
-};
-class AggregateError extends Error {
-    constructor(errors = []){
-        super();
-        const name = errors.find((e)=>e.name)?.name ?? "";
-        this.name = `AggregateError(${name}...)`;
-        this.message = `AggregateError with ${errors.length} errors`;
-        this.stack = errors.find((e)=>e.stack)?.stack ?? this.stack;
-        this.errors = errors;
-    }
-}
-const parallel = async (limit, array, func)=>{
-    const work = array.map((item, index)=>({
-            index,
-            item
-        }));
-    const processor = async (res)=>{
-        const results2 = [];
-        while(true){
-            const next = work.pop();
-            if (!next) return res(results2);
-            const [error, result] = await tryit(func)(next.item);
-            results2.push({
-                error,
-                result,
-                index: next.index
-            });
-        }
-    };
-    const queues = (0, _arrayMjs.list)(1, limit).map(()=>new Promise(processor));
-    const itemResults = await Promise.all(queues);
-    const [errors, results] = (0, _arrayMjs.fork)((0, _arrayMjs.sort)(itemResults.flat(), (r)=>r.index), (x)=>!!x.error);
-    if (errors.length > 0) throw new AggregateError(errors.map((error)=>error.error));
-    return results.map((r)=>r.result);
-};
-async function all(promises) {
-    const entries = (0, _typedMjs.isArray)(promises) ? promises.map((p)=>[
-            null,
-            p
-        ]) : Object.entries(promises);
-    const results = await Promise.all(entries.map(([key, value])=>value.then((result)=>({
-                result,
-                exc: null,
-                key
-            })).catch((exc)=>({
-                result: null,
-                exc,
-                key
-            }))));
-    const exceptions = results.filter((r)=>r.exc);
-    if (exceptions.length > 0) throw new AggregateError(exceptions.map((e)=>e.exc));
-    if ((0, _typedMjs.isArray)(promises)) return results.map((r)=>r.result);
-    return results.reduce((acc, item)=>({
-            ...acc,
-            [item.key]: item.result
-        }), {});
-}
-const retry = async (options, func)=>{
-    const times = options?.times ?? 3;
-    const delay = options?.delay;
-    const backoff = options?.backoff ?? null;
-    for (const i of (0, _arrayMjs.range)(1, times)){
-        const [err, result] = await tryit(func)((err2)=>{
-            throw {
-                _exited: err2
-            };
-        });
-        if (!err) return result;
-        if (err._exited) throw err._exited;
-        if (i === times) throw err;
-        if (delay) await sleep(delay);
-        if (backoff) await sleep(backoff(i));
-    }
-    return void 0;
-};
-const sleep = (milliseconds)=>{
-    return new Promise((res)=>setTimeout(res, milliseconds));
-};
-const tryit = (func)=>{
-    return (...args)=>{
-        try {
-            const result = func(...args);
-            if ((0, _typedMjs.isPromise)(result)) return result.then((value)=>[
-                    void 0,
-                    value
-                ]).catch((err)=>[
-                    err,
-                    void 0
-                ]);
-            return [
-                void 0,
-                result
-            ];
-        } catch (err) {
-            return [
-                err,
-                void 0
-            ];
-        }
-    };
-};
-const guard = (func, shouldGuard)=>{
-    const _guard = (err)=>{
-        if (shouldGuard && !shouldGuard(err)) throw err;
-        return void 0;
-    };
-    const isPromise2 = (result)=>result instanceof Promise;
-    try {
-        const result = func();
-        return isPromise2(result) ? result.catch(_guard) : result;
-    } catch (err) {
-        return _guard(err);
-    }
-};
-
-},{"./array.mjs":"3RRXn","./typed.mjs":"cevdx","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"dO10c":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "callable", ()=>callable);
-parcelHelpers.export(exports, "chain", ()=>chain);
-parcelHelpers.export(exports, "compose", ()=>compose);
-parcelHelpers.export(exports, "debounce", ()=>debounce);
-parcelHelpers.export(exports, "memo", ()=>memo);
-parcelHelpers.export(exports, "partial", ()=>partial);
-parcelHelpers.export(exports, "partob", ()=>partob);
-parcelHelpers.export(exports, "proxied", ()=>proxied);
-parcelHelpers.export(exports, "throttle", ()=>throttle);
-const chain = (...funcs)=>(...args)=>{
-        return funcs.slice(1).reduce((acc, fn)=>fn(acc), funcs[0](...args));
-    };
-const compose = (...funcs)=>{
-    return funcs.reverse().reduce((acc, fn)=>fn(acc));
-};
-const partial = (fn, ...args)=>{
-    return (...rest)=>fn(...args, ...rest);
-};
-const partob = (fn, argobj)=>{
-    return (restobj)=>fn({
-            ...argobj,
-            ...restobj
-        });
-};
-const proxied = (handler)=>{
-    return new Proxy({}, {
-        get: (target, propertyName)=>handler(propertyName)
-    });
-};
-const memoize = (cache, func, keyFunc, ttl)=>{
-    return function callWithMemo(...args) {
-        const key = keyFunc ? keyFunc(...args) : JSON.stringify({
-            args
-        });
-        const existing = cache[key];
-        if (existing !== void 0) {
-            if (!existing.exp) return existing.value;
-            if (existing.exp > new Date().getTime()) return existing.value;
-        }
-        const result = func(...args);
-        cache[key] = {
-            exp: ttl ? new Date().getTime() + ttl : null,
-            value: result
-        };
-        return result;
-    };
-};
-const memo = (func, options = {})=>{
-    return memoize({}, func, options.key ?? null, options.ttl ?? null);
-};
-const debounce = ({ delay }, func)=>{
-    let timer = void 0;
-    let active = true;
-    const debounced = (...args)=>{
-        if (active) {
-            clearTimeout(timer);
-            timer = setTimeout(()=>{
-                active && func(...args);
-                timer = void 0;
-            }, delay);
-        } else func(...args);
-    };
-    debounced.isPending = ()=>{
-        return timer !== void 0;
-    };
-    debounced.cancel = ()=>{
-        active = false;
-    };
-    debounced.flush = (...args)=>func(...args);
-    return debounced;
-};
-const throttle = ({ interval }, func)=>{
-    let ready = true;
-    let timer = void 0;
-    const throttled = (...args)=>{
-        if (!ready) return;
-        func(...args);
-        ready = false;
-        timer = setTimeout(()=>{
-            ready = true;
-            timer = void 0;
-        }, interval);
-    };
-    throttled.isThrottled = ()=>{
-        return timer !== void 0;
-    };
-    return throttled;
-};
-const callable = (obj, fn)=>{
-    const FUNC = ()=>{};
-    return new Proxy(Object.assign(FUNC, obj), {
-        get: (target, key)=>target[key],
-        set: (target, key, value)=>{
-            target[key] = value;
-            return true;
-        },
-        apply: (target, self, args)=>fn(Object.assign({}, target))(...args)
-    });
-};
-
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"b6PFb":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "toFloat", ()=>toFloat);
-parcelHelpers.export(exports, "toInt", ()=>toInt);
-const toFloat = (value, defaultValue)=>{
-    const def = defaultValue === void 0 ? 0 : defaultValue;
-    if (value === null || value === void 0) return def;
-    const result = parseFloat(value);
-    return isNaN(result) ? def : result;
-};
-const toInt = (value, defaultValue)=>{
-    const def = defaultValue === void 0 ? 0 : defaultValue;
-    if (value === null || value === void 0) return def;
-    const result = parseInt(value);
-    return isNaN(result) ? def : result;
-};
-
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"5zYyO":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "assign", ()=>assign);
-parcelHelpers.export(exports, "clone", ()=>clone);
-parcelHelpers.export(exports, "construct", ()=>construct);
-parcelHelpers.export(exports, "crush", ()=>crush);
-parcelHelpers.export(exports, "get", ()=>get);
-parcelHelpers.export(exports, "invert", ()=>invert);
-parcelHelpers.export(exports, "keys", ()=>keys);
-parcelHelpers.export(exports, "listify", ()=>listify);
-parcelHelpers.export(exports, "lowerize", ()=>lowerize);
-parcelHelpers.export(exports, "mapEntries", ()=>mapEntries);
-parcelHelpers.export(exports, "mapKeys", ()=>mapKeys);
-parcelHelpers.export(exports, "mapValues", ()=>mapValues);
-parcelHelpers.export(exports, "omit", ()=>omit);
-parcelHelpers.export(exports, "pick", ()=>pick);
-parcelHelpers.export(exports, "set", ()=>set);
-parcelHelpers.export(exports, "shake", ()=>shake);
-parcelHelpers.export(exports, "upperize", ()=>upperize);
-var _arrayMjs = require("./array.mjs");
-var _numberMjs = require("./number.mjs");
-var _typedMjs = require("./typed.mjs");
-const shake = (obj, filter = (x)=>x === void 0)=>{
-    if (!obj) return {};
-    const keys2 = Object.keys(obj);
-    return keys2.reduce((acc, key)=>{
-        if (filter(obj[key])) return acc;
-        else {
-            acc[key] = obj[key];
-            return acc;
-        }
-    }, {});
-};
-const mapKeys = (obj, mapFunc)=>{
-    const keys2 = Object.keys(obj);
-    return keys2.reduce((acc, key)=>{
-        acc[mapFunc(key, obj[key])] = obj[key];
-        return acc;
-    }, {});
-};
-const mapValues = (obj, mapFunc)=>{
-    const keys2 = Object.keys(obj);
-    return keys2.reduce((acc, key)=>{
-        acc[key] = mapFunc(obj[key], key);
-        return acc;
-    }, {});
-};
-const mapEntries = (obj, toEntry)=>{
-    if (!obj) return {};
-    return Object.entries(obj).reduce((acc, [key, value])=>{
-        const [newKey, newValue] = toEntry(key, value);
-        acc[newKey] = newValue;
-        return acc;
-    }, {});
-};
-const invert = (obj)=>{
-    if (!obj) return {};
-    const keys2 = Object.keys(obj);
-    return keys2.reduce((acc, key)=>{
-        acc[obj[key]] = key;
-        return acc;
-    }, {});
-};
-const lowerize = (obj)=>mapKeys(obj, (k)=>k.toLowerCase());
-const upperize = (obj)=>mapKeys(obj, (k)=>k.toUpperCase());
-const clone = (obj)=>{
-    if ((0, _typedMjs.isPrimitive)(obj)) return obj;
-    if (typeof obj === "function") return obj.bind({});
-    const newObj = new obj.constructor();
-    Object.getOwnPropertyNames(obj).forEach((prop)=>{
-        newObj[prop] = obj[prop];
-    });
-    return newObj;
-};
-const listify = (obj, toItem)=>{
-    if (!obj) return [];
-    const entries = Object.entries(obj);
-    if (entries.length === 0) return [];
-    return entries.reduce((acc, entry)=>{
-        acc.push(toItem(entry[0], entry[1]));
-        return acc;
-    }, []);
-};
-const pick = (obj, keys2)=>{
-    if (!obj) return {};
-    return keys2.reduce((acc, key)=>{
-        if (Object.prototype.hasOwnProperty.call(obj, key)) acc[key] = obj[key];
-        return acc;
-    }, {});
-};
-const omit = (obj, keys2)=>{
-    if (!obj) return {};
-    if (!keys2 || keys2.length === 0) return obj;
-    return keys2.reduce((acc, key)=>{
-        delete acc[key];
-        return acc;
-    }, {
-        ...obj
-    });
-};
-const get = (value, path, defaultValue)=>{
-    const segments = path.split(/[\.\[\]]/g);
-    let current = value;
-    for (const key of segments){
-        if (current === null) return defaultValue;
-        if (current === void 0) return defaultValue;
-        if (key.trim() === "") continue;
-        current = current[key];
-    }
-    if (current === void 0) return defaultValue;
-    return current;
-};
-const set = (initial, path, value)=>{
-    if (!initial) return {};
-    if (!path || value === void 0) return initial;
-    const segments = path.split(/[\.\[\]]/g).filter((x)=>!!x.trim());
-    const _set = (node)=>{
-        if (segments.length > 1) {
-            const key = segments.shift();
-            const nextIsNum = (0, _numberMjs.toInt)(segments[0], null) === null ? false : true;
-            node[key] = node[key] === void 0 ? nextIsNum ? [] : {} : node[key];
-            _set(node[key]);
-        } else node[segments[0]] = value;
-    };
-    const cloned = clone(initial);
-    _set(cloned);
-    return cloned;
-};
-const assign = (initial, override)=>{
-    if (!initial || !override) return initial ?? override ?? {};
-    return Object.entries({
-        ...initial,
-        ...override
-    }).reduce((acc, [key, value])=>{
-        return {
-            ...acc,
-            [key]: (()=>{
-                if ((0, _typedMjs.isObject)(initial[key])) return assign(initial[key], value);
-                return value;
-            })()
-        };
-    }, {});
-};
-const keys = (value)=>{
-    if (!value) return [];
-    const getKeys = (nested, paths)=>{
-        if ((0, _typedMjs.isObject)(nested)) return Object.entries(nested).flatMap(([k, v])=>getKeys(v, [
-                ...paths,
-                k
-            ]));
-        if ((0, _typedMjs.isArray)(nested)) return nested.flatMap((item, i)=>getKeys(item, [
-                ...paths,
-                `${i}`
-            ]));
-        return [
-            paths.join(".")
-        ];
-    };
-    return getKeys(value, []);
-};
-const crush = (value)=>{
-    if (!value) return {};
-    return (0, _arrayMjs.objectify)(keys(value), (k)=>k, (k)=>get(value, k));
-};
-const construct = (obj)=>{
-    if (!obj) return {};
-    return Object.keys(obj).reduce((acc, path)=>{
-        return set(acc, path, obj[path]);
-    }, {});
-};
-
-},{"./array.mjs":"3RRXn","./number.mjs":"b6PFb","./typed.mjs":"cevdx","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"phcgZ":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "draw", ()=>draw);
-parcelHelpers.export(exports, "random", ()=>random);
-parcelHelpers.export(exports, "shuffle", ()=>shuffle);
-parcelHelpers.export(exports, "uid", ()=>uid);
-var _arrayMjs = require("./array.mjs");
-const random = (min, max)=>{
-    return Math.floor(Math.random() * (max - min + 1) + min);
-};
-const draw = (array)=>{
-    const max = array.length;
-    if (max === 0) return null;
-    const index = random(0, max - 1);
-    return array[index];
-};
-const shuffle = (array)=>{
-    return array.map((a)=>({
-            rand: Math.random(),
-            value: a
-        })).sort((a, b)=>a.rand - b.rand).map((a)=>a.value);
-};
-const uid = (length, specials = "")=>{
-    const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789" + specials;
-    return (0, _arrayMjs.iterate)(length, (acc)=>{
-        return acc + characters.charAt(random(0, characters.length - 1));
-    }, "");
-};
-
-},{"./array.mjs":"3RRXn","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"fwJcn":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "series", ()=>series);
-var _arrayMjs = require("./array.mjs");
-const series = (items, toKey = (item)=>`${item}`)=>{
-    const { indexesByKey, itemsByIndex } = items.reduce((acc, item, idx)=>({
-            indexesByKey: {
-                ...acc.indexesByKey,
-                [toKey(item)]: idx
-            },
-            itemsByIndex: {
-                ...acc.itemsByIndex,
-                [idx]: item
-            }
-        }), {
-        indexesByKey: {},
-        itemsByIndex: {}
-    });
-    const min = (a, b)=>{
-        return indexesByKey[toKey(a)] < indexesByKey[toKey(b)] ? a : b;
-    };
-    const max = (a, b)=>{
-        return indexesByKey[toKey(a)] > indexesByKey[toKey(b)] ? a : b;
-    };
-    const first = ()=>{
-        return itemsByIndex[0];
-    };
-    const last = ()=>{
-        return itemsByIndex[items.length - 1];
-    };
-    const next = (current, defaultValue)=>{
-        return itemsByIndex[indexesByKey[toKey(current)] + 1] ?? defaultValue ?? first();
-    };
-    const previous = (current, defaultValue)=>{
-        return itemsByIndex[indexesByKey[toKey(current)] - 1] ?? defaultValue ?? last();
-    };
-    const spin = (current, num)=>{
-        if (num === 0) return current;
-        const abs = Math.abs(num);
-        const rel = abs > items.length ? abs % items.length : abs;
-        return (0, _arrayMjs.list)(0, rel - 1).reduce((acc)=>num > 0 ? next(acc) : previous(acc), current);
-    };
-    return {
-        min,
-        max,
-        first,
-        last,
-        next,
-        previous,
-        spin
-    };
-};
-
-},{"./array.mjs":"3RRXn","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"5xrTo":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "camel", ()=>camel);
-parcelHelpers.export(exports, "capitalize", ()=>capitalize);
-parcelHelpers.export(exports, "dash", ()=>dash);
-parcelHelpers.export(exports, "pascal", ()=>pascal);
-parcelHelpers.export(exports, "snake", ()=>snake);
-parcelHelpers.export(exports, "template", ()=>template);
-parcelHelpers.export(exports, "title", ()=>title);
-parcelHelpers.export(exports, "trim", ()=>trim);
-const capitalize = (str)=>{
-    if (!str || str.length === 0) return "";
-    const lower = str.toLowerCase();
-    return lower.substring(0, 1).toUpperCase() + lower.substring(1, lower.length);
-};
-const camel = (str)=>{
-    const parts = str?.replace(/([A-Z])+/g, capitalize)?.split(/(?=[A-Z])|[\.\-\s_]/).map((x)=>x.toLowerCase()) ?? [];
-    if (parts.length === 0) return "";
-    if (parts.length === 1) return parts[0];
-    return parts.reduce((acc, part)=>{
-        return `${acc}${part.charAt(0).toUpperCase()}${part.slice(1)}`;
-    });
-};
-const snake = (str, options)=>{
-    const parts = str?.replace(/([A-Z])+/g, capitalize).split(/(?=[A-Z])|[\.\-\s_]/).map((x)=>x.toLowerCase()) ?? [];
-    if (parts.length === 0) return "";
-    if (parts.length === 1) return parts[0];
-    const result = parts.reduce((acc, part)=>{
-        return `${acc}_${part.toLowerCase()}`;
-    });
-    return options?.splitOnNumber === false ? result : result.replace(/([A-Za-z]{1}[0-9]{1})/, (val)=>`${val[0]}_${val[1]}`);
-};
-const dash = (str)=>{
-    const parts = str?.replace(/([A-Z])+/g, capitalize)?.split(/(?=[A-Z])|[\.\-\s_]/).map((x)=>x.toLowerCase()) ?? [];
-    if (parts.length === 0) return "";
-    if (parts.length === 1) return parts[0];
-    return parts.reduce((acc, part)=>{
-        return `${acc}-${part.toLowerCase()}`;
-    });
-};
-const pascal = (str)=>{
-    const parts = str?.split(/[\.\-\s_]/).map((x)=>x.toLowerCase()) ?? [];
-    if (parts.length === 0) return "";
-    return parts.map((str2)=>str2.charAt(0).toUpperCase() + str2.slice(1)).join("");
-};
-const title = (str)=>{
-    if (!str) return "";
-    return str.split(/(?=[A-Z])|[\.\-\s_]/).map((s)=>s.trim()).filter((s)=>!!s).map((s)=>capitalize(s.toLowerCase())).join(" ");
-};
-const template = (str, data, regex = /\{\{(.+?)\}\}/g)=>{
-    return Array.from(str.matchAll(regex)).reduce((acc, match)=>{
-        return acc.replace(match[0], data[match[1]]);
-    }, str);
-};
-const trim = (str, charsToTrim = " ")=>{
-    if (!str) return "";
-    const toTrim = charsToTrim.replace(/[\W]{1}/g, "\\$&");
-    const regex = new RegExp(`^[${toTrim}]+|[${toTrim}]+$`, "g");
-    return str.replace(regex, "");
-};
-
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"97qss":[function(require,module,exports) {
+},{"d4c7f7327af123e8":"ktPTu"}],"97qss":[function(require,module,exports) {
 "use strict";
 Object.defineProperty(exports, "__esModule", {
     value: true
@@ -33047,24 +31778,7 @@ class Label extends troika_three_text_1.Text {
         this.color = params.color || 0x000000;
     }
 }
-exports.Label = Label; // class FallbackLabel implements FramedObject {
- //   drawable: Mesh;
- //   constructor(private position: Vector3, private text: string, private size = 1, private color = 0x000000) {
- //     const geometry = new TextGeometry(this.text, {
- //       font: new Font(fontJson),
- //       size: this.size,
- //       height: 0.01,
- //       curveSegments: 25,
- //       bevelEnabled: false,
- //     });
- //     const material = new MeshBasicMaterial({ color: this.color });
- //     this.drawable = new Mesh(geometry, material);
- //     this.drawable.position.set(...this.position.toArray());
- //   }
- //   getDrawables(): Mesh[] {
- //     return [this.drawable];
- //   }
- // }
+exports.Label = Label;
 
 },{"f50ad54fae26b8c0":"7YS8r"}],"7YS8r":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
@@ -40554,26 +39268,231 @@ const defaultBaseMaterial = /*#__PURE__*/ new (0, _three.MeshStandardMaterial)({
     }
 }
 
-},{"three":"ktPTu","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"cFD2Z":[function(require,module,exports) {
+},{"three":"ktPTu","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"h9FVt":[function(require,module,exports) {
 "use strict";
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-exports.getRandomPoints = void 0;
-const three_1 = require("d4c7f7327af123e8");
-const getRandomPoints = (n = 100, scale = 10)=>{
-    const points = [];
-    for(let index = 0; index < n; index++){
-        const x = Math.random() * scale;
-        const y = Math.random() * scale;
-        const z = Math.random() * scale;
-        points.push(new three_1.Vector3(x, y, z));
+exports.VectorPlot = void 0;
+const three_1 = require("9b906e1e658875f1");
+const axes_1 = require("4a9305d9f3430951");
+const label_1 = require("982a54a3217ea03b");
+const plot_1 = require("79ab2e2dd16040cd");
+const vectorplot_config_1 = require("d433448abd0df740");
+class VectorPlot extends plot_1.Plot {
+    constructor(origin, target, config){
+        super();
+        this.origin = origin;
+        this.target = target;
+        this.config = new vectorplot_config_1.VectorPlotConfigurationParams(config);
+        this.drawables.push(this.createVector(origin, target));
+        for(const p in axes_1.PlaneAxes){
+            const plane = p;
+            const conf = this.config[plane];
+            if (conf === null || conf === void 0 ? void 0 : conf.projection) {
+                const projection = this.createProjection(plane, conf.projection.line);
+                if (conf.projection.label) this.writables.push(this.createLineLabel(projection, conf.projection.label));
+                this.drawables.push(projection);
+            }
+            if (conf === null || conf === void 0 ? void 0 : conf.component) {
+                const component = this.createComponent(plane, conf.component.line);
+                if (conf.component.label) this.writables.push(this.createLineLabel(component, conf.component.label));
+                this.drawables.push(component);
+            }
+            if (conf === null || conf === void 0 ? void 0 : conf.projectionAngle) {
+                const projectionAngle = this.createAngleToProjection(plane, conf.projectionAngle.line);
+                if (conf.projectionAngle.label) this.writables.push(this.createLineLabel(projectionAngle, conf.projectionAngle.label));
+                this.drawables.push(projectionAngle);
+            }
+        }
+        if (this.config.angle) this.drawables.push(this.createAngleToTarget("y"));
     }
-    return points;
-};
-exports.getRandomPoints = getRandomPoints;
+    createVector(origin, target) {
+        const length = Math.abs(origin.distanceTo(target));
+        return new three_1.ArrowHelper(target.clone().normalize(), origin, length, this.config.color, length * 0.2, length * 0.1);
+    }
+    createAngleToProjection(planeIdx, config) {
+        const plane = axes_1.PlaneAxes[planeIdx];
+        const planeNormal = plane.normal;
+        const projectedVector = this.target.clone().projectOnPlane(planeNormal);
+        const radius = projectedVector.distanceTo(this.origin) * 0.5;
+        let initialRotation = 0;
+        let angleToProjection = projectedVector.angleTo(axes_1.UnitVector.i);
+        if (planeIdx === "xz") {
+            initialRotation = -Math.PI / 2;
+            angleToProjection = projectedVector.angleTo(axes_1.UnitVector.k);
+        }
+        if (planeIdx === "yz") {
+            initialRotation = Math.PI / 2;
+            angleToProjection = projectedVector.angleTo(axes_1.UnitVector.j);
+        }
+        const curve = new three_1.EllipseCurve(this.origin.x, this.origin.y, radius, radius, 0, angleToProjection, false, initialRotation);
+        const { type: linetype, style: linestyle } = config;
+        const LineMaterialType = linetype === "dashed" ? three_1.LineDashedMaterial : three_1.LineBasicMaterial;
+        const material = new LineMaterialType(linestyle);
+        const geometry = new three_1.BufferGeometry().setFromPoints(curve.getPoints(50));
+        const rotation = new three_1.Quaternion().setFromUnitVectors(axes_1.UnitVector.k, plane.normal);
+        geometry.applyQuaternion(rotation);
+        return new three_1.Line(geometry, material);
+    }
+    createAngleToTarget(axis) {
+        const radius = this.target.clone().distanceTo(this.origin);
+        const projectedVector = this.target.clone().projectOnPlane(axes_1.UnitVector.j);
+        const curve = new three_1.EllipseCurve(this.origin.x, this.origin.y, radius, radius, 0, this.target.angleTo(projectedVector), false, 0);
+        const material = new three_1.LineBasicMaterial(this.config.angle);
+        const geometry = new three_1.BufferGeometry().setFromPoints(curve.getPoints(50));
+        geometry.applyQuaternion(new three_1.Quaternion().setFromAxisAngle(axes_1.UnitVector.j, -axes_1.UnitVector.i.angleTo(projectedVector)));
+        return new three_1.Line(geometry, material);
+    }
+    createProjection(plane, config) {
+        const { type: linetype, style: linestyle } = config;
+        const LineMaterialType = linetype === "dashed" ? three_1.LineDashedMaterial : three_1.LineBasicMaterial;
+        const lineMaterial = new LineMaterialType(linestyle);
+        const planeNormal = axes_1.PlaneAxes[plane].normal;
+        const projectedVector = this.target.clone().projectOnPlane(planeNormal);
+        const projectionGeometry = new three_1.BufferGeometry().setFromPoints([
+            projectedVector,
+            this.origin
+        ]);
+        return new three_1.Line(projectionGeometry, lineMaterial).computeLineDistances();
+    }
+    createLineLabel(projection, config) {
+        projection.geometry.computeBoundingBox();
+        const bbox = projection.geometry.boundingBox;
+        return new label_1.Label(bbox.max, {
+            ...config
+        });
+    }
+    createComponent(plane, config) {
+        const { type: linetype, style: linestyle } = config;
+        const LineMaterialType = linetype === "dashed" ? three_1.LineDashedMaterial : three_1.LineBasicMaterial;
+        const lineMaterial = new LineMaterialType(linestyle);
+        const planeNormal = axes_1.PlaneAxes[plane].normal;
+        const projectedVector = this.target.clone().projectOnPlane(planeNormal);
+        const connectionGeometry = new three_1.BufferGeometry().setFromPoints([
+            projectedVector,
+            this.target
+        ]);
+        return new three_1.Line(connectionGeometry, lineMaterial).computeLineDistances();
+    }
+}
+exports.VectorPlot = VectorPlot;
 
-},{"d4c7f7327af123e8":"ktPTu"}],"7Fxc8":[function(require,module,exports) {
+},{"9b906e1e658875f1":"ktPTu","4a9305d9f3430951":"dL76P","79ab2e2dd16040cd":"huEe3","d433448abd0df740":"83aZr","982a54a3217ea03b":"97qss"}],"huEe3":[function(require,module,exports) {
+"use strict";
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.Plot = void 0;
+class Plot {
+    getDrawables() {
+        return this.drawables;
+    }
+    getWritables() {
+        return this.writables;
+    }
+    constructor(){
+        this.drawables = [];
+        this.writables = [];
+    }
+}
+exports.Plot = Plot;
+
+},{}],"83aZr":[function(require,module,exports) {
+"use strict";
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.LineConfigParams = exports.VectorPlotPlaneConfigParams = exports.VectorPlotConfigurationParams = exports.defaultSecondaryLine = void 0;
+const base_config_1 = require("cedecb93afa1f123");
+exports.defaultSecondaryLine = {
+    line: {
+        type: "dashed",
+        style: {
+            color: 0x000000,
+            linewidth: 1,
+            scale: 1,
+            dashSize: 0.25,
+            gapSize: 0.1
+        }
+    }
+};
+class VectorPlotConfigurationParams extends base_config_1.ConfigParams {
+    constructor(config){
+        super();
+        const { angle, color, xy, xz, yz } = config || {};
+        this.color = color || 0x000000;
+        if (angle) this.angle = this.valueOrDefault(angle, {
+            color: 0x000000
+        });
+        if (xy) this.xy = new VectorPlotPlaneConfigParams(xy);
+        if (xz) this.xz = new VectorPlotPlaneConfigParams(xz);
+        if (yz) this.yz = new VectorPlotPlaneConfigParams(yz);
+    }
+}
+exports.VectorPlotConfigurationParams = VectorPlotConfigurationParams;
+class VectorPlotPlaneConfigParams extends base_config_1.ConfigParams {
+    constructor(plane){
+        super();
+        plane = this.valueOrDefault(plane, {
+            projection: true,
+            component: true,
+            projectionAngle: true
+        });
+        const { component, projection, projectionAngle } = plane;
+        if (projection) this.projection = new LineConfigParams(this.valueOrDefault(projection, exports.defaultSecondaryLine));
+        if (component) this.component = new LineConfigParams(this.valueOrDefault(component, exports.defaultSecondaryLine));
+        if (projectionAngle) this.projectionAngle = new LineConfigParams(this.valueOrDefault(projectionAngle, exports.defaultSecondaryLine));
+    }
+}
+exports.VectorPlotPlaneConfigParams = VectorPlotPlaneConfigParams;
+class LineConfigParams extends base_config_1.ConfigParams {
+    constructor({ line, label }){
+        super();
+        this.line = line || exports.defaultSecondaryLine.line;
+        this.label = label;
+    }
+}
+exports.LineConfigParams = LineConfigParams;
+
+},{"cedecb93afa1f123":"aDjE7"}],"aDjE7":[function(require,module,exports) {
+"use strict";
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.ConfigParams = void 0;
+class ConfigParams {
+    valueOrDefault(value, defaultValue) {
+        return value === true ? defaultValue : value;
+    }
+}
+exports.ConfigParams = ConfigParams;
+
+},{}],"l2FBx":[function(require,module,exports) {
+"use strict";
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.ScatterPlot = void 0;
+const three_1 = require("cad200b045fed7ff");
+const plot_1 = require("92af7b8a63346e44");
+class ScatterPlot extends plot_1.Plot {
+    constructor(points, pointRadius = 0.2){
+        super();
+        this.drawables = points.map((v)=>{
+            const geometry = new three_1.SphereGeometry(pointRadius);
+            const material = new three_1.MeshBasicMaterial({
+                color: 0x00ff00
+            });
+            const obj = new three_1.Mesh(geometry, material);
+            obj.position.set(v.x, v.y, v.z);
+            return obj;
+        });
+    }
+}
+exports.ScatterPlot = ScatterPlot;
+
+},{"cad200b045fed7ff":"ktPTu","92af7b8a63346e44":"huEe3"}],"7Fxc8":[function(require,module,exports) {
 "use strict";
 Object.defineProperty(exports, "__esModule", {
     value: true

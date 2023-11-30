@@ -590,7 +590,7 @@ var _label = require("./label");
 var _glyph = require("./glyph");
 var _data = require("./data");
 
-},{"./frame":"bCL66","./plots/scatterplot":"kKQFI","./plots/vectorplot":"83AEn","./label":"dyAII","./data":"6C1am","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./glyph":"8wG4Z"}],"bCL66":[function(require,module,exports) {
+},{"./frame":"bCL66","./data":"6C1am","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./label":"dyAII","./plots/vectorplot":"83AEn","./plots/scatterplot":"kKQFI","./glyph":"8wG4Z"}],"bCL66":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "Frame", ()=>Frame);
@@ -728,49 +728,45 @@ class Axes {
     }
 }
 
-},{"three":"ktPTu","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"kKQFI":[function(require,module,exports) {
+},{"three":"ktPTu","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"6C1am":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "ScatterPlot", ()=>ScatterPlot);
+parcelHelpers.export(exports, "getRandomPoints", ()=>getRandomPoints);
 var _three = require("three");
-var _plot = require("../plot");
-class ScatterPlot extends (0, _plot.Plot) {
-    constructor(points, pointRadius = 0.2){
-        super();
-        this.drawables = points.map((v)=>{
-            const geometry = new (0, _three.SphereGeometry)(pointRadius);
-            const material = new (0, _three.MeshBasicMaterial)({
-                color: 0x00ff00
-            });
-            const obj = new (0, _three.Mesh)(geometry, material);
-            obj.position.set(v.x, v.y, v.z);
-            return obj;
-        });
+const getRandomPoints = (n = 100, scale = 10)=>{
+    const points = [];
+    for(let index = 0; index < n; index++){
+        const x = Math.random() * scale;
+        const y = Math.random() * scale;
+        const z = Math.random() * scale;
+        points.push(new (0, _three.Vector3)(x, y, z));
     }
-}
+    return points;
+};
 
-},{"three":"ktPTu","../plot":"hsxxN","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"hsxxN":[function(require,module,exports) {
+},{"three":"ktPTu","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"dyAII":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "Plot", ()=>Plot);
-class Plot {
-    getDrawables() {
-        return this.drawables;
-    }
-    getWritables() {
-        return this.writables;
-    }
-    constructor(){
-        this.drawables = [];
-        this.writables = [];
+parcelHelpers.export(exports, "Label", ()=>Label);
+var _troikaThreeText = require("troika-three-text");
+class Label extends (0, _troikaThreeText.Text) {
+    constructor(position, params){
+        super();
+        this.text = params.text;
+        this.fontSize = params.fontSize || 1;
+        this.position.x = position.x;
+        this.position.y = position.y;
+        this.position.z = position.z;
+        this.anchorX = params.anchorX || "center";
+        this.anchorY = params.anchorY || "middle";
+        this.color = params.color || 0x000000;
     }
 }
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"83AEn":[function(require,module,exports) {
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","troika-three-text":"7YS8r"}],"83AEn":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "VectorPlot", ()=>VectorPlot);
-var _radash = require("radash");
 var _three = require("three");
 var _axes = require("../axes");
 var _label = require("../label");
@@ -782,24 +778,24 @@ class VectorPlot extends (0, _plot.Plot) {
         this.origin = origin;
         this.target = target;
         this.config = new (0, _vectorplotConfig.VectorPlotConfigurationParams)(config);
-        this.drawables = [];
         this.drawables.push(this.createVector(origin, target));
         for(const p in 0, _axes.PlaneAxes){
             const plane = p;
             const conf = this.config[plane];
             if (conf?.projection) {
                 const projection = this.createProjection(plane, conf.projection.line);
-                if (conf.projection.label) this.writables.push(this.createProjectionLabel(plane, projection, conf.projection.label));
+                if (conf.projection.label) this.writables.push(this.createLineLabel(projection, conf.projection.label));
                 this.drawables.push(projection);
             }
             if (conf?.component) {
                 const component = this.createComponent(plane, conf.component.line);
-                if (conf.component.label) this.writables.push(this.createComponentLabel(plane, component, conf.component.label));
+                if (conf.component.label) this.writables.push(this.createLineLabel(component, conf.component.label));
                 this.drawables.push(component);
             }
             if (conf?.projectionAngle) {
-                const angleToProjection = this.createAngleToProjection(plane, conf.projectionAngle.line);
-                this.drawables.push(angleToProjection);
+                const projectionAngle = this.createAngleToProjection(plane, conf.projectionAngle.line);
+                if (conf.projectionAngle.label) this.writables.push(this.createLineLabel(projectionAngle, conf.projectionAngle.label));
+                this.drawables.push(projectionAngle);
             }
         }
         if (this.config.angle) this.drawables.push(this.createAngleToTarget("y"));
@@ -853,18 +849,11 @@ class VectorPlot extends (0, _plot.Plot) {
         ]);
         return new (0, _three.Line)(projectionGeometry, lineMaterial).computeLineDistances();
     }
-    createProjectionLabel(plane, projection, config) {
-        const vertices = (0, _radash.cluster)(new Array(...projection.geometry.attributes.position.array), 3).map((v)=>new (0, _three.Vector3)(...v));
-        // https://stackoverflow.com/questions/14211627/three-js-how-to-get-position-of-a-mesh
-        const p = new (0, _three.Vector3)();
+    createLineLabel(projection, config) {
         projection.geometry.computeBoundingBox();
         const bbox = projection.geometry.boundingBox;
-        p.subVectors(bbox.max, bbox.min);
-        p.multiplyScalar(0.5);
-        p.add(bbox.min);
-        const pos = p.applyMatrix4(projection.matrixWorld);
-        return new (0, _label.Label)(pos, {
-            text: config.text
+        return new (0, _label.Label)(bbox.max, {
+            ...config
         });
     }
     createComponent(plane, config) {
@@ -879,27 +868,32 @@ class VectorPlot extends (0, _plot.Plot) {
         ]);
         return new (0, _three.Line)(connectionGeometry, lineMaterial).computeLineDistances();
     }
-    createComponentLabel(plane, projection, config) {
-        // https://stackoverflow.com/questions/14211627/three-js-how-to-get-position-of-a-mesh
-        const p = new (0, _three.Vector3)();
-        projection.geometry.computeBoundingBox();
-        const bbox = projection.geometry.boundingBox;
-        p.subVectors(bbox.max, bbox.min);
-        p.multiplyScalar(0.5);
-        p.add(bbox.min);
-        const pos = p.applyMatrix4(projection.matrixWorld);
-        return new (0, _label.Label)(pos, {
-            text: "b"
-        });
+}
+
+},{"three":"ktPTu","../axes":"2EXQV","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","../plot":"hsxxN","./vectorplot.config":"2jQnK","../label":"dyAII"}],"hsxxN":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "Plot", ()=>Plot);
+class Plot {
+    getDrawables() {
+        return this.drawables;
+    }
+    getWritables() {
+        return this.writables;
+    }
+    constructor(){
+        this.drawables = [];
+        this.writables = [];
     }
 }
 
-},{"three":"ktPTu","../plot":"hsxxN","../axes":"2EXQV","./vectorplot.config":"2jQnK","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","radash":"c2UA1","../label":"dyAII"}],"2jQnK":[function(require,module,exports) {
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"2jQnK":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "defaultSecondaryLine", ()=>defaultSecondaryLine);
 parcelHelpers.export(exports, "VectorPlotConfigurationParams", ()=>VectorPlotConfigurationParams);
 parcelHelpers.export(exports, "VectorPlotPlaneConfigParams", ()=>VectorPlotPlaneConfigParams);
+parcelHelpers.export(exports, "LineConfigParams", ()=>LineConfigParams);
 var _baseConfig = require("./base.config");
 const defaultSecondaryLine = {
     line: {
@@ -935,9 +929,16 @@ class VectorPlotPlaneConfigParams extends (0, _baseConfig.ConfigParams) {
             projectionAngle: true
         });
         const { component, projection, projectionAngle } = plane;
-        if (projection) this.projection = this.valueOrDefault(projection, defaultSecondaryLine);
-        if (component) this.component = this.valueOrDefault(component, defaultSecondaryLine);
-        if (projectionAngle) this.projectionAngle = this.valueOrDefault(projectionAngle, defaultSecondaryLine);
+        if (projection) this.projection = new LineConfigParams(this.valueOrDefault(projection, defaultSecondaryLine));
+        if (component) this.component = new LineConfigParams(this.valueOrDefault(component, defaultSecondaryLine));
+        if (projectionAngle) this.projectionAngle = new LineConfigParams(this.valueOrDefault(projectionAngle, defaultSecondaryLine));
+    }
+}
+class LineConfigParams extends (0, _baseConfig.ConfigParams) {
+    constructor({ line, label }){
+        super();
+        this.line = line || defaultSecondaryLine.line;
+        this.label = label;
     }
 }
 
@@ -951,60 +952,28 @@ class ConfigParams {
     }
 }
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"dyAII":[function(require,module,exports) {
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"kKQFI":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "Label", ()=>Label) // class FallbackLabel implements FramedObject {
- //   drawable: Mesh;
- //   constructor(private position: Vector3, private text: string, private size = 1, private color = 0x000000) {
- //     const geometry = new TextGeometry(this.text, {
- //       font: new Font(fontJson),
- //       size: this.size,
- //       height: 0.01,
- //       curveSegments: 25,
- //       bevelEnabled: false,
- //     });
- //     const material = new MeshBasicMaterial({ color: this.color });
- //     this.drawable = new Mesh(geometry, material);
- //     this.drawable.position.set(...this.position.toArray());
- //   }
- //   getDrawables(): Mesh[] {
- //     return [this.drawable];
- //   }
- // }
-;
-var _troikaThreeText = require("troika-three-text");
-class Label extends (0, _troikaThreeText.Text) {
-    constructor(position, params){
+parcelHelpers.export(exports, "ScatterPlot", ()=>ScatterPlot);
+var _three = require("three");
+var _plot = require("../plot");
+class ScatterPlot extends (0, _plot.Plot) {
+    constructor(points, pointRadius = 0.2){
         super();
-        this.text = params.text;
-        this.fontSize = params.fontSize || 1;
-        this.position.x = position.x;
-        this.position.y = position.y;
-        this.position.z = position.z;
-        this.anchorX = params.anchorX || "center";
-        this.anchorY = params.anchorY || "middle";
-        this.color = params.color || 0x000000;
+        this.drawables = points.map((v)=>{
+            const geometry = new (0, _three.SphereGeometry)(pointRadius);
+            const material = new (0, _three.MeshBasicMaterial)({
+                color: 0x00ff00
+            });
+            const obj = new (0, _three.Mesh)(geometry, material);
+            obj.position.set(v.x, v.y, v.z);
+            return obj;
+        });
     }
 }
 
-},{"troika-three-text":"7YS8r","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"6C1am":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "getRandomPoints", ()=>getRandomPoints);
-var _three = require("three");
-const getRandomPoints = (n = 100, scale = 10)=>{
-    const points = [];
-    for(let index = 0; index < n; index++){
-        const x = Math.random() * scale;
-        const y = Math.random() * scale;
-        const z = Math.random() * scale;
-        points.push(new (0, _three.Vector3)(x, y, z));
-    }
-    return points;
-};
-
-},{"three":"ktPTu","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"8wG4Z":[function(require,module,exports) {
+},{"three":"ktPTu","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","../plot":"hsxxN"}],"8wG4Z":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "Greek", ()=>Greek);
