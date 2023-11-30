@@ -590,7 +590,7 @@ var _label = require("./label");
 var _glyph = require("./glyph");
 var _data = require("./data");
 
-},{"./frame":"bCL66","./data":"6C1am","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./label":"dyAII","./plots/vectorplot":"83AEn","./plots/scatterplot":"kKQFI","./glyph":"8wG4Z"}],"bCL66":[function(require,module,exports) {
+},{"./frame":"bCL66","./plots/scatterplot":"kKQFI","./plots/vectorplot":"83AEn","./label":"dyAII","./data":"6C1am","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./glyph":"8wG4Z"}],"bCL66":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "Frame", ()=>Frame);
@@ -651,10 +651,6 @@ class Frame extends (0, _three.Scene) {
         plot.getWritables().forEach((l)=>this.addLabel(l));
         this.update();
     }
-    // private async addFallbackLabel(text: FallbackLabel) {
-    //   this.scene.add(...text.getFrameable());
-    //   this.update();
-    // }
     addLabel(text) {
         this.scene.add(text);
         text.addEventListener("synccomplete", ()=>{
@@ -728,42 +724,45 @@ class Axes {
     }
 }
 
-},{"three":"ktPTu","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"6C1am":[function(require,module,exports) {
+},{"three":"ktPTu","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"kKQFI":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "getRandomPoints", ()=>getRandomPoints);
+parcelHelpers.export(exports, "ScatterPlot", ()=>ScatterPlot);
 var _three = require("three");
-const getRandomPoints = (n = 100, scale = 10)=>{
-    const points = [];
-    for(let index = 0; index < n; index++){
-        const x = Math.random() * scale;
-        const y = Math.random() * scale;
-        const z = Math.random() * scale;
-        points.push(new (0, _three.Vector3)(x, y, z));
-    }
-    return points;
-};
-
-},{"three":"ktPTu","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"dyAII":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "Label", ()=>Label);
-var _troikaThreeText = require("troika-three-text");
-class Label extends (0, _troikaThreeText.Text) {
-    constructor(position, params){
+var _plot = require("../plot");
+class ScatterPlot extends (0, _plot.Plot) {
+    constructor(points, pointRadius = 0.2){
         super();
-        this.text = params.text;
-        this.fontSize = params.fontSize || 1;
-        this.position.x = position.x;
-        this.position.y = position.y;
-        this.position.z = position.z;
-        this.anchorX = params.anchorX || "center";
-        this.anchorY = params.anchorY || "middle";
-        this.color = params.color || 0x000000;
+        this.drawables = points.map((v)=>{
+            const geometry = new (0, _three.SphereGeometry)(pointRadius);
+            const material = new (0, _three.MeshBasicMaterial)({
+                color: 0x00ff00
+            });
+            const obj = new (0, _three.Mesh)(geometry, material);
+            obj.position.set(v.x, v.y, v.z);
+            return obj;
+        });
     }
 }
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","troika-three-text":"7YS8r"}],"83AEn":[function(require,module,exports) {
+},{"three":"ktPTu","../plot":"hsxxN","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"hsxxN":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "Plot", ()=>Plot);
+class Plot {
+    getDrawables() {
+        return this.drawables;
+    }
+    getWritables() {
+        return this.writables;
+    }
+    constructor(){
+        this.drawables = [];
+        this.writables = [];
+    }
+}
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"83AEn":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "VectorPlot", ()=>VectorPlot);
@@ -771,13 +770,13 @@ var _three = require("three");
 var _axes = require("../axes");
 var _label = require("../label");
 var _plot = require("../plot");
-var _vectorplotConfig = require("./vectorplot.config");
+var _vectorplotParams = require("./vectorplot.params");
 class VectorPlot extends (0, _plot.Plot) {
     constructor(origin, target, config){
         super();
         this.origin = origin;
         this.target = target;
-        this.config = new (0, _vectorplotConfig.VectorPlotConfigurationParams)(config);
+        this.config = new (0, _vectorplotParams.VectorPlotConfigurationParams)(config);
         this.drawables.push(this.createVector(origin, target));
         for(const p in 0, _axes.PlaneAxes){
             const plane = p;
@@ -798,7 +797,7 @@ class VectorPlot extends (0, _plot.Plot) {
                 this.drawables.push(projectionAngle);
             }
         }
-        if (this.config.angle) this.drawables.push(this.createAngleToTarget("y"));
+        if (this.config?.angle) this.drawables.push(this.createAngleToTarget("y", this.config?.angle?.line));
     }
     createVector(origin, target) {
         const length = Math.abs(origin.distanceTo(target));
@@ -828,11 +827,13 @@ class VectorPlot extends (0, _plot.Plot) {
         geometry.applyQuaternion(rotation);
         return new (0, _three.Line)(geometry, material);
     }
-    createAngleToTarget(axis) {
+    createAngleToTarget(axis, config) {
         const radius = this.target.clone().distanceTo(this.origin);
         const projectedVector = this.target.clone().projectOnPlane((0, _axes.UnitVector).j);
         const curve = new (0, _three.EllipseCurve)(this.origin.x, this.origin.y, radius, radius, 0, this.target.angleTo(projectedVector), false, 0);
-        const material = new (0, _three.LineBasicMaterial)(this.config.angle);
+        const { type: linetype, style: linestyle } = config;
+        const LineMaterialType = linetype === "dashed" ? (0, _three.LineDashedMaterial) : (0, _three.LineBasicMaterial);
+        const material = new LineMaterialType(linestyle);
         const geometry = new (0, _three.BufferGeometry)().setFromPoints(curve.getPoints(50));
         geometry.applyQuaternion(new (0, _three.Quaternion)().setFromAxisAngle((0, _axes.UnitVector).j, -(0, _axes.UnitVector).i.angleTo(projectedVector)));
         return new (0, _three.Line)(geometry, material);
@@ -870,51 +871,39 @@ class VectorPlot extends (0, _plot.Plot) {
     }
 }
 
-},{"three":"ktPTu","../axes":"2EXQV","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","../plot":"hsxxN","./vectorplot.config":"2jQnK","../label":"dyAII"}],"hsxxN":[function(require,module,exports) {
+},{"three":"ktPTu","../plot":"hsxxN","../axes":"2EXQV","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","../label":"dyAII","./vectorplot.params":"k6R4q"}],"dyAII":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "Plot", ()=>Plot);
-class Plot {
-    getDrawables() {
-        return this.drawables;
-    }
-    getWritables() {
-        return this.writables;
-    }
-    constructor(){
-        this.drawables = [];
-        this.writables = [];
+parcelHelpers.export(exports, "Label", ()=>Label);
+var _troikaThreeText = require("troika-three-text");
+class Label extends (0, _troikaThreeText.Text) {
+    constructor(position, params){
+        super();
+        this.text = params.text;
+        this.fontSize = params.fontSize || 1;
+        this.position.x = position.x;
+        this.position.y = position.y;
+        this.position.z = position.z;
+        this.anchorX = params.anchorX || "center";
+        this.anchorY = params.anchorY || "middle";
+        this.color = params.color || 0x000000;
     }
 }
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"2jQnK":[function(require,module,exports) {
+},{"troika-three-text":"7YS8r","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"k6R4q":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "defaultSecondaryLine", ()=>defaultSecondaryLine);
 parcelHelpers.export(exports, "VectorPlotConfigurationParams", ()=>VectorPlotConfigurationParams);
 parcelHelpers.export(exports, "VectorPlotPlaneConfigParams", ()=>VectorPlotPlaneConfigParams);
 parcelHelpers.export(exports, "LineConfigParams", ()=>LineConfigParams);
 var _baseConfig = require("./base.config");
-const defaultSecondaryLine = {
-    line: {
-        type: "dashed",
-        style: {
-            color: 0x000000,
-            linewidth: 1,
-            scale: 1,
-            dashSize: 0.25,
-            gapSize: 0.1
-        }
-    }
-};
+var _vectorplotConfig = require("./vectorplot.config");
 class VectorPlotConfigurationParams extends (0, _baseConfig.ConfigParams) {
     constructor(config){
         super();
         const { angle, color, xy, xz, yz } = config || {};
         this.color = color || 0x000000;
-        if (angle) this.angle = this.valueOrDefault(angle, {
-            color: 0x000000
-        });
+        if (angle) this.angle = new LineConfigParams(this.valueOrDefault(angle, (0, _vectorplotConfig.defaultPrimaryLine)));
         if (xy) this.xy = new VectorPlotPlaneConfigParams(xy);
         if (xz) this.xz = new VectorPlotPlaneConfigParams(xz);
         if (yz) this.yz = new VectorPlotPlaneConfigParams(yz);
@@ -929,20 +918,20 @@ class VectorPlotPlaneConfigParams extends (0, _baseConfig.ConfigParams) {
             projectionAngle: true
         });
         const { component, projection, projectionAngle } = plane;
-        if (projection) this.projection = new LineConfigParams(this.valueOrDefault(projection, defaultSecondaryLine));
-        if (component) this.component = new LineConfigParams(this.valueOrDefault(component, defaultSecondaryLine));
-        if (projectionAngle) this.projectionAngle = new LineConfigParams(this.valueOrDefault(projectionAngle, defaultSecondaryLine));
+        if (projection) this.projection = new LineConfigParams(this.valueOrDefault(projection, (0, _vectorplotConfig.defaultSecondaryLine)));
+        if (component) this.component = new LineConfigParams(this.valueOrDefault(component, (0, _vectorplotConfig.defaultSecondaryLine)));
+        if (projectionAngle) this.projectionAngle = new LineConfigParams(this.valueOrDefault(projectionAngle, (0, _vectorplotConfig.defaultSecondaryLine)));
     }
 }
 class LineConfigParams extends (0, _baseConfig.ConfigParams) {
     constructor({ line, label }){
         super();
-        this.line = line || defaultSecondaryLine.line;
+        this.line = line || (0, _vectorplotConfig.defaultSecondaryLine).line;
         this.label = label;
     }
 }
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./base.config":"aklxY"}],"aklxY":[function(require,module,exports) {
+},{"./base.config":"aklxY","./vectorplot.config":"2jQnK","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"aklxY":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "ConfigParams", ()=>ConfigParams);
@@ -952,28 +941,50 @@ class ConfigParams {
     }
 }
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"kKQFI":[function(require,module,exports) {
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"2jQnK":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "ScatterPlot", ()=>ScatterPlot);
-var _three = require("three");
-var _plot = require("../plot");
-class ScatterPlot extends (0, _plot.Plot) {
-    constructor(points, pointRadius = 0.2){
-        super();
-        this.drawables = points.map((v)=>{
-            const geometry = new (0, _three.SphereGeometry)(pointRadius);
-            const material = new (0, _three.MeshBasicMaterial)({
-                color: 0x00ff00
-            });
-            const obj = new (0, _three.Mesh)(geometry, material);
-            obj.position.set(v.x, v.y, v.z);
-            return obj;
-        });
+parcelHelpers.export(exports, "defaultPrimaryLine", ()=>defaultPrimaryLine);
+parcelHelpers.export(exports, "defaultSecondaryLine", ()=>defaultSecondaryLine);
+const defaultPrimaryLine = {
+    line: {
+        type: "solid",
+        style: {
+            color: 0x000000,
+            linewidth: 2
+        }
     }
-}
+};
+const defaultSecondaryLine = {
+    line: {
+        type: "dashed",
+        style: {
+            color: 0x000000,
+            linewidth: 1,
+            scale: 1,
+            dashSize: 0.25,
+            gapSize: 0.1
+        }
+    }
+};
 
-},{"three":"ktPTu","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","../plot":"hsxxN"}],"8wG4Z":[function(require,module,exports) {
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"6C1am":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "getRandomPoints", ()=>getRandomPoints);
+var _three = require("three");
+const getRandomPoints = (n = 100, scale = 10)=>{
+    const points = [];
+    for(let index = 0; index < n; index++){
+        const x = Math.random() * scale;
+        const y = Math.random() * scale;
+        const z = Math.random() * scale;
+        points.push(new (0, _three.Vector3)(x, y, z));
+    }
+    return points;
+};
+
+},{"three":"ktPTu","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"8wG4Z":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "Greek", ()=>Greek);

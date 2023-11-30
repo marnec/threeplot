@@ -30844,7 +30844,7 @@ Object.defineProperty(exports, "getRandomPoints", {
     }
 });
 
-},{"215f7dd545fdf515":"aZCSM","c777f63bd7f0095d":"cFD2Z","b9e0994b3b3b625e":"97qss","d7f95678130dc19f":"h9FVt","e96aea7a50efa03d":"l2FBx","a61a1d76f8019ba0":"7Fxc8"}],"aZCSM":[function(require,module,exports) {
+},{"215f7dd545fdf515":"aZCSM","e96aea7a50efa03d":"l2FBx","d7f95678130dc19f":"h9FVt","b9e0994b3b3b625e":"97qss","c777f63bd7f0095d":"cFD2Z","a61a1d76f8019ba0":"7Fxc8"}],"aZCSM":[function(require,module,exports) {
 "use strict";
 Object.defineProperty(exports, "__esModule", {
     value: true
@@ -30907,10 +30907,6 @@ class Frame extends three_1.Scene {
         plot.getWritables().forEach((l)=>this.addLabel(l));
         this.update();
     }
-    // private async addFallbackLabel(text: FallbackLabel) {
-    //   this.scene.add(...text.getFrameable());
-    //   this.update();
-    // }
     addLabel(text) {
         this.scene.add(text);
         text.addEventListener("synccomplete", ()=>{
@@ -31739,26 +31735,164 @@ class Axes {
 }
 exports.Axes = Axes;
 
-},{"7ed57e95efabdbea":"ktPTu"}],"cFD2Z":[function(require,module,exports) {
+},{"7ed57e95efabdbea":"ktPTu"}],"l2FBx":[function(require,module,exports) {
 "use strict";
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-exports.getRandomPoints = void 0;
-const three_1 = require("d4c7f7327af123e8");
-const getRandomPoints = (n = 100, scale = 10)=>{
-    const points = [];
-    for(let index = 0; index < n; index++){
-        const x = Math.random() * scale;
-        const y = Math.random() * scale;
-        const z = Math.random() * scale;
-        points.push(new three_1.Vector3(x, y, z));
+exports.ScatterPlot = void 0;
+const three_1 = require("cad200b045fed7ff");
+const plot_1 = require("92af7b8a63346e44");
+class ScatterPlot extends plot_1.Plot {
+    constructor(points, pointRadius = 0.2){
+        super();
+        this.drawables = points.map((v)=>{
+            const geometry = new three_1.SphereGeometry(pointRadius);
+            const material = new three_1.MeshBasicMaterial({
+                color: 0x00ff00
+            });
+            const obj = new three_1.Mesh(geometry, material);
+            obj.position.set(v.x, v.y, v.z);
+            return obj;
+        });
     }
-    return points;
-};
-exports.getRandomPoints = getRandomPoints;
+}
+exports.ScatterPlot = ScatterPlot;
 
-},{"d4c7f7327af123e8":"ktPTu"}],"97qss":[function(require,module,exports) {
+},{"cad200b045fed7ff":"ktPTu","92af7b8a63346e44":"huEe3"}],"huEe3":[function(require,module,exports) {
+"use strict";
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.Plot = void 0;
+class Plot {
+    getDrawables() {
+        return this.drawables;
+    }
+    getWritables() {
+        return this.writables;
+    }
+    constructor(){
+        this.drawables = [];
+        this.writables = [];
+    }
+}
+exports.Plot = Plot;
+
+},{}],"h9FVt":[function(require,module,exports) {
+"use strict";
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.VectorPlot = void 0;
+const three_1 = require("9b906e1e658875f1");
+const axes_1 = require("4a9305d9f3430951");
+const label_1 = require("982a54a3217ea03b");
+const plot_1 = require("79ab2e2dd16040cd");
+const vectorplot_params_1 = require("742c9a7261682d4f");
+class VectorPlot extends plot_1.Plot {
+    constructor(origin, target, config){
+        var _a, _b, _c;
+        super();
+        this.origin = origin;
+        this.target = target;
+        this.config = new vectorplot_params_1.VectorPlotConfigurationParams(config);
+        this.drawables.push(this.createVector(origin, target));
+        for(const p in axes_1.PlaneAxes){
+            const plane = p;
+            const conf = this.config[plane];
+            if (conf === null || conf === void 0 ? void 0 : conf.projection) {
+                const projection = this.createProjection(plane, conf.projection.line);
+                if (conf.projection.label) this.writables.push(this.createLineLabel(projection, conf.projection.label));
+                this.drawables.push(projection);
+            }
+            if (conf === null || conf === void 0 ? void 0 : conf.component) {
+                const component = this.createComponent(plane, conf.component.line);
+                if (conf.component.label) this.writables.push(this.createLineLabel(component, conf.component.label));
+                this.drawables.push(component);
+            }
+            if (conf === null || conf === void 0 ? void 0 : conf.projectionAngle) {
+                const projectionAngle = this.createAngleToProjection(plane, conf.projectionAngle.line);
+                if (conf.projectionAngle.label) this.writables.push(this.createLineLabel(projectionAngle, conf.projectionAngle.label));
+                this.drawables.push(projectionAngle);
+            }
+        }
+        if ((_a = this.config) === null || _a === void 0 ? void 0 : _a.angle) this.drawables.push(this.createAngleToTarget("y", (_c = (_b = this.config) === null || _b === void 0 ? void 0 : _b.angle) === null || _c === void 0 ? void 0 : _c.line));
+    }
+    createVector(origin, target) {
+        const length = Math.abs(origin.distanceTo(target));
+        return new three_1.ArrowHelper(target.clone().normalize(), origin, length, this.config.color, length * 0.2, length * 0.1);
+    }
+    createAngleToProjection(planeIdx, config) {
+        const plane = axes_1.PlaneAxes[planeIdx];
+        const planeNormal = plane.normal;
+        const projectedVector = this.target.clone().projectOnPlane(planeNormal);
+        const radius = projectedVector.distanceTo(this.origin) * 0.5;
+        let initialRotation = 0;
+        let angleToProjection = projectedVector.angleTo(axes_1.UnitVector.i);
+        if (planeIdx === "xz") {
+            initialRotation = -Math.PI / 2;
+            angleToProjection = projectedVector.angleTo(axes_1.UnitVector.k);
+        }
+        if (planeIdx === "yz") {
+            initialRotation = Math.PI / 2;
+            angleToProjection = projectedVector.angleTo(axes_1.UnitVector.j);
+        }
+        const curve = new three_1.EllipseCurve(this.origin.x, this.origin.y, radius, radius, 0, angleToProjection, false, initialRotation);
+        const { type: linetype, style: linestyle } = config;
+        const LineMaterialType = linetype === "dashed" ? three_1.LineDashedMaterial : three_1.LineBasicMaterial;
+        const material = new LineMaterialType(linestyle);
+        const geometry = new three_1.BufferGeometry().setFromPoints(curve.getPoints(50));
+        const rotation = new three_1.Quaternion().setFromUnitVectors(axes_1.UnitVector.k, plane.normal);
+        geometry.applyQuaternion(rotation);
+        return new three_1.Line(geometry, material);
+    }
+    createAngleToTarget(axis, config) {
+        const radius = this.target.clone().distanceTo(this.origin);
+        const projectedVector = this.target.clone().projectOnPlane(axes_1.UnitVector.j);
+        const curve = new three_1.EllipseCurve(this.origin.x, this.origin.y, radius, radius, 0, this.target.angleTo(projectedVector), false, 0);
+        const { type: linetype, style: linestyle } = config;
+        const LineMaterialType = linetype === "dashed" ? three_1.LineDashedMaterial : three_1.LineBasicMaterial;
+        const material = new LineMaterialType(linestyle);
+        const geometry = new three_1.BufferGeometry().setFromPoints(curve.getPoints(50));
+        geometry.applyQuaternion(new three_1.Quaternion().setFromAxisAngle(axes_1.UnitVector.j, -axes_1.UnitVector.i.angleTo(projectedVector)));
+        return new three_1.Line(geometry, material);
+    }
+    createProjection(plane, config) {
+        const { type: linetype, style: linestyle } = config;
+        const LineMaterialType = linetype === "dashed" ? three_1.LineDashedMaterial : three_1.LineBasicMaterial;
+        const lineMaterial = new LineMaterialType(linestyle);
+        const planeNormal = axes_1.PlaneAxes[plane].normal;
+        const projectedVector = this.target.clone().projectOnPlane(planeNormal);
+        const projectionGeometry = new three_1.BufferGeometry().setFromPoints([
+            projectedVector,
+            this.origin
+        ]);
+        return new three_1.Line(projectionGeometry, lineMaterial).computeLineDistances();
+    }
+    createLineLabel(projection, config) {
+        projection.geometry.computeBoundingBox();
+        const bbox = projection.geometry.boundingBox;
+        return new label_1.Label(bbox.max, {
+            ...config
+        });
+    }
+    createComponent(plane, config) {
+        const { type: linetype, style: linestyle } = config;
+        const LineMaterialType = linetype === "dashed" ? three_1.LineDashedMaterial : three_1.LineBasicMaterial;
+        const lineMaterial = new LineMaterialType(linestyle);
+        const planeNormal = axes_1.PlaneAxes[plane].normal;
+        const projectedVector = this.target.clone().projectOnPlane(planeNormal);
+        const connectionGeometry = new three_1.BufferGeometry().setFromPoints([
+            projectedVector,
+            this.target
+        ]);
+        return new three_1.Line(connectionGeometry, lineMaterial).computeLineDistances();
+    }
+}
+exports.VectorPlot = VectorPlot;
+
+},{"9b906e1e658875f1":"ktPTu","79ab2e2dd16040cd":"huEe3","4a9305d9f3430951":"dL76P","982a54a3217ea03b":"97qss","742c9a7261682d4f":"2gRT1"}],"97qss":[function(require,module,exports) {
 "use strict";
 Object.defineProperty(exports, "__esModule", {
     value: true
@@ -39268,163 +39402,20 @@ const defaultBaseMaterial = /*#__PURE__*/ new (0, _three.MeshStandardMaterial)({
     }
 }
 
-},{"three":"ktPTu","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"h9FVt":[function(require,module,exports) {
+},{"three":"ktPTu","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"2gRT1":[function(require,module,exports) {
 "use strict";
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-exports.VectorPlot = void 0;
-const three_1 = require("9b906e1e658875f1");
-const axes_1 = require("4a9305d9f3430951");
-const label_1 = require("982a54a3217ea03b");
-const plot_1 = require("79ab2e2dd16040cd");
-const vectorplot_config_1 = require("d433448abd0df740");
-class VectorPlot extends plot_1.Plot {
-    constructor(origin, target, config){
-        super();
-        this.origin = origin;
-        this.target = target;
-        this.config = new vectorplot_config_1.VectorPlotConfigurationParams(config);
-        this.drawables.push(this.createVector(origin, target));
-        for(const p in axes_1.PlaneAxes){
-            const plane = p;
-            const conf = this.config[plane];
-            if (conf === null || conf === void 0 ? void 0 : conf.projection) {
-                const projection = this.createProjection(plane, conf.projection.line);
-                if (conf.projection.label) this.writables.push(this.createLineLabel(projection, conf.projection.label));
-                this.drawables.push(projection);
-            }
-            if (conf === null || conf === void 0 ? void 0 : conf.component) {
-                const component = this.createComponent(plane, conf.component.line);
-                if (conf.component.label) this.writables.push(this.createLineLabel(component, conf.component.label));
-                this.drawables.push(component);
-            }
-            if (conf === null || conf === void 0 ? void 0 : conf.projectionAngle) {
-                const projectionAngle = this.createAngleToProjection(plane, conf.projectionAngle.line);
-                if (conf.projectionAngle.label) this.writables.push(this.createLineLabel(projectionAngle, conf.projectionAngle.label));
-                this.drawables.push(projectionAngle);
-            }
-        }
-        if (this.config.angle) this.drawables.push(this.createAngleToTarget("y"));
-    }
-    createVector(origin, target) {
-        const length = Math.abs(origin.distanceTo(target));
-        return new three_1.ArrowHelper(target.clone().normalize(), origin, length, this.config.color, length * 0.2, length * 0.1);
-    }
-    createAngleToProjection(planeIdx, config) {
-        const plane = axes_1.PlaneAxes[planeIdx];
-        const planeNormal = plane.normal;
-        const projectedVector = this.target.clone().projectOnPlane(planeNormal);
-        const radius = projectedVector.distanceTo(this.origin) * 0.5;
-        let initialRotation = 0;
-        let angleToProjection = projectedVector.angleTo(axes_1.UnitVector.i);
-        if (planeIdx === "xz") {
-            initialRotation = -Math.PI / 2;
-            angleToProjection = projectedVector.angleTo(axes_1.UnitVector.k);
-        }
-        if (planeIdx === "yz") {
-            initialRotation = Math.PI / 2;
-            angleToProjection = projectedVector.angleTo(axes_1.UnitVector.j);
-        }
-        const curve = new three_1.EllipseCurve(this.origin.x, this.origin.y, radius, radius, 0, angleToProjection, false, initialRotation);
-        const { type: linetype, style: linestyle } = config;
-        const LineMaterialType = linetype === "dashed" ? three_1.LineDashedMaterial : three_1.LineBasicMaterial;
-        const material = new LineMaterialType(linestyle);
-        const geometry = new three_1.BufferGeometry().setFromPoints(curve.getPoints(50));
-        const rotation = new three_1.Quaternion().setFromUnitVectors(axes_1.UnitVector.k, plane.normal);
-        geometry.applyQuaternion(rotation);
-        return new three_1.Line(geometry, material);
-    }
-    createAngleToTarget(axis) {
-        const radius = this.target.clone().distanceTo(this.origin);
-        const projectedVector = this.target.clone().projectOnPlane(axes_1.UnitVector.j);
-        const curve = new three_1.EllipseCurve(this.origin.x, this.origin.y, radius, radius, 0, this.target.angleTo(projectedVector), false, 0);
-        const material = new three_1.LineBasicMaterial(this.config.angle);
-        const geometry = new three_1.BufferGeometry().setFromPoints(curve.getPoints(50));
-        geometry.applyQuaternion(new three_1.Quaternion().setFromAxisAngle(axes_1.UnitVector.j, -axes_1.UnitVector.i.angleTo(projectedVector)));
-        return new three_1.Line(geometry, material);
-    }
-    createProjection(plane, config) {
-        const { type: linetype, style: linestyle } = config;
-        const LineMaterialType = linetype === "dashed" ? three_1.LineDashedMaterial : three_1.LineBasicMaterial;
-        const lineMaterial = new LineMaterialType(linestyle);
-        const planeNormal = axes_1.PlaneAxes[plane].normal;
-        const projectedVector = this.target.clone().projectOnPlane(planeNormal);
-        const projectionGeometry = new three_1.BufferGeometry().setFromPoints([
-            projectedVector,
-            this.origin
-        ]);
-        return new three_1.Line(projectionGeometry, lineMaterial).computeLineDistances();
-    }
-    createLineLabel(projection, config) {
-        projection.geometry.computeBoundingBox();
-        const bbox = projection.geometry.boundingBox;
-        return new label_1.Label(bbox.max, {
-            ...config
-        });
-    }
-    createComponent(plane, config) {
-        const { type: linetype, style: linestyle } = config;
-        const LineMaterialType = linetype === "dashed" ? three_1.LineDashedMaterial : three_1.LineBasicMaterial;
-        const lineMaterial = new LineMaterialType(linestyle);
-        const planeNormal = axes_1.PlaneAxes[plane].normal;
-        const projectedVector = this.target.clone().projectOnPlane(planeNormal);
-        const connectionGeometry = new three_1.BufferGeometry().setFromPoints([
-            projectedVector,
-            this.target
-        ]);
-        return new three_1.Line(connectionGeometry, lineMaterial).computeLineDistances();
-    }
-}
-exports.VectorPlot = VectorPlot;
-
-},{"9b906e1e658875f1":"ktPTu","4a9305d9f3430951":"dL76P","79ab2e2dd16040cd":"huEe3","d433448abd0df740":"83aZr","982a54a3217ea03b":"97qss"}],"huEe3":[function(require,module,exports) {
-"use strict";
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-exports.Plot = void 0;
-class Plot {
-    getDrawables() {
-        return this.drawables;
-    }
-    getWritables() {
-        return this.writables;
-    }
-    constructor(){
-        this.drawables = [];
-        this.writables = [];
-    }
-}
-exports.Plot = Plot;
-
-},{}],"83aZr":[function(require,module,exports) {
-"use strict";
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-exports.LineConfigParams = exports.VectorPlotPlaneConfigParams = exports.VectorPlotConfigurationParams = exports.defaultSecondaryLine = void 0;
-const base_config_1 = require("cedecb93afa1f123");
-exports.defaultSecondaryLine = {
-    line: {
-        type: "dashed",
-        style: {
-            color: 0x000000,
-            linewidth: 1,
-            scale: 1,
-            dashSize: 0.25,
-            gapSize: 0.1
-        }
-    }
-};
+exports.LineConfigParams = exports.VectorPlotPlaneConfigParams = exports.VectorPlotConfigurationParams = void 0;
+const base_config_1 = require("a9c886b8b8d25fa4");
+const vectorplot_config_1 = require("33fd81b529160431");
 class VectorPlotConfigurationParams extends base_config_1.ConfigParams {
     constructor(config){
         super();
         const { angle, color, xy, xz, yz } = config || {};
         this.color = color || 0x000000;
-        if (angle) this.angle = this.valueOrDefault(angle, {
-            color: 0x000000
-        });
+        if (angle) this.angle = new LineConfigParams(this.valueOrDefault(angle, vectorplot_config_1.defaultPrimaryLine));
         if (xy) this.xy = new VectorPlotPlaneConfigParams(xy);
         if (xz) this.xz = new VectorPlotPlaneConfigParams(xz);
         if (yz) this.yz = new VectorPlotPlaneConfigParams(yz);
@@ -39440,22 +39431,22 @@ class VectorPlotPlaneConfigParams extends base_config_1.ConfigParams {
             projectionAngle: true
         });
         const { component, projection, projectionAngle } = plane;
-        if (projection) this.projection = new LineConfigParams(this.valueOrDefault(projection, exports.defaultSecondaryLine));
-        if (component) this.component = new LineConfigParams(this.valueOrDefault(component, exports.defaultSecondaryLine));
-        if (projectionAngle) this.projectionAngle = new LineConfigParams(this.valueOrDefault(projectionAngle, exports.defaultSecondaryLine));
+        if (projection) this.projection = new LineConfigParams(this.valueOrDefault(projection, vectorplot_config_1.defaultSecondaryLine));
+        if (component) this.component = new LineConfigParams(this.valueOrDefault(component, vectorplot_config_1.defaultSecondaryLine));
+        if (projectionAngle) this.projectionAngle = new LineConfigParams(this.valueOrDefault(projectionAngle, vectorplot_config_1.defaultSecondaryLine));
     }
 }
 exports.VectorPlotPlaneConfigParams = VectorPlotPlaneConfigParams;
 class LineConfigParams extends base_config_1.ConfigParams {
     constructor({ line, label }){
         super();
-        this.line = line || exports.defaultSecondaryLine.line;
+        this.line = line || vectorplot_config_1.defaultSecondaryLine.line;
         this.label = label;
     }
 }
 exports.LineConfigParams = LineConfigParams;
 
-},{"cedecb93afa1f123":"aDjE7"}],"aDjE7":[function(require,module,exports) {
+},{"a9c886b8b8d25fa4":"aDjE7","33fd81b529160431":"83aZr"}],"aDjE7":[function(require,module,exports) {
 "use strict";
 Object.defineProperty(exports, "__esModule", {
     value: true
@@ -39468,31 +39459,54 @@ class ConfigParams {
 }
 exports.ConfigParams = ConfigParams;
 
-},{}],"l2FBx":[function(require,module,exports) {
+},{}],"83aZr":[function(require,module,exports) {
 "use strict";
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-exports.ScatterPlot = void 0;
-const three_1 = require("cad200b045fed7ff");
-const plot_1 = require("92af7b8a63346e44");
-class ScatterPlot extends plot_1.Plot {
-    constructor(points, pointRadius = 0.2){
-        super();
-        this.drawables = points.map((v)=>{
-            const geometry = new three_1.SphereGeometry(pointRadius);
-            const material = new three_1.MeshBasicMaterial({
-                color: 0x00ff00
-            });
-            const obj = new three_1.Mesh(geometry, material);
-            obj.position.set(v.x, v.y, v.z);
-            return obj;
-        });
+exports.defaultSecondaryLine = exports.defaultPrimaryLine = void 0;
+exports.defaultPrimaryLine = {
+    line: {
+        type: "solid",
+        style: {
+            color: 0x000000,
+            linewidth: 2
+        }
     }
-}
-exports.ScatterPlot = ScatterPlot;
+};
+exports.defaultSecondaryLine = {
+    line: {
+        type: "dashed",
+        style: {
+            color: 0x000000,
+            linewidth: 1,
+            scale: 1,
+            dashSize: 0.25,
+            gapSize: 0.1
+        }
+    }
+};
 
-},{"cad200b045fed7ff":"ktPTu","92af7b8a63346e44":"huEe3"}],"7Fxc8":[function(require,module,exports) {
+},{}],"cFD2Z":[function(require,module,exports) {
+"use strict";
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.getRandomPoints = void 0;
+const three_1 = require("d4c7f7327af123e8");
+const getRandomPoints = (n = 100, scale = 10)=>{
+    const points = [];
+    for(let index = 0; index < n; index++){
+        const x = Math.random() * scale;
+        const y = Math.random() * scale;
+        const z = Math.random() * scale;
+        points.push(new three_1.Vector3(x, y, z));
+    }
+    return points;
+};
+exports.getRandomPoints = getRandomPoints;
+
+},{"d4c7f7327af123e8":"ktPTu"}],"7Fxc8":[function(require,module,exports) {
 "use strict";
 Object.defineProperty(exports, "__esModule", {
     value: true

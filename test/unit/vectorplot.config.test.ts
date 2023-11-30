@@ -1,8 +1,10 @@
 import {
+  LineConfigParams,
   VectorPlotConfigurationParams,
   VectorPlotPlaneConfigParams,
-  defaultSecondaryLine,
-} from "../../src/plots/vectorplot.config";
+} from "../../src/plots/vectorplot.params";
+import { defaultSecondaryLine } from "../../src/plots/vectorplot.config";
+import { LineConfig } from "../../dist/plots/line.config";
 
 describe("VectorPlotConfigurationParams", () => {
   it("should set the color to the provided colorHex", () => {
@@ -54,9 +56,9 @@ describe("VectorPlotConfigurationParams", () => {
   });
 
   it("should set the angle to the provided angle object if it exists", () => {
-    const config = { angle: { color: 0xff0000 } };
+    const config = { angle: { line: { type: "dashed", style: { color: 0x00ff00 } } } as LineConfig };
     const params = new VectorPlotConfigurationParams(config);
-    expect(params.angle).toEqual({ color: 0xff0000 });
+    expect(params.angle).toEqual(new LineConfigParams(config.angle));
   });
 });
 
