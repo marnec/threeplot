@@ -590,7 +590,7 @@ var _label = require("./label");
 var _glyph = require("./glyph");
 var _data = require("./data");
 
-},{"./frame":"bCL66","./plots/scatterplot":"kKQFI","./plots/vectorplot":"83AEn","./label":"dyAII","./data":"6C1am","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./glyph":"8wG4Z"}],"bCL66":[function(require,module,exports) {
+},{"./frame":"bCL66","./data":"6C1am","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./label":"dyAII","./plots/vectorplot":"83AEn","./plots/scatterplot":"kKQFI","./glyph":"8wG4Z"}],"bCL66":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "Frame", ()=>Frame);
@@ -604,10 +604,12 @@ class Frame extends (0, _three.Scene) {
         super();
         this.canvas = canvas;
         this.size = size;
-        this.observer = new ResizeObserver(()=>this.update());
+        this.observer = new ResizeObserver(()=>this.onCanvasResize());
         this.scene = new (0, _three.Scene)();
         this.scene.background = new (0, _three.Color)(0xffffff);
         const { clientWidth, clientHeight } = canvas;
+        this.width = clientWidth;
+        this.height = clientHeight;
         this.renderer = new (0, _three.WebGLRenderer)({
             canvas
         });
@@ -656,6 +658,12 @@ class Frame extends (0, _three.Scene) {
         text.addEventListener("synccomplete", ()=>{
             this.update();
         });
+    }
+    onCanvasResize() {
+        this.camera.aspect = this.width / this.height;
+        this.camera.updateProjectionMatrix();
+        this.renderer.setSize(this.width, this.height);
+        this.update();
     }
 }
 
@@ -724,45 +732,42 @@ class Axes {
     }
 }
 
-},{"three":"ktPTu","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"kKQFI":[function(require,module,exports) {
+},{"three":"ktPTu","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"6C1am":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "ScatterPlot", ()=>ScatterPlot);
+parcelHelpers.export(exports, "getRandomPoints", ()=>getRandomPoints);
 var _three = require("three");
-var _plot = require("../plot");
-class ScatterPlot extends (0, _plot.Plot) {
-    constructor(points, pointRadius = 0.2){
-        super();
-        this.drawables = points.map((v)=>{
-            const geometry = new (0, _three.SphereGeometry)(pointRadius);
-            const material = new (0, _three.MeshBasicMaterial)({
-                color: 0x00ff00
-            });
-            const obj = new (0, _three.Mesh)(geometry, material);
-            obj.position.set(v.x, v.y, v.z);
-            return obj;
-        });
+const getRandomPoints = (n = 100, scale = 10)=>{
+    const points = [];
+    for(let index = 0; index < n; index++){
+        const x = Math.random() * scale;
+        const y = Math.random() * scale;
+        const z = Math.random() * scale;
+        points.push(new (0, _three.Vector3)(x, y, z));
     }
-}
+    return points;
+};
 
-},{"three":"ktPTu","../plot":"hsxxN","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"hsxxN":[function(require,module,exports) {
+},{"three":"ktPTu","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"dyAII":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "Plot", ()=>Plot);
-class Plot {
-    getDrawables() {
-        return this.drawables;
-    }
-    getWritables() {
-        return this.writables;
-    }
-    constructor(){
-        this.drawables = [];
-        this.writables = [];
+parcelHelpers.export(exports, "Label", ()=>Label);
+var _troikaThreeText = require("troika-three-text");
+class Label extends (0, _troikaThreeText.Text) {
+    constructor(position, params){
+        super();
+        this.text = params.text;
+        this.fontSize = params.fontSize || 1;
+        this.position.x = position.x;
+        this.position.y = position.y;
+        this.position.z = position.z;
+        this.anchorX = params.anchorX || "center";
+        this.anchorY = params.anchorY || "middle";
+        this.color = params.color || 0x000000;
     }
 }
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"83AEn":[function(require,module,exports) {
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","troika-three-text":"7YS8r"}],"83AEn":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "VectorPlot", ()=>VectorPlot);
@@ -859,9 +864,7 @@ class VectorPlot extends (0, _plot.Plot) {
     createLabel(obj, config) {
         const box = new (0, _three.BoxHelper)(obj);
         box.geometry.computeBoundingBox();
-        // line.geometry.computeBoundingBox();
         const bbox = box.geometry.boundingBox;
-        console.log(obj, bbox);
         return new (0, _label.Label)(bbox.max, {
             ...config
         });
@@ -880,26 +883,24 @@ class VectorPlot extends (0, _plot.Plot) {
     }
 }
 
-},{"three":"ktPTu","../plot":"hsxxN","../axes":"2EXQV","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","../label":"dyAII","./vectorplot.params":"k6R4q"}],"dyAII":[function(require,module,exports) {
+},{"three":"ktPTu","../axes":"2EXQV","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","../plot":"hsxxN","../label":"dyAII","./vectorplot.params":"k6R4q"}],"hsxxN":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "Label", ()=>Label);
-var _troikaThreeText = require("troika-three-text");
-class Label extends (0, _troikaThreeText.Text) {
-    constructor(position, params){
-        super();
-        this.text = params.text;
-        this.fontSize = params.fontSize || 1;
-        this.position.x = position.x;
-        this.position.y = position.y;
-        this.position.z = position.z;
-        this.anchorX = params.anchorX || "center";
-        this.anchorY = params.anchorY || "middle";
-        this.color = params.color || 0x000000;
+parcelHelpers.export(exports, "Plot", ()=>Plot);
+class Plot {
+    getDrawables() {
+        return this.drawables;
+    }
+    getWritables() {
+        return this.writables;
+    }
+    constructor(){
+        this.drawables = [];
+        this.writables = [];
     }
 }
 
-},{"troika-three-text":"7YS8r","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"k6R4q":[function(require,module,exports) {
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"k6R4q":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "VectorPlotConfigurationParams", ()=>VectorPlotConfigurationParams);
@@ -976,23 +977,28 @@ const defaultSecondaryLine = {
     }
 };
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"6C1am":[function(require,module,exports) {
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"kKQFI":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "getRandomPoints", ()=>getRandomPoints);
+parcelHelpers.export(exports, "ScatterPlot", ()=>ScatterPlot);
 var _three = require("three");
-const getRandomPoints = (n = 100, scale = 10)=>{
-    const points = [];
-    for(let index = 0; index < n; index++){
-        const x = Math.random() * scale;
-        const y = Math.random() * scale;
-        const z = Math.random() * scale;
-        points.push(new (0, _three.Vector3)(x, y, z));
+var _plot = require("../plot");
+class ScatterPlot extends (0, _plot.Plot) {
+    constructor(points, pointRadius = 0.2){
+        super();
+        this.drawables = points.map((v)=>{
+            const geometry = new (0, _three.SphereGeometry)(pointRadius);
+            const material = new (0, _three.MeshBasicMaterial)({
+                color: 0x00ff00
+            });
+            const obj = new (0, _three.Mesh)(geometry, material);
+            obj.position.set(v.x, v.y, v.z);
+            return obj;
+        });
     }
-    return points;
-};
+}
 
-},{"three":"ktPTu","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"8wG4Z":[function(require,module,exports) {
+},{"three":"ktPTu","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","../plot":"hsxxN"}],"8wG4Z":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "Greek", ()=>Greek);

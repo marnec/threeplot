@@ -10,7 +10,9 @@ export class Frame extends Scene {
   protected camera: PerspectiveCamera;
   protected axes: Axes;
   protected controls: OrbitControls;
-  protected observer: ResizeObserver = new ResizeObserver(() => this.update());
+  protected observer: ResizeObserver = new ResizeObserver(() => this.onCanvasResize());
+  protected width: number;
+  protected height: number;
 
   // TODO: at the moment only one size bc grid can only be squared
   // look into this for solution https://discourse.threejs.org/t/rectangular-gridhelper-possibility/37812
@@ -20,6 +22,8 @@ export class Frame extends Scene {
     this.scene.background = new Color(0xffffff);
 
     const { clientWidth, clientHeight } = canvas;
+    this.width = clientWidth;
+    this.height = clientHeight;
 
     this.renderer = new WebGLRenderer({ canvas });
     this.renderer.setSize(clientWidth, clientHeight);
@@ -75,12 +79,18 @@ export class Frame extends Scene {
     this.update();
   }
 
-
   public addLabel(text: Label) {
     this.scene.add(text);
 
     text.addEventListener("synccomplete", () => {
       this.update();
     });
+  }
+
+  private onCanvasResize() {
+    this.camera.aspect = this.width / this.height;
+    this.camera.updateProjectionMatrix();
+    this.renderer.setSize(this.width, this.height);
+    this.update();
   }
 }
