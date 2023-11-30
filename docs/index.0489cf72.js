@@ -590,7 +590,7 @@ frame2.addLabel(new (0, _index.Label)(new (0, _three.Vector3)(3, 3, 3), {
     fontSize: 1
 }));
 const frame3 = new (0, _index.Frame)(canvas3, 10);
-frame3.addPlot(new (0, _index.VectorPlot)(new (0, _three.Vector3)(0, 0, 0), new (0, _three.Vector3)(2.3, 3.2, 4.1), {
+frame3.addPlot(new (0, _index.VectorPlot)(new (0, _three.Vector3)(0, 0, 0), new (0, _three.Vector3)(7, 6.4, 4.6), {
     angle: {
         label: {
             text: (0, _index.Greek).uppercasePhi,

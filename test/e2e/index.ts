@@ -18,7 +18,7 @@ frame2.addLabel(
 
 const frame3 = new Frame(canvas3, 10);
 frame3.addPlot(
-  new VectorPlot(new Vector3(0, 0, 0), new Vector3(2.3, 3.2, 4.1), {
+  new VectorPlot(new Vector3(0, 0, 0), new Vector3(7, 6.4, 4.6), {
     angle: { label: { text: Greek.uppercasePhi, anchorY: 'top' } },
     label: {text: 'v', anchorY: 'bottom'},
     xy: {
