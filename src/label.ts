@@ -17,25 +17,4 @@ export class Label extends Text {
   }
 }
 
-// class FallbackLabel implements FramedObject {
-//   drawable: Mesh;
 
-//   constructor(private position: Vector3, private text: string, private size = 1, private color = 0x000000) {
-//     const geometry = new TextGeometry(this.text, {
-//       font: new Font(fontJson),
-//       size: this.size,
-//       height: 0.01,
-//       curveSegments: 25,
-//       bevelEnabled: false,
-//     });
-
-//     const material = new MeshBasicMaterial({ color: this.color });
-
-//     this.drawable = new Mesh(geometry, material);
-//     this.drawable.position.set(...this.position.toArray());
-//   }
-
-//   getDrawables(): Mesh[] {
-//     return [this.drawable];
-//   }
-// }

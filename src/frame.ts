@@ -75,10 +75,6 @@ export class Frame extends Scene {
     this.update();
   }
 
-  // private async addFallbackLabel(text: FallbackLabel) {
-  //   this.scene.add(...text.getFrameable());
-  //   this.update();
-  // }
 
   public addLabel(text: Label) {
     this.scene.add(text);
