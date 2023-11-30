@@ -1,10 +1,16 @@
 import { LabelProperties } from "../label";
 import { ConfigParams } from "./base.config";
 import { LineConfig, LineStyle } from "./line.config";
-import { VectorPlotConfiguration, VectorPlotPlaneConfig, defaultPrimaryLine, defaultSecondaryLine } from "./vectorplot.config";
+import {
+  VectorPlotConfiguration,
+  VectorPlotPlaneConfig,
+  defaultPrimaryLine,
+  defaultSecondaryLine,
+} from "./vectorplot.config";
 
 export class VectorPlotConfigurationParams extends ConfigParams implements VectorPlotConfiguration {
   color: number;
+  label?: LabelProperties;
   angle?: LineConfigParams;
   xy?: VectorPlotPlaneConfigParams;
   xz?: VectorPlotPlaneConfigParams;
@@ -12,8 +18,9 @@ export class VectorPlotConfigurationParams extends ConfigParams implements Vecto
 
   constructor(config: VectorPlotConfiguration | undefined) {
     super();
-    const { angle, color, xy, xz, yz } = config || {};
+    const { angle, color, label, xy, xz, yz } = config || {};
     this.color = color || 0x000000;
+    this.label = label;
 
     if (angle) this.angle = new LineConfigParams(this.valueOrDefault(angle, defaultPrimaryLine));
     if (xy) this.xy = new VectorPlotPlaneConfigParams(xy);

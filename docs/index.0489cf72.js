@@ -591,7 +591,16 @@ frame2.addLabel(new (0, _index.Label)(new (0, _three.Vector3)(3, 3, 3), {
 }));
 const frame3 = new (0, _index.Frame)(canvas3, 10);
 frame3.addPlot(new (0, _index.VectorPlot)(new (0, _three.Vector3)(0, 0, 0), new (0, _three.Vector3)(2.3, 3.2, 4.1), {
-    angle: true,
+    angle: {
+        label: {
+            text: (0, _index.Greek).uppercasePhi,
+            anchorY: "top"
+        }
+    },
+    label: {
+        text: "v",
+        anchorY: "bottom"
+    },
     xy: {
         projection: {
             label: {
@@ -604,7 +613,8 @@ frame3.addPlot(new (0, _index.VectorPlot)(new (0, _three.Vector3)(0, 0, 0), new 
             label: {
                 text: (0, _index.Greek).lowercasePhi
             }
-        }
+        },
+        component: true
     },
     xz: {
         projection: {
@@ -620,7 +630,8 @@ frame3.addPlot(new (0, _index.VectorPlot)(new (0, _three.Vector3)(0, 0, 0), new 
                 anchorX: "right",
                 anchorY: "bottom"
             }
-        }
+        },
+        component: true
     }
 }));
 
@@ -31797,27 +31808,33 @@ class VectorPlot extends plot_1.Plot {
         this.origin = origin;
         this.target = target;
         this.config = new vectorplot_params_1.VectorPlotConfigurationParams(config);
-        this.drawables.push(this.createVector(origin, target));
+        const vector = this.createVector(origin, target);
+        this.drawables.push(vector);
+        if (this.config.label) this.writables.push(this.createLabel(vector, this.config.label));
+        if (this.config.angle) {
+            const mainAngle = this.createAngleToTarget("y", (_b = (_a = this.config) === null || _a === void 0 ? void 0 : _a.angle) === null || _b === void 0 ? void 0 : _b.line);
+            this.drawables.push(mainAngle);
+            if ((_c = this.config.angle) === null || _c === void 0 ? void 0 : _c.label) this.writables.push(this.createLabel(mainAngle, this.config.angle.label));
+        }
         for(const p in axes_1.PlaneAxes){
             const plane = p;
             const conf = this.config[plane];
             if (conf === null || conf === void 0 ? void 0 : conf.projection) {
                 const projection = this.createProjection(plane, conf.projection.line);
-                if (conf.projection.label) this.writables.push(this.createLineLabel(projection, conf.projection.label));
+                if (conf.projection.label) this.writables.push(this.createLabel(projection, conf.projection.label));
                 this.drawables.push(projection);
             }
             if (conf === null || conf === void 0 ? void 0 : conf.component) {
                 const component = this.createComponent(plane, conf.component.line);
-                if (conf.component.label) this.writables.push(this.createLineLabel(component, conf.component.label));
+                if (conf.component.label) this.writables.push(this.createLabel(component, conf.component.label));
                 this.drawables.push(component);
             }
             if (conf === null || conf === void 0 ? void 0 : conf.projectionAngle) {
                 const projectionAngle = this.createAngleToProjection(plane, conf.projectionAngle.line);
-                if (conf.projectionAngle.label) this.writables.push(this.createLineLabel(projectionAngle, conf.projectionAngle.label));
+                if (conf.projectionAngle.label) this.writables.push(this.createLabel(projectionAngle, conf.projectionAngle.label));
                 this.drawables.push(projectionAngle);
             }
         }
-        if ((_a = this.config) === null || _a === void 0 ? void 0 : _a.angle) this.drawables.push(this.createAngleToTarget("y", (_c = (_b = this.config) === null || _b === void 0 ? void 0 : _b.angle) === null || _c === void 0 ? void 0 : _c.line));
     }
     createVector(origin, target) {
         const length = Math.abs(origin.distanceTo(target));
@@ -31870,9 +31887,12 @@ class VectorPlot extends plot_1.Plot {
         ]);
         return new three_1.Line(projectionGeometry, lineMaterial).computeLineDistances();
     }
-    createLineLabel(projection, config) {
-        projection.geometry.computeBoundingBox();
-        const bbox = projection.geometry.boundingBox;
+    createLabel(obj, config) {
+        const box = new three_1.BoxHelper(obj);
+        box.geometry.computeBoundingBox();
+        // line.geometry.computeBoundingBox();
+        const bbox = box.geometry.boundingBox;
+        console.log(obj, bbox);
         return new label_1.Label(bbox.max, {
             ...config
         });
@@ -39413,8 +39433,9 @@ const vectorplot_config_1 = require("33fd81b529160431");
 class VectorPlotConfigurationParams extends base_config_1.ConfigParams {
     constructor(config){
         super();
-        const { angle, color, xy, xz, yz } = config || {};
+        const { angle, color, label, xy, xz, yz } = config || {};
         this.color = color || 0x000000;
+        this.label = label;
         if (angle) this.angle = new LineConfigParams(this.valueOrDefault(angle, vectorplot_config_1.defaultPrimaryLine));
         if (xy) this.xy = new VectorPlotPlaneConfigParams(xy);
         if (xz) this.xz = new VectorPlotPlaneConfigParams(xz);
@@ -39469,8 +39490,7 @@ exports.defaultPrimaryLine = {
     line: {
         type: "solid",
         style: {
-            color: 0x000000,
-            linewidth: 2
+            color: 0x000000
         }
     }
 };
@@ -39479,7 +39499,6 @@ exports.defaultSecondaryLine = {
         type: "dashed",
         style: {
             color: 0x000000,
-            linewidth: 1,
             scale: 1,
             dashSize: 0.25,
             gapSize: 0.1

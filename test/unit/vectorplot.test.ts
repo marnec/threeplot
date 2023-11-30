@@ -87,6 +87,44 @@ describe("VectorPlot", () => {
 
     expect(vectorPlot.getDrawables().length).toBe(1);
   });
+
+  it("should create a label for the main angle", () => {
+    const origin = new Vector3(0, 0, 0);
+    const target = new Vector3(0, 0, 0);
+    const vectorPlot = new VectorPlot(origin, target, { angle: { label: { text: "a" } } });
+
+    expect(vectorPlot.getWritables().length).toBe(1);
+  });
+
+  it("should create a label for the main vector", () => {
+    const origin = new Vector3(0, 0, 0);
+    const target = new Vector3(0, 0, 0);
+    const vectorPlot = new VectorPlot(origin, target, { label: { text: "a" } });
+
+    expect(vectorPlot.getWritables().length).toBe(1);
+  });
+
+  it("should create a label for each component", () => {
+    const origin = new Vector3(0, 0, 0);
+    const target = new Vector3(0, 0, 0);
+    const vectorPlot = new VectorPlot(origin, target, {
+      xy: {
+        projection: { label: { text: "a" } },
+        component: { label: { text: "a" } },
+        projectionAngle: { label: { text: "a" } },
+      },
+      xz: {
+        projection: { label: { text: "a" } },
+        component: { label: { text: "a" } },
+        projectionAngle: { label: { text: "a" } },
+      },
+      yz: {
+        projection: { label: { text: "a" } },
+        component: { label: { text: "a" } },
+        projectionAngle: { label: { text: "a" } },
+      },
+    });
+
+    expect(vectorPlot.getWritables().length).toBe(9);
+  });
 });
-
-

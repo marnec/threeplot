@@ -1,15 +1,17 @@
 import {
   ArrowHelper,
   Box3,
+  BoxHelper,
   BufferGeometry,
   EllipseCurve,
   Line,
   LineBasicMaterial,
   LineDashedMaterial,
+  Mesh,
+  Object3D,
   Quaternion,
   Vector3,
 } from "three";
-import { Text } from "troika-three-text";
 import { PlaneAxes, UnitVector } from "../axes";
 import { Label, LabelProperties } from "../label";
 import { Plot } from "../plot";
@@ -25,7 +27,15 @@ export class VectorPlot extends Plot {
 
     this.config = new VectorPlotConfigurationParams(config);
 
-    this.drawables.push(this.createVector(origin, target));
+    const vector = this.createVector(origin, target);
+    this.drawables.push(vector);
+
+    if (this.config.label) this.writables.push(this.createLabel(vector, this.config.label));
+    if (this.config.angle) {
+      const mainAngle = this.createAngleToTarget("y", this.config?.angle?.line);
+      this.drawables.push(mainAngle);
+      if (this.config.angle?.label) this.writables.push(this.createLabel(mainAngle, this.config.angle.label));
+    }
 
     for (const p in PlaneAxes) {
       const plane = p as keyof typeof PlaneAxes;
@@ -34,7 +44,7 @@ export class VectorPlot extends Plot {
       if (conf?.projection) {
         const projection = this.createProjection(plane, conf.projection.line);
         if (conf.projection.label) {
-          this.writables.push(this.createLineLabel(projection, conf.projection.label));
+          this.writables.push(this.createLabel(projection, conf.projection.label));
         }
         this.drawables.push(projection);
       }
@@ -42,7 +52,7 @@ export class VectorPlot extends Plot {
       if (conf?.component) {
         const component = this.createComponent(plane, conf.component.line);
         if (conf.component.label) {
-          this.writables.push(this.createLineLabel(component, conf.component.label));
+          this.writables.push(this.createLabel(component, conf.component.label));
         }
         this.drawables.push(component);
       }
@@ -50,13 +60,12 @@ export class VectorPlot extends Plot {
       if (conf?.projectionAngle) {
         const projectionAngle = this.createAngleToProjection(plane, conf.projectionAngle.line);
         if (conf.projectionAngle.label) {
-          this.writables.push(this.createLineLabel(projectionAngle, conf.projectionAngle.label));
+          this.writables.push(this.createLabel(projectionAngle, conf.projectionAngle.label));
         }
 
         this.drawables.push(projectionAngle);
       }
     }
-    if (this.config?.angle) this.drawables.push(this.createAngleToTarget("y", this.config?.angle?.line));
   }
 
   private createVector(origin: Vector3, target: Vector3) {
@@ -150,10 +159,13 @@ export class VectorPlot extends Plot {
     return new Line(projectionGeometry, lineMaterial).computeLineDistances();
   }
 
-  private createLineLabel(projection: Line, config: LabelProperties): Text {
-    projection.geometry.computeBoundingBox();
+  private createLabel(obj: Object3D, config: LabelProperties): Label {
+    const box = new BoxHelper(obj);
+    box.geometry.computeBoundingBox();
+    // line.geometry.computeBoundingBox();
 
-    const bbox = projection.geometry.boundingBox as Box3;
+    const bbox = box.geometry.boundingBox as Box3;
+    console.log(obj, bbox);
 
     return new Label(bbox.max, { ...config });
   }

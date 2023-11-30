@@ -777,27 +777,33 @@ class VectorPlot extends (0, _plot.Plot) {
         this.origin = origin;
         this.target = target;
         this.config = new (0, _vectorplotParams.VectorPlotConfigurationParams)(config);
-        this.drawables.push(this.createVector(origin, target));
+        const vector = this.createVector(origin, target);
+        this.drawables.push(vector);
+        if (this.config.label) this.writables.push(this.createLabel(vector, this.config.label));
+        if (this.config.angle) {
+            const mainAngle = this.createAngleToTarget("y", this.config?.angle?.line);
+            this.drawables.push(mainAngle);
+            if (this.config.angle?.label) this.writables.push(this.createLabel(mainAngle, this.config.angle.label));
+        }
         for(const p in 0, _axes.PlaneAxes){
             const plane = p;
             const conf = this.config[plane];
             if (conf?.projection) {
                 const projection = this.createProjection(plane, conf.projection.line);
-                if (conf.projection.label) this.writables.push(this.createLineLabel(projection, conf.projection.label));
+                if (conf.projection.label) this.writables.push(this.createLabel(projection, conf.projection.label));
                 this.drawables.push(projection);
             }
             if (conf?.component) {
                 const component = this.createComponent(plane, conf.component.line);
-                if (conf.component.label) this.writables.push(this.createLineLabel(component, conf.component.label));
+                if (conf.component.label) this.writables.push(this.createLabel(component, conf.component.label));
                 this.drawables.push(component);
             }
             if (conf?.projectionAngle) {
                 const projectionAngle = this.createAngleToProjection(plane, conf.projectionAngle.line);
-                if (conf.projectionAngle.label) this.writables.push(this.createLineLabel(projectionAngle, conf.projectionAngle.label));
+                if (conf.projectionAngle.label) this.writables.push(this.createLabel(projectionAngle, conf.projectionAngle.label));
                 this.drawables.push(projectionAngle);
             }
         }
-        if (this.config?.angle) this.drawables.push(this.createAngleToTarget("y", this.config?.angle?.line));
     }
     createVector(origin, target) {
         const length = Math.abs(origin.distanceTo(target));
@@ -850,9 +856,12 @@ class VectorPlot extends (0, _plot.Plot) {
         ]);
         return new (0, _three.Line)(projectionGeometry, lineMaterial).computeLineDistances();
     }
-    createLineLabel(projection, config) {
-        projection.geometry.computeBoundingBox();
-        const bbox = projection.geometry.boundingBox;
+    createLabel(obj, config) {
+        const box = new (0, _three.BoxHelper)(obj);
+        box.geometry.computeBoundingBox();
+        // line.geometry.computeBoundingBox();
+        const bbox = box.geometry.boundingBox;
+        console.log(obj, bbox);
         return new (0, _label.Label)(bbox.max, {
             ...config
         });
@@ -901,8 +910,9 @@ var _vectorplotConfig = require("./vectorplot.config");
 class VectorPlotConfigurationParams extends (0, _baseConfig.ConfigParams) {
     constructor(config){
         super();
-        const { angle, color, xy, xz, yz } = config || {};
+        const { angle, color, label, xy, xz, yz } = config || {};
         this.color = color || 0x000000;
+        this.label = label;
         if (angle) this.angle = new LineConfigParams(this.valueOrDefault(angle, (0, _vectorplotConfig.defaultPrimaryLine)));
         if (xy) this.xy = new VectorPlotPlaneConfigParams(xy);
         if (xz) this.xz = new VectorPlotPlaneConfigParams(xz);
@@ -950,8 +960,7 @@ const defaultPrimaryLine = {
     line: {
         type: "solid",
         style: {
-            color: 0x000000,
-            linewidth: 2
+            color: 0x000000
         }
     }
 };
@@ -960,7 +969,6 @@ const defaultSecondaryLine = {
         type: "dashed",
         style: {
             color: 0x000000,
-            linewidth: 1,
             scale: 1,
             dashSize: 0.25,
             gapSize: 0.1
