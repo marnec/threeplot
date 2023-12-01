@@ -1,1 +1,0 @@
-{"mappings":"AAAA;;;;;AAKA;;;;;;AAMA","sources":["test/e2e/styles.css"],"sourcesContent":["canvas {\n    width: 100%;\n    height: 100%;\n}\n\n.grid {\n    display: grid;\n    grid-template-columns: auto auto auto;\n    gap: 5px;\n}\n\n.grid-item {\n    height: calc(35vw - 15px);\n}"],"names":[],"version":3,"file":"index.a1f5851f.css.map","sourceRoot":"/__parcel_source_root/"}

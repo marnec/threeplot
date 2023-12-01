@@ -20,11 +20,12 @@
   },
   "scripts": {
     "copy-fonts": "mkdir -p dist/fonts && cp -r src/fonts dist/fonts",
-    "dev": "npm run copy-fonts && npx tsc --watch",
+    "dev": "npx tsc --watch",
     "test": "jest",
-    "e2e": "npx parcel test/e2e/index.html --dist-dir=docs",
-    "build-all": "npm run build && npx parcel build test/e2e/index.html --dist-dir=docs --public-url https://marnec.github.io/threeplot/",
-    "build": "npm run copy-fonts && npx tsc"
+    "e2e": "npm run clear-e2e && npx parcel test/e2e/index.html --dist-dir=docs",
+    "build-all": "npm run build && npm run clear-e2e && npx parcel build test/e2e/index.html --dist-dir=docs --public-url https://marnec.github.io/threeplot/",
+    "build": "npx tsc",
+    "clear-e2e": "rm docs/*"
   },
   "alias": {
     "three": "./node_modules/three"
