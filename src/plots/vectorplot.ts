@@ -7,25 +7,24 @@ import {
   Line,
   LineBasicMaterial,
   LineDashedMaterial,
-  Mesh,
   Object3D,
   Quaternion,
-  Vector3,
+  Vector3
 } from "three";
 import { PlaneAxes, UnitVector } from "../axes";
 import { Label, LabelProperties } from "../label";
 import { Plot } from "../plot";
-import { LineStyle } from "./line.config";
-import { VectorPlotConfiguration } from "./vectorplot.config";
-import { VectorPlotConfigurationParams } from "./vectorplot.params";
+import { LineStyle } from "./line.params";
+import { VectorPlotConfig } from "./vectorplot.config";
+import { VectorPlotParams } from "./vectorplot.params";
 
 export class VectorPlot extends Plot {
-  private config: VectorPlotConfigurationParams;
+  private config: VectorPlotConfig;
 
-  constructor(private origin: Vector3, private target: Vector3, config?: VectorPlotConfiguration) {
+  constructor(private origin: Vector3, private target: Vector3, config?: VectorPlotParams) {
     super();
 
-    this.config = new VectorPlotConfigurationParams(config);
+    this.config = new VectorPlotConfig(config);
 
     const vector = this.createVector(origin, target);
     this.drawables.push(vector);

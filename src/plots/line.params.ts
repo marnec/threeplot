@@ -1,7 +1,6 @@
 import { LineBasicMaterialParameters, LineDashedMaterialParameters } from "three";
 import { LabelProperties } from "../label";
 
-
 export type LineStyle =
   | {
       type: "dashed";
@@ -12,7 +11,7 @@ export type LineStyle =
       style: LineBasicMaterialParameters;
     };
 
-export interface LineConfig {
+export interface LineParams {
   line?: LineStyle;
   label?: LabelProperties;
 }

@@ -1,18 +1,10 @@
-import { PlaneAxes, UnitVector } from "../../src/axes";
-import { LineConfig } from "../../src/plots/line.config";
-import { VectorPlot } from "../../src/plots/vectorplot";
 import {
   ArrowHelper,
-  BufferGeometry,
-  EllipseCurve,
-  Line,
   LineBasicMaterial,
-  LineDashedMaterial,
   Object3D,
-  Quaternion,
-  Vector3,
+  Vector3
 } from "three";
-import { VectorPlotConfiguration } from "../../src/plots/vectorplot.config";
+import { VectorPlot } from "../../src/plots/vectorplot";
 
 describe("VectorPlot", () => {
   it("should create a VectorPlot object with valid input parameters", () => {
