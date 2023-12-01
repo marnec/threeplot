@@ -19,13 +19,15 @@
     "url": "https://patreon.com/marnec"
   },
   "scripts": {
-    "copy-fonts": "mkdir -p dist/fonts && cp -r src/fonts dist/fonts",
-    "dev": "npx tsc --watch",
+    "dev:lib": "npx tsc --watch",
+    "dev:e2e": "mkdir -p docs && npm run clear:e2e && npx parcel test/e2e/index.html --dist-dir=docs",
+    "dev:test": "npm run test -- --watchAll",
     "test": "jest",
-    "e2e": "npm run clear-e2e && npx parcel test/e2e/index.html --dist-dir=docs",
-    "build-all": "npm run build && npm run clear-e2e && npx parcel build test/e2e/index.html --dist-dir=docs --public-url https://marnec.github.io/threeplot/",
-    "build": "npx tsc",
-    "clear-e2e": "rm docs/*"
+    "build": "npm run build:lib && npm run clear:e2e && npm run build:docs",
+    "build:lib": "npx tsc",
+    "build:docs": "mkdir -p docs && npx parcel build test/e2e/index.html --dist-dir=docs --public-url https://marnec.github.io/threeplot/",
+    "clear:e2e": "rm -rf docs/*",
+    "clear:lib": "rm -rf dist/*"
   },
   "alias": {
     "three": "./node_modules/three"
