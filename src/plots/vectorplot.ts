@@ -162,10 +162,8 @@ export class VectorPlot extends Plot {
   private createLabel(obj: Object3D, config: LabelProperties): Label {
     const box = new BoxHelper(obj);
     box.geometry.computeBoundingBox();
-    // line.geometry.computeBoundingBox();
 
     const bbox = box.geometry.boundingBox as Box3;
-    console.log(obj, bbox);
 
     return new Label(bbox.max, { ...config });
   }

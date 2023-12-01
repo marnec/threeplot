@@ -34,8 +34,7 @@
     "dist/"
   ],
   "dependencies": {
-    "troika-three-text": "0.49",
-    "radash": "11.0.0"
+    "troika-three-text": "0.49"
   },
   "peerDependencies": {
     "three": "0.158.0"
