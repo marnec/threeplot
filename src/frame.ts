@@ -68,8 +68,14 @@ export class Frame extends Scene {
     this.renderer.render(this.scene, this.camera);
   }
 
-  public capture() {
+  public capture(): string {
+    this.renderer.render(this.scene, this.camera);
     const base64 = this.canvas.toDataURL("img/png");
+    const a = document.createElement("a");
+    a.href = base64;
+    a.download = "threeplot.png";
+    a.click();
+    return base64;
   }
 
   public async addPlot(plot: Plot) {
