@@ -1,4 +1,4 @@
-import { ConeGeometry, GridHelper, Vector3 } from "three";
+import { GridHelper, Vector3 } from "three";
 import { Line2 } from "three/examples/jsm/lines/Line2";
 import { LineGeometry } from "three/examples/jsm/lines/LineGeometry";
 import { LineMaterial } from "three/examples/jsm/lines/LineMaterial";
@@ -15,15 +15,15 @@ export const PlaneAxes = {
   yz: { normal: UnitVector.i, unit: { y: UnitVector.j, z: UnitVector.k } },
 } as const;
 
-class FatLineAxis extends Line2 {
+class Axis extends Line2 {
   constructor(direction: Vector3, length: number, color: number, linewidth = 0.01) {
     const points = [new Vector3(), direction.multiplyScalar(length)];
-    
+
     const geometry = new LineGeometry();
     geometry.setPositions(points.flatMap((p) => p.toArray()));
-    
+
     const material = new LineMaterial({ color, linewidth });
-    
+
     super(geometry, material);
 
     super.computeLineDistances();
@@ -39,9 +39,9 @@ export class Axes {
   public gridYZ: GridHelper;
 
   constructor(private lengthX: number, private lengthY: number, private lengthZ: number) {
-    this.x = new FatLineAxis(new Vector3(1, 0, 0), this.lengthX * 1.1, 0xff0000);
-    this.y = new FatLineAxis(new Vector3(0, 1, 0), this.lengthY * 1.1, 0x00ff00);
-    this.z = new FatLineAxis(new Vector3(0, 0, 1), this.lengthZ * 1.1, 0x0000ff);
+    this.x = new Axis(new Vector3(1, 0, 0), this.lengthX * 1.1, 0xff0000);
+    this.y = new Axis(new Vector3(0, 1, 0), this.lengthY * 1.1, 0x00ff00);
+    this.z = new Axis(new Vector3(0, 0, 1), this.lengthZ * 1.1, 0x0000ff);
 
     this.setGrids();
   }
