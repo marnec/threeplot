@@ -15,6 +15,12 @@ export const PlaneAxes = {
   yz: { normal: UnitVector.i, unit: { y: UnitVector.j, z: UnitVector.k } },
 } as const;
 
+export const NamedAxis = {
+  x: UnitVector.i,
+  y: UnitVector.j,
+  z: UnitVector.k,
+} as const;
+
 class Axis extends Line2 {
   constructor(direction: Vector3, length: number, color: number, linewidth = 0.01) {
     const points = [new Vector3(), direction.multiplyScalar(length)];
