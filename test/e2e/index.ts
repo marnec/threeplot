@@ -29,7 +29,7 @@ frame3.addPlot(
     xz: {
       projection: { label: { text: "b", anchorY: "bottom", anchorX: "center" } },
       projectionAngle: { label: { text: Greek.lowercaseBeta, anchorX: 'right', anchorY: 'bottom' } },
-      component: true
+      component: false
     }
   })
 );
