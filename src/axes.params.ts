@@ -1,14 +1,12 @@
 import { NamedAxis } from "./axes";
+import { LabelProperties } from "./label";
 
-export interface AxesParams extends Record<keyof typeof NamedAxis, AxisParams | boolean> {}
+export type AxesParams = Record<Partial<keyof typeof NamedAxis>, AxisParams | boolean>;
 
-export interface AxisParams {
-  length: number;
-  label?: "string" | boolean;
+export type AxisParams = {
+  label?: LabelProperties | boolean;
   color?: number;
   width?: number;
-}
+};
 
-export interface GridParams {
-  
-}
+export type GridParams = {};

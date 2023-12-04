@@ -2,6 +2,8 @@ import { GridHelper, Vector3 } from "three";
 import { Line2 } from "three/examples/jsm/lines/Line2";
 import { LineGeometry } from "three/examples/jsm/lines/LineGeometry";
 import { LineMaterial } from "three/examples/jsm/lines/LineMaterial";
+import { AxesParams } from "./axes.params";
+import { AxesConfig } from "./axes.config";
 
 export const UnitVector = {
   i: new Vector3(1, 0, 0),
@@ -16,9 +18,9 @@ export const PlaneAxes = {
 } as const;
 
 export const NamedAxis = {
-  x: UnitVector.i,
-  y: UnitVector.j,
-  z: UnitVector.k,
+  x: { name: "x", unit: UnitVector.i },
+  y: { name: "y", unit: UnitVector.j },
+  z: { name: "z", unit: UnitVector.k },
 } as const;
 
 class Axis extends Line2 {
@@ -43,8 +45,11 @@ export class Axes {
   public gridXZ: GridHelper;
   public gridXY: GridHelper;
   public gridYZ: GridHelper;
+  private config: AxesConfig;
 
-  constructor(private lengthX: number, private lengthY: number, private lengthZ: number) {
+  constructor(private lengthX: number, private lengthY: number, private lengthZ: number, options?: AxesParams) {
+    this.config = new AxesConfig(options);
+
     this.x = new Axis(new Vector3(1, 0, 0), this.lengthX * 1.1, 0xff0000);
     this.y = new Axis(new Vector3(0, 1, 0), this.lengthY * 1.1, 0x00ff00);
     this.z = new Axis(new Vector3(0, 0, 1), this.lengthZ * 1.1, 0x0000ff);
