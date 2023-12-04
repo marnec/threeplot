@@ -8,3 +8,7 @@ export interface AxisParams {
   color?: number;
   width?: number;
 }
+
+export interface GridParams {
+  
+}
