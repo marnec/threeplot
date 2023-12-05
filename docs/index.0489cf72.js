@@ -31700,7 +31700,7 @@ class OrbitControls extends (0, _three.EventDispatcher) {
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-exports.Axes = exports.NamedAxis = exports.PlaneAxes = exports.UnitVector = void 0;
+exports.Axes = exports.Axis = exports.NamedAxis = exports.PlaneAxes = exports.UnitVector = void 0;
 const three_1 = require("7ed57e95efabdbea");
 const Line2_1 = require("6b20264830b3b623");
 const LineGeometry_1 = require("d4d68b86fc186fd");
@@ -31765,6 +31765,7 @@ class Axis extends Line2_1.Line2 {
         super.computeLineDistances();
     }
 }
+exports.Axis = Axis;
 class Axes {
     constructor(lengthX, lengthY, lengthZ, options){
         this.lengthX = lengthX;

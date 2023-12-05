@@ -23,7 +23,7 @@ export const NamedAxis = {
   z: { name: "z", unit: UnitVector.k },
 } as const;
 
-class Axis extends Line2 {
+export class Axis extends Line2 {
   config: AxisConfig;
 
   constructor(direction: Vector3, length: number, params: AxisParams, axisIdentifier: keyof typeof NamedAxis) {

@@ -680,6 +680,7 @@ parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "UnitVector", ()=>UnitVector);
 parcelHelpers.export(exports, "PlaneAxes", ()=>PlaneAxes);
 parcelHelpers.export(exports, "NamedAxis", ()=>NamedAxis);
+parcelHelpers.export(exports, "Axis", ()=>Axis);
 parcelHelpers.export(exports, "Axes", ()=>Axes);
 var _three = require("three");
 var _line2 = require("three/examples/jsm/lines/Line2");
