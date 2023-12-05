@@ -1,5 +1,5 @@
+import { LineParams } from "../../src/plots/line.params";
 import { LineConfig, VectorPlotConfig, VectorPlotPlaneConfig } from "../../src/plots/vectorplot.config";
-import { LineParams } from "../../dist/plots/line.config";
 import { VectorPlotDefault } from "../../src/plots/vectorplot.defaults";
 import { expect, test } from "vitest";
 

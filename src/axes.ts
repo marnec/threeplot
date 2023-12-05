@@ -2,8 +2,8 @@ import { GridHelper, Vector3 } from "three";
 import { Line2 } from "three/examples/jsm/lines/Line2";
 import { LineGeometry } from "three/examples/jsm/lines/LineGeometry";
 import { LineMaterial } from "three/examples/jsm/lines/LineMaterial";
-import { AxesParams } from "./axes.params";
-import { AxesConfig } from "./axes.config";
+import { AxesParams, AxisParams } from "./axes.params";
+import { AxesConfig, AxisConfig } from "./axes.config";
 
 export const UnitVector = {
   i: new Vector3(1, 0, 0),
@@ -24,13 +24,16 @@ export const NamedAxis = {
 } as const;
 
 class Axis extends Line2 {
-  constructor(direction: Vector3, length: number, color: number, linewidth = 0.01) {
+  config: AxisConfig;
+
+  constructor(direction: Vector3, length: number, params: AxisParams, axisIdentifier: keyof typeof NamedAxis) {
     const points = [new Vector3(), direction.multiplyScalar(length)];
 
     const geometry = new LineGeometry();
     geometry.setPositions(points.flatMap((p) => p.toArray()));
 
-    const material = new LineMaterial({ color, linewidth });
+    const { color, width } = new AxisConfig(params, axisIdentifier);
+    const material = new LineMaterial({ color, linewidth: width });
 
     super(geometry, material);
 
@@ -50,9 +53,11 @@ export class Axes {
   constructor(private lengthX: number, private lengthY: number, private lengthZ: number, options?: AxesParams) {
     this.config = new AxesConfig(options);
 
-    this.x = new Axis(new Vector3(1, 0, 0), this.lengthX * 1.1, 0xff0000);
-    this.y = new Axis(new Vector3(0, 1, 0), this.lengthY * 1.1, 0x00ff00);
-    this.z = new Axis(new Vector3(0, 0, 1), this.lengthZ * 1.1, 0x0000ff);
+    const { x, y, z } = this.config;
+
+    if (x) this.x = new Axis(new Vector3(1, 0, 0), this.lengthX * 1.1, x, NamedAxis.x.name);
+    if (y) this.y = new Axis(new Vector3(0, 1, 0), this.lengthY * 1.1, y, NamedAxis.y.name);
+    if (z) this.z = new Axis(new Vector3(0, 0, 1), this.lengthZ * 1.1, z, NamedAxis.z.name);
 
     this.setGrids();
   }

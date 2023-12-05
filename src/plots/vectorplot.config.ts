@@ -18,7 +18,7 @@ export class VectorPlotConfig extends BaseConfig implements VectorPlotParams {
     this.color = color || 0x000000;
     this.label = label;
 
-    if (angle) this.angle = new LineConfig(this.valueOrDefault(angle, VectorPlotDefault.primaryLine));
+    if (angle) this.angle = new LineConfig(this.defaultIfTrue(angle, VectorPlotDefault.primaryLine));
     if (xy) this.xy = new VectorPlotPlaneConfig(xy);
     if (xz) this.xz = new VectorPlotPlaneConfig(xz);
     if (yz) this.yz = new VectorPlotPlaneConfig(yz);
@@ -33,13 +33,13 @@ export class VectorPlotPlaneConfig extends BaseConfig implements VectorPlotPlane
   constructor(plane: VectorPlotPlaneParams | true) {
     super();
 
-    plane = this.valueOrDefault(plane, { projection: true, component: true, projectionAngle: true });
+    plane = this.defaultIfTrue(plane, { projection: true, component: true, projectionAngle: true });
     const { component, projection, projectionAngle } = plane;
 
-    if (projection) this.projection = new LineConfig(this.valueOrDefault(projection, VectorPlotDefault.secondaryLine));
-    if (component) this.component = new LineConfig(this.valueOrDefault(component, VectorPlotDefault.secondaryLine));
+    if (projection) this.projection = new LineConfig(this.defaultIfTrue(projection, VectorPlotDefault.secondaryLine));
+    if (component) this.component = new LineConfig(this.defaultIfTrue(component, VectorPlotDefault.secondaryLine));
     if (projectionAngle)
-      this.projectionAngle = new LineConfig(this.valueOrDefault(projectionAngle, VectorPlotDefault.secondaryLine));
+      this.projectionAngle = new LineConfig(this.defaultIfTrue(projectionAngle, VectorPlotDefault.secondaryLine));
   }
 }
 

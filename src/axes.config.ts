@@ -3,41 +3,52 @@ import { AxesParams, AxisParams } from "./axes.params";
 import { LabelProperties } from "./label";
 import { BaseConfig } from "./plots/base.config";
 
-export class AxesConfig extends BaseConfig implements Required<AxesParams> {
-  x: boolean | AxisConfig;
-  y: boolean | AxisConfig;
-  z: boolean | AxisConfig;
+export class AxesConfig extends BaseConfig implements AxesParams {
+  x: AxisConfig | false;
+  y: AxisConfig | false;
+  z: AxisConfig | false;
 
   constructor(params?: AxesParams) {
     super();
 
     const { x, y, z } = params || {};
 
-    if (x) this.x = new AxisConfig(this.valueOrDefault(x, defaultAxisConfig), NamedAxis.x.name);
-    if (y) this.y = new AxisConfig(this.valueOrDefault(y, defaultAxisConfig), NamedAxis.y.name);
-    if (z) this.z = new AxisConfig(this.valueOrDefault(z, defaultAxisConfig), NamedAxis.z.name);
+    if (x !== false) this.x = new AxisConfig(this.defaultIfTrueOrUndefined(x, defaultAxisConfig.x), NamedAxis.x.name);
+    if (y !== false) this.y = new AxisConfig(this.defaultIfTrueOrUndefined(y, defaultAxisConfig.y), NamedAxis.y.name);
+    if (z !== false) this.z = new AxisConfig(this.defaultIfTrueOrUndefined(z, defaultAxisConfig.z), NamedAxis.z.name);
   }
 }
 
 export class AxisConfig extends BaseConfig implements Required<AxisParams> {
-  label: boolean | LabelProperties;
+  label: LabelProperties;
   color: number;
   width: number;
 
-  constructor(params: AxisParams, defaultLabel: string) {
+  constructor(params: AxisParams, identifier: keyof typeof NamedAxis) {
     super();
 
-    const { width, label, color } = params || {};
+    const { width, label, color } = params;
 
-    const defaultLabelConfig: LabelProperties = { text: defaultLabel };
-
-    if (label) this.label = this.valueOrDefault(label, defaultLabelConfig);
-    if (width) this.width = this.valueOrDefault(width, defaultAxisConfig.width);
-    if (color) this.color = this.valueOrDefault(color, defaultAxisConfig.color);
+    // if (label) this.label = label;
+    // if (width) this.width = width;
+    // if (color) this.color = color;
   }
 }
 
 export const defaultAxisConfig = {
-  color: 0x000000,
-  width: 0.001,
+  x: {
+    color: 0xff0000,
+    width: 0.001,
+    label: { text: "x" },
+  },
+  y: {
+    color: 0x00ff00,
+    width: 0.001,
+    label: { text: "y" },
+  },
+  z: {
+    color: 0x0000ff,
+    width: 0.001,
+    label: { text: "z" },
+  },
 } as const;

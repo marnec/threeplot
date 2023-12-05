@@ -19,12 +19,12 @@
     "url": "https://patreon.com/marnec"
   },
   "scripts": {
-    "dev:lib": "npx tsc --watch",
+    "dev:lib": "npm run clear:lib && npx tsc --watch",
     "dev:e2e": "mkdir -p docs && npm run clear:e2e && npx parcel test/e2e/index.html --dist-dir=docs",
-    "dev:test": "npm run test -- --watchAll",
+    "dev:test": "npm run test",
     "test": "vitest",
     "build": "npm run build:lib && npm run clear:e2e && npm run build:docs",
-    "build:lib": "npx tsc",
+    "build:lib": "npm run clear:lib && npx tsc",
     "build:docs": "mkdir -p docs && npx parcel build test/e2e/index.html --dist-dir=docs --public-url https://marnec.github.io/threeplot/",
     "clear:e2e": "rm -f docs/*.js && rm -f docs/*.html",
     "clear:lib": "rm -rf dist/*"

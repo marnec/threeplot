@@ -3,6 +3,7 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { Axes } from "./axes";
 import { Plot } from "./plot";
 import { Label } from "./label";
+import { AxesParams } from "./axes.params";
 
 export class Frame extends Scene {
   protected scene: Scene;
@@ -16,7 +17,7 @@ export class Frame extends Scene {
 
   // TODO: at the moment only one size bc grid can only be squared
   // look into this for solution https://discourse.threejs.org/t/rectangular-gridhelper-possibility/37812
-  constructor(protected canvas: HTMLCanvasElement, protected size = 10) {
+  constructor(protected canvas: HTMLCanvasElement, protected size = 10, axesParams?: AxesParams) {
     super();
     this.scene = new Scene();
     this.scene.background = new Color(0xffffff);
@@ -30,7 +31,7 @@ export class Frame extends Scene {
 
     this.setCamera(clientWidth, clientHeight);
     this.setControls();
-    this.setAxes();
+    this.setAxes(axesParams);
 
     this.updateOnChanges();
     this.update();
@@ -47,8 +48,8 @@ export class Frame extends Scene {
     this.controls.target.set(0, 0, 0);
   }
 
-  private setAxes() {
-    this.axes = new Axes(this.size, this.size, this.size);
+  private setAxes(params?: AxesParams) {
+    this.axes = new Axes(this.size, this.size, this.size, params);
 
     this.scene.add(this.axes.x);
     this.scene.add(this.axes.y);
