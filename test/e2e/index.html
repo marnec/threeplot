@@ -13,16 +13,25 @@
     <h1>Playground</h1>
     <div class="grid">
       <div class="grid-item">
-        <h3>Scatterplot</h3>
+        <h3>Axes</h3>
         <canvas id="canvas1"></canvas>
+        <pre>
+          <code>
+            new Frame(canvas, 10, { x: false, y: { width: 0.025, label: { text: Greek.betaSymbol } } });
+          </code>
+        </pre>
       </div>
       <div class="grid-item">
-        <h3>Glyphs</h3>
+        <h3>Scatterplot</h3>
         <canvas id="canvas2"></canvas>
       </div>
       <div class="grid-item">
-        <h3>Vectorplot</h3>
+        <h3>Glyphs</h3>
         <canvas id="canvas3"></canvas>
+      </div>
+      <div class="grid-item">
+        <h3>Vectorplot</h3>
+        <canvas id="canvas4"></canvas>
       </div>
     </div>
   </body>

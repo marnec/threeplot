@@ -580,17 +580,27 @@ var _index = require("../../dist/index");
 const canvas1 = document.getElementById("canvas1");
 const canvas2 = document.getElementById("canvas2");
 const canvas3 = document.getElementById("canvas3");
+const canvas4 = document.getElementById("canvas4");
 const points = (0, _index.getRandomPoints)(200);
 const scatterPlot = new (0, _index.ScatterPlot)(points);
-const frame1 = new (0, _index.Frame)(canvas1, 10);
-frame1.addPlot(scatterPlot);
+const frame1 = new (0, _index.Frame)(canvas1, 10, {
+    x: false,
+    y: {
+        width: 0.025,
+        label: {
+            text: (0, _index.Greek).betaSymbol
+        }
+    }
+});
 const frame2 = new (0, _index.Frame)(canvas2, 10);
-frame2.addLabel(new (0, _index.Label)(new (0, _three.Vector3)(3, 3, 3), {
+frame2.addPlot(scatterPlot);
+const frame3 = new (0, _index.Frame)(canvas3, 10);
+frame3.addLabel(new (0, _index.Label)(new (0, _three.Vector3)(3, 3, 3), {
     text: `${(0, _index.Greek).lowercaseAlpha}=1/2${(0, _index.Greek).lowercasePi}`,
     fontSize: 1
 }));
-const frame3 = new (0, _index.Frame)(canvas3, 10);
-frame3.addPlot(new (0, _index.VectorPlot)(new (0, _three.Vector3)(0, 0, 0), new (0, _three.Vector3)(7, 6.4, 4.6), {
+const frame4 = new (0, _index.Frame)(canvas4, 10);
+frame4.addPlot(new (0, _index.VectorPlot)(new (0, _three.Vector3)(0, 0, 0), new (0, _three.Vector3)(7, 6.4, 4.6), {
     angle: {
         label: {
             text: (0, _index.Greek).uppercasePhi,
