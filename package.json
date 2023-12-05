@@ -27,7 +27,7 @@
     "build": "npm run build:lib && npm run clear:e2e && npm run build:docs",
     "build:lib": "npm run clear:lib && npx tsc",
     "build:docs": "mkdir -p docs && npx parcel build test/e2e/index.html --dist-dir=docs --public-url https://marnec.github.io/threeplot/",
-    "clear:e2e": "rm -f docs/*.js && rm -f docs/*.html",
+    "clear:e2e": "rm -f docs/*.js && rm -f docs/*.html && rm -f docs/*.css && rm -f docs/*.map",
     "clear:lib": "rm -rf dist/*"
   },
   "alias": {
