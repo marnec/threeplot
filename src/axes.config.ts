@@ -29,9 +29,9 @@ export class AxisConfig extends BaseConfig implements Required<AxisParams> {
 
     const { width, label, color } = params;
 
-    // if (label) this.label = label;
-    // if (width) this.width = width;
-    // if (color) this.color = color;
+    if (label) this.label = this.defaultIfTrue(label, defaultAxisConfig[identifier].label);
+    if (width) this.width = this.defaultIfTrue(width, defaultAxisConfig[identifier].width);
+    if (color) this.color = this.defaultIfTrue(color, defaultAxisConfig[identifier].color);
   }
 }
 

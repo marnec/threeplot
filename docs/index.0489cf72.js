@@ -30855,7 +30855,7 @@ Object.defineProperty(exports, "getRandomPoints", {
     }
 });
 
-},{"215f7dd545fdf515":"aZCSM","e96aea7a50efa03d":"l2FBx","d7f95678130dc19f":"h9FVt","b9e0994b3b3b625e":"97qss","c777f63bd7f0095d":"cFD2Z","a61a1d76f8019ba0":"7Fxc8"}],"aZCSM":[function(require,module,exports) {
+},{"215f7dd545fdf515":"aZCSM","e96aea7a50efa03d":"l2FBx","d7f95678130dc19f":"h9FVt","b9e0994b3b3b625e":"97qss","a61a1d76f8019ba0":"7Fxc8","c777f63bd7f0095d":"cFD2Z"}],"aZCSM":[function(require,module,exports) {
 "use strict";
 Object.defineProperty(exports, "__esModule", {
     value: true
@@ -32793,9 +32793,9 @@ class AxisConfig extends base_config_1.BaseConfig {
     constructor(params, identifier){
         super();
         const { width, label, color } = params;
-    // if (label) this.label = label;
-    // if (width) this.width = width;
-    // if (color) this.color = color;
+        if (label) this.label = this.defaultIfTrue(label, exports.defaultAxisConfig[identifier].label);
+        if (width) this.width = this.defaultIfTrue(width, exports.defaultAxisConfig[identifier].width);
+        if (color) this.color = this.defaultIfTrue(color, exports.defaultAxisConfig[identifier].color);
     }
 }
 exports.AxisConfig = AxisConfig;
@@ -32823,7 +32823,7 @@ exports.defaultAxisConfig = {
     }
 };
 
-},{"a367913ee86fbd91":"aDjE7","fe7467ba214384b1":"dL76P"}],"aDjE7":[function(require,module,exports) {
+},{"fe7467ba214384b1":"dL76P","a367913ee86fbd91":"aDjE7"}],"aDjE7":[function(require,module,exports) {
 "use strict";
 Object.defineProperty(exports, "__esModule", {
     value: true
@@ -32832,9 +32832,6 @@ exports.BaseConfig = void 0;
 class BaseConfig {
     defaultIfTrue(value, defaultValue) {
         return value === true ? defaultValue : value;
-    }
-    defaultIfUndefined(defaultValue, value) {
-        return value === undefined ? defaultValue : value;
     }
     defaultIfTrueOrUndefined(value, defaultValue) {
         return value === undefined || value === true || isEmpty(value) ? defaultValue : value;
@@ -33009,82 +33006,7 @@ class VectorPlot extends plot_1.Plot {
 }
 exports.VectorPlot = VectorPlot;
 
-},{"9b906e1e658875f1":"ktPTu","79ab2e2dd16040cd":"huEe3","4a9305d9f3430951":"dL76P","d433448abd0df740":"83aZr","982a54a3217ea03b":"97qss"}],"83aZr":[function(require,module,exports) {
-"use strict";
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-exports.LineConfig = exports.VectorPlotPlaneConfig = exports.VectorPlotConfig = void 0;
-const base_config_1 = require("cedecb93afa1f123");
-const vectorplot_defaults_1 = require("a6e5fdbddb617cd5");
-class VectorPlotConfig extends base_config_1.BaseConfig {
-    constructor(config){
-        super();
-        const { angle, color, label, xy, xz, yz } = config || {};
-        this.color = color || 0x000000;
-        this.label = label;
-        if (angle) this.angle = new LineConfig(this.defaultIfTrue(angle, vectorplot_defaults_1.VectorPlotDefault.primaryLine));
-        if (xy) this.xy = new VectorPlotPlaneConfig(xy);
-        if (xz) this.xz = new VectorPlotPlaneConfig(xz);
-        if (yz) this.yz = new VectorPlotPlaneConfig(yz);
-    }
-}
-exports.VectorPlotConfig = VectorPlotConfig;
-class VectorPlotPlaneConfig extends base_config_1.BaseConfig {
-    constructor(plane){
-        super();
-        plane = this.defaultIfTrue(plane, {
-            projection: true,
-            component: true,
-            projectionAngle: true
-        });
-        const { component, projection, projectionAngle } = plane;
-        if (projection) this.projection = new LineConfig(this.defaultIfTrue(projection, vectorplot_defaults_1.VectorPlotDefault.secondaryLine));
-        if (component) this.component = new LineConfig(this.defaultIfTrue(component, vectorplot_defaults_1.VectorPlotDefault.secondaryLine));
-        if (projectionAngle) this.projectionAngle = new LineConfig(this.defaultIfTrue(projectionAngle, vectorplot_defaults_1.VectorPlotDefault.secondaryLine));
-    }
-}
-exports.VectorPlotPlaneConfig = VectorPlotPlaneConfig;
-class LineConfig extends base_config_1.BaseConfig {
-    constructor({ line, label }){
-        super();
-        this.line = line || vectorplot_defaults_1.VectorPlotDefault.secondaryLine.line;
-        this.label = label;
-    }
-}
-exports.LineConfig = LineConfig;
-
-},{"cedecb93afa1f123":"aDjE7","a6e5fdbddb617cd5":"6gCWA"}],"6gCWA":[function(require,module,exports) {
-"use strict";
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-exports.VectorPlotDefault = void 0;
-var VectorPlotDefault;
-(function(VectorPlotDefault) {
-    const lineColor = 0x000000;
-    VectorPlotDefault.primaryLine = {
-        line: {
-            type: "solid",
-            style: {
-                color: lineColor
-            }
-        }
-    };
-    VectorPlotDefault.secondaryLine = {
-        line: {
-            type: "dashed",
-            style: {
-                color: lineColor,
-                scale: 1,
-                dashSize: 0.25,
-                gapSize: 0.1
-            }
-        }
-    };
-})(VectorPlotDefault || (exports.VectorPlotDefault = VectorPlotDefault = {}));
-
-},{}],"97qss":[function(require,module,exports) {
+},{"9b906e1e658875f1":"ktPTu","4a9305d9f3430951":"dL76P","982a54a3217ea03b":"97qss","79ab2e2dd16040cd":"huEe3","d433448abd0df740":"83aZr"}],"97qss":[function(require,module,exports) {
 "use strict";
 Object.defineProperty(exports, "__esModule", {
     value: true
@@ -40594,26 +40516,82 @@ const defaultBaseMaterial = /*#__PURE__*/ new (0, _three.MeshStandardMaterial)({
     }
 }
 
-},{"three":"ktPTu","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"cFD2Z":[function(require,module,exports) {
+},{"three":"ktPTu","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"83aZr":[function(require,module,exports) {
 "use strict";
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-exports.getRandomPoints = void 0;
-const three_1 = require("d4c7f7327af123e8");
-const getRandomPoints = (n = 100, scale = 10)=>{
-    const points = [];
-    for(let index = 0; index < n; index++){
-        const x = Math.random() * scale;
-        const y = Math.random() * scale;
-        const z = Math.random() * scale;
-        points.push(new three_1.Vector3(x, y, z));
+exports.LineConfig = exports.VectorPlotPlaneConfig = exports.VectorPlotConfig = void 0;
+const base_config_1 = require("cedecb93afa1f123");
+const vectorplot_defaults_1 = require("a6e5fdbddb617cd5");
+class VectorPlotConfig extends base_config_1.BaseConfig {
+    constructor(config){
+        super();
+        const { angle, color, label, xy, xz, yz } = config || {};
+        this.color = color || 0x000000;
+        this.label = label;
+        if (angle) this.angle = new LineConfig(this.defaultIfTrue(angle, vectorplot_defaults_1.VectorPlotDefault.primaryLine));
+        if (xy) this.xy = new VectorPlotPlaneConfig(xy);
+        if (xz) this.xz = new VectorPlotPlaneConfig(xz);
+        if (yz) this.yz = new VectorPlotPlaneConfig(yz);
     }
-    return points;
-};
-exports.getRandomPoints = getRandomPoints;
+}
+exports.VectorPlotConfig = VectorPlotConfig;
+class VectorPlotPlaneConfig extends base_config_1.BaseConfig {
+    constructor(plane){
+        super();
+        plane = this.defaultIfTrue(plane, {
+            projection: true,
+            component: true,
+            projectionAngle: true
+        });
+        const { component, projection, projectionAngle } = plane;
+        if (projection) this.projection = new LineConfig(this.defaultIfTrue(projection, vectorplot_defaults_1.VectorPlotDefault.secondaryLine));
+        if (component) this.component = new LineConfig(this.defaultIfTrue(component, vectorplot_defaults_1.VectorPlotDefault.secondaryLine));
+        if (projectionAngle) this.projectionAngle = new LineConfig(this.defaultIfTrue(projectionAngle, vectorplot_defaults_1.VectorPlotDefault.secondaryLine));
+    }
+}
+exports.VectorPlotPlaneConfig = VectorPlotPlaneConfig;
+class LineConfig extends base_config_1.BaseConfig {
+    constructor({ line, label }){
+        super();
+        this.line = line || vectorplot_defaults_1.VectorPlotDefault.secondaryLine.line;
+        this.label = label;
+    }
+}
+exports.LineConfig = LineConfig;
 
-},{"d4c7f7327af123e8":"ktPTu"}],"7Fxc8":[function(require,module,exports) {
+},{"cedecb93afa1f123":"aDjE7","a6e5fdbddb617cd5":"6gCWA"}],"6gCWA":[function(require,module,exports) {
+"use strict";
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.VectorPlotDefault = void 0;
+var VectorPlotDefault;
+(function(VectorPlotDefault) {
+    const lineColor = 0x000000;
+    VectorPlotDefault.primaryLine = {
+        line: {
+            type: "solid",
+            style: {
+                color: lineColor
+            }
+        }
+    };
+    VectorPlotDefault.secondaryLine = {
+        line: {
+            type: "dashed",
+            style: {
+                color: lineColor,
+                scale: 1,
+                dashSize: 0.25,
+                gapSize: 0.1
+            }
+        }
+    };
+})(VectorPlotDefault || (exports.VectorPlotDefault = VectorPlotDefault = {}));
+
+},{}],"7Fxc8":[function(require,module,exports) {
 "use strict";
 Object.defineProperty(exports, "__esModule", {
     value: true
@@ -40758,6 +40736,25 @@ Greek.uppercaseReversedLunateSigmaSymbol = "\u03FD";
 Greek.uppercaseDottedLunateSigmaSymbol = "\u03FE";
 Greek.uppercaseReversedDottedLunateSigmaSymbol = "\u03FF";
 
-},{}]},["dx0HB","km4aL"], "km4aL", "parcelRequire9513")
+},{}],"cFD2Z":[function(require,module,exports) {
+"use strict";
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.getRandomPoints = void 0;
+const three_1 = require("d4c7f7327af123e8");
+const getRandomPoints = (n = 100, scale = 10)=>{
+    const points = [];
+    for(let index = 0; index < n; index++){
+        const x = Math.random() * scale;
+        const y = Math.random() * scale;
+        const z = Math.random() * scale;
+        points.push(new three_1.Vector3(x, y, z));
+    }
+    return points;
+};
+exports.getRandomPoints = getRandomPoints;
+
+},{"d4c7f7327af123e8":"ktPTu"}]},["dx0HB","km4aL"], "km4aL", "parcelRequire9513")
 
 //# sourceMappingURL=index.0489cf72.js.map

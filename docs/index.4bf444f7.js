@@ -590,7 +590,7 @@ var _label = require("./label");
 var _glyph = require("./glyph");
 var _data = require("./data");
 
-},{"./frame":"bCL66","./plots/scatterplot":"kKQFI","./plots/vectorplot":"83AEn","./label":"dyAII","./data":"6C1am","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./glyph":"8wG4Z"}],"bCL66":[function(require,module,exports) {
+},{"./frame":"bCL66","./plots/scatterplot":"kKQFI","./plots/vectorplot":"83AEn","./label":"dyAII","./glyph":"8wG4Z","./data":"6C1am","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"bCL66":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "Frame", ()=>Frame);
@@ -771,7 +771,7 @@ class Axes {
     }
 }
 
-},{"three":"ktPTu","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","three/examples/jsm/lines/Line2":"kgvYG","three/examples/jsm/lines/LineGeometry":"5c0fE","three/examples/jsm/lines/LineMaterial":"insFK","./axes.config":"lier3"}],"lier3":[function(require,module,exports) {
+},{"three":"ktPTu","three/examples/jsm/lines/Line2":"kgvYG","three/examples/jsm/lines/LineGeometry":"5c0fE","three/examples/jsm/lines/LineMaterial":"insFK","./axes.config":"lier3","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"lier3":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "AxesConfig", ()=>AxesConfig);
@@ -792,9 +792,9 @@ class AxisConfig extends (0, _baseConfig.BaseConfig) {
     constructor(params, identifier){
         super();
         const { width, label, color } = params;
-    // if (label) this.label = label;
-    // if (width) this.width = width;
-    // if (color) this.color = color;
+        if (label) this.label = this.defaultIfTrue(label, defaultAxisConfig[identifier].label);
+        if (width) this.width = this.defaultIfTrue(width, defaultAxisConfig[identifier].width);
+        if (color) this.color = this.defaultIfTrue(color, defaultAxisConfig[identifier].color);
     }
 }
 const defaultAxisConfig = {
@@ -821,16 +821,13 @@ const defaultAxisConfig = {
     }
 };
 
-},{"./plots/base.config":"aklxY","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./axes":"2EXQV"}],"aklxY":[function(require,module,exports) {
+},{"./axes":"2EXQV","./plots/base.config":"aklxY","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"aklxY":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "BaseConfig", ()=>BaseConfig);
 class BaseConfig {
     defaultIfTrue(value, defaultValue) {
         return value === true ? defaultValue : value;
-    }
-    defaultIfUndefined(defaultValue, value) {
-        return value === undefined ? defaultValue : value;
     }
     defaultIfTrueOrUndefined(value, defaultValue) {
         return value === undefined || value === true || isEmpty(value) ? defaultValue : value;
@@ -994,7 +991,26 @@ class VectorPlot extends (0, _plot.Plot) {
     }
 }
 
-},{"three":"ktPTu","../plot":"hsxxN","../axes":"2EXQV","./vectorplot.config":"2jQnK","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","../label":"dyAII"}],"2jQnK":[function(require,module,exports) {
+},{"three":"ktPTu","../axes":"2EXQV","../label":"dyAII","../plot":"hsxxN","./vectorplot.config":"2jQnK","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"dyAII":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "Label", ()=>Label);
+var _troikaThreeText = require("troika-three-text");
+class Label extends (0, _troikaThreeText.Text) {
+    constructor(position, params){
+        super();
+        this.text = params.text;
+        this.fontSize = params.fontSize || 1;
+        this.position.x = position.x;
+        this.position.y = position.y;
+        this.position.z = position.z;
+        this.anchorX = params.anchorX || "center";
+        this.anchorY = params.anchorY || "middle";
+        this.color = params.color || 0x000000;
+    }
+}
+
+},{"troika-three-text":"7YS8r","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"2jQnK":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "VectorPlotConfig", ()=>VectorPlotConfig);
@@ -1036,7 +1052,7 @@ class LineConfig extends (0, _baseConfig.BaseConfig) {
     }
 }
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./base.config":"aklxY","./vectorplot.defaults":"l7EkQ"}],"l7EkQ":[function(require,module,exports) {
+},{"./base.config":"aklxY","./vectorplot.defaults":"l7EkQ","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"l7EkQ":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "VectorPlotDefault", ()=>VectorPlotDefault);
@@ -1064,42 +1080,7 @@ var VectorPlotDefault;
     };
 })(VectorPlotDefault || (VectorPlotDefault = {}));
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"dyAII":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "Label", ()=>Label);
-var _troikaThreeText = require("troika-three-text");
-class Label extends (0, _troikaThreeText.Text) {
-    constructor(position, params){
-        super();
-        this.text = params.text;
-        this.fontSize = params.fontSize || 1;
-        this.position.x = position.x;
-        this.position.y = position.y;
-        this.position.z = position.z;
-        this.anchorX = params.anchorX || "center";
-        this.anchorY = params.anchorY || "middle";
-        this.color = params.color || 0x000000;
-    }
-}
-
-},{"troika-three-text":"7YS8r","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"6C1am":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "getRandomPoints", ()=>getRandomPoints);
-var _three = require("three");
-const getRandomPoints = (n = 100, scale = 10)=>{
-    const points = [];
-    for(let index = 0; index < n; index++){
-        const x = Math.random() * scale;
-        const y = Math.random() * scale;
-        const z = Math.random() * scale;
-        points.push(new (0, _three.Vector3)(x, y, z));
-    }
-    return points;
-};
-
-},{"three":"ktPTu","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"8wG4Z":[function(require,module,exports) {
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"8wG4Z":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "Greek", ()=>Greek);
@@ -1241,6 +1222,22 @@ class Greek {
     static #_134 = this.uppercaseReversedDottedLunateSigmaSymbol = "\u03FF";
 }
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}]},["gBWlm","h7u1C"], "h7u1C", "parcelRequire9513")
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"6C1am":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "getRandomPoints", ()=>getRandomPoints);
+var _three = require("three");
+const getRandomPoints = (n = 100, scale = 10)=>{
+    const points = [];
+    for(let index = 0; index < n; index++){
+        const x = Math.random() * scale;
+        const y = Math.random() * scale;
+        const z = Math.random() * scale;
+        points.push(new (0, _three.Vector3)(x, y, z));
+    }
+    return points;
+};
+
+},{"three":"ktPTu","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}]},["gBWlm","h7u1C"], "h7u1C", "parcelRequire9513")
 
 //# sourceMappingURL=index.4bf444f7.js.map
