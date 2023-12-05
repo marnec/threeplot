@@ -3,6 +3,9 @@ export class BaseConfig {
     return value === true ? defaultValue : value;
   }
 
+  protected defaultIfNullish<T>(value: T | undefined | null, defaultValue: NonNullable<T>): NonNullable<T> {
+    return value === undefined || value === null ? defaultValue : value;
+  }
 
   protected defaultIfTrueOrUndefined<T extends object | undefined, D = NonNullable<T>>(
     value: T | true,

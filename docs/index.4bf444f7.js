@@ -631,9 +631,10 @@ class Frame extends (0, _three.Scene) {
     }
     setAxes(params) {
         this.axes = new (0, _axes.Axes)(this.size, this.size, this.size, params);
-        this.scene.add(this.axes.x);
-        this.scene.add(this.axes.y);
-        this.scene.add(this.axes.z);
+        const { x, y, z } = this.axes;
+        if (x) this.scene.add(x);
+        if (y) this.scene.add(y);
+        if (z) this.scene.add(z);
         this.scene.add(this.axes.gridXY);
         this.scene.add(this.axes.gridXZ);
         this.scene.add(this.axes.gridYZ);
@@ -731,7 +732,7 @@ class Axis extends (0, _line2.Line2) {
     constructor(direction, length, params, axisIdentifier){
         const points = [
             new (0, _three.Vector3)(),
-            direction.multiplyScalar(length)
+            direction.clone().multiplyScalar(length)
         ];
         const geometry = new (0, _lineGeometry.LineGeometry)();
         geometry.setPositions(points.flatMap((p)=>p.toArray()));
@@ -751,9 +752,9 @@ class Axes {
         this.lengthZ = lengthZ;
         this.config = new (0, _axesConfig.AxesConfig)(options);
         const { x, y, z } = this.config;
-        if (x) this.x = new Axis(new (0, _three.Vector3)(1, 0, 0), this.lengthX * 1.1, x, NamedAxis.x.name);
-        if (y) this.y = new Axis(new (0, _three.Vector3)(0, 1, 0), this.lengthY * 1.1, y, NamedAxis.y.name);
-        if (z) this.z = new Axis(new (0, _three.Vector3)(0, 0, 1), this.lengthZ * 1.1, z, NamedAxis.z.name);
+        if (x) this.x = new Axis(NamedAxis.x.unit, this.lengthX * 1.1, x, NamedAxis.x.name);
+        if (y) this.y = new Axis(NamedAxis.y.unit, this.lengthY * 1.1, y, NamedAxis.y.name);
+        if (z) this.z = new Axis(NamedAxis.z.unit, this.lengthZ * 1.1, z, NamedAxis.z.name);
         this.setGrids();
     }
     setGrids() {
@@ -763,11 +764,11 @@ class Axes {
         this.gridXY = new (0, _three.GridHelper)(Math.max(this.lengthX, this.lengthY));
         this.gridXY.position.setX(this.lengthX / 2);
         this.gridXY.position.setY(this.lengthY / 2);
-        this.gridXY.rotateOnAxis(new (0, _three.Vector3)(1, 0, 0), Math.PI / 2);
+        this.gridXY.rotateOnAxis(NamedAxis.x.unit, Math.PI / 2);
         this.gridYZ = new (0, _three.GridHelper)(Math.max(this.lengthY, this.lengthZ));
         this.gridYZ.position.setY(this.lengthY / 2);
         this.gridYZ.position.setZ(this.lengthZ / 2);
-        this.gridYZ.rotateOnAxis(new (0, _three.Vector3)(0, 0, 1), Math.PI / 2);
+        this.gridYZ.rotateOnAxis(NamedAxis.z.unit, Math.PI / 2);
     }
 }
 
@@ -791,30 +792,30 @@ class AxesConfig extends (0, _baseConfig.BaseConfig) {
 class AxisConfig extends (0, _baseConfig.BaseConfig) {
     constructor(params, identifier){
         super();
-        const { width, label, color } = params;
-        if (label) this.label = this.defaultIfTrue(label, defaultAxisConfig[identifier].label);
-        if (width) this.width = this.defaultIfTrue(width, defaultAxisConfig[identifier].width);
-        if (color) this.color = this.defaultIfTrue(color, defaultAxisConfig[identifier].color);
+        const { width, label, color } = params || {};
+        if (label !== false) this.label = this.defaultIfTrueOrUndefined(label, defaultAxisConfig[identifier].label);
+        this.width = this.defaultIfNullish(width, defaultAxisConfig[identifier].width);
+        this.color = this.defaultIfNullish(color, defaultAxisConfig[identifier].color);
     }
 }
 const defaultAxisConfig = {
     x: {
         color: 0xff0000,
-        width: 0.001,
+        width: 0.01,
         label: {
             text: "x"
         }
     },
     y: {
         color: 0x00ff00,
-        width: 0.001,
+        width: 0.01,
         label: {
             text: "y"
         }
     },
     z: {
         color: 0x0000ff,
-        width: 0.001,
+        width: 0.01,
         label: {
             text: "z"
         }
@@ -828,6 +829,9 @@ parcelHelpers.export(exports, "BaseConfig", ()=>BaseConfig);
 class BaseConfig {
     defaultIfTrue(value, defaultValue) {
         return value === true ? defaultValue : value;
+    }
+    defaultIfNullish(value, defaultValue) {
+        return value === undefined || value === null ? defaultValue : value;
     }
     defaultIfTrueOrUndefined(value, defaultValue) {
         return value === undefined || value === true || isEmpty(value) ? defaultValue : value;

@@ -51,9 +51,11 @@ export class Frame extends Scene {
   private setAxes(params?: AxesParams) {
     this.axes = new Axes(this.size, this.size, this.size, params);
 
-    this.scene.add(this.axes.x);
-    this.scene.add(this.axes.y);
-    this.scene.add(this.axes.z);
+    const {x, y, z} = this.axes;
+
+    if (x) this.scene.add(x);
+    if (y) this.scene.add(y);
+    if (z) this.scene.add(z);
 
     this.scene.add(this.axes.gridXY);
     this.scene.add(this.axes.gridXZ);

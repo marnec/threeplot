@@ -20,35 +20,35 @@ export class AxesConfig extends BaseConfig implements AxesParams {
 }
 
 export class AxisConfig extends BaseConfig implements Required<AxisParams> {
-  label: LabelProperties;
+  label: LabelProperties | false;
   color: number;
   width: number;
 
   constructor(params: AxisParams, identifier: keyof typeof NamedAxis) {
     super();
 
-    const { width, label, color } = params;
+    const { width, label, color } = params || {};
 
-    if (label) this.label = this.defaultIfTrue(label, defaultAxisConfig[identifier].label);
-    if (width) this.width = this.defaultIfTrue(width, defaultAxisConfig[identifier].width);
-    if (color) this.color = this.defaultIfTrue(color, defaultAxisConfig[identifier].color);
+    if (label !== false) this.label = this.defaultIfTrueOrUndefined(label, defaultAxisConfig[identifier].label);
+    this.width = this.defaultIfNullish(width, defaultAxisConfig[identifier].width);
+    this.color = this.defaultIfNullish(color, defaultAxisConfig[identifier].color);
   }
 }
 
 export const defaultAxisConfig = {
   x: {
     color: 0xff0000,
-    width: 0.001,
+    width: 0.01,
     label: { text: "x" },
   },
   y: {
     color: 0x00ff00,
-    width: 0.001,
+    width: 0.01,
     label: { text: "y" },
   },
   z: {
     color: 0x0000ff,
-    width: 0.001,
+    width: 0.01,
     label: { text: "z" },
   },
 } as const;

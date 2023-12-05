@@ -30898,9 +30898,10 @@ class Frame extends three_1.Scene {
     }
     setAxes(params) {
         this.axes = new axes_1.Axes(this.size, this.size, this.size, params);
-        this.scene.add(this.axes.x);
-        this.scene.add(this.axes.y);
-        this.scene.add(this.axes.z);
+        const { x, y, z } = this.axes;
+        if (x) this.scene.add(x);
+        if (y) this.scene.add(y);
+        if (z) this.scene.add(z);
         this.scene.add(this.axes.gridXY);
         this.scene.add(this.axes.gridXZ);
         this.scene.add(this.axes.gridYZ);
@@ -31751,7 +31752,7 @@ class Axis extends Line2_1.Line2 {
     constructor(direction, length, params, axisIdentifier){
         const points = [
             new three_1.Vector3(),
-            direction.multiplyScalar(length)
+            direction.clone().multiplyScalar(length)
         ];
         const geometry = new LineGeometry_1.LineGeometry();
         geometry.setPositions(points.flatMap((p)=>p.toArray()));
@@ -31771,9 +31772,9 @@ class Axes {
         this.lengthZ = lengthZ;
         this.config = new axes_config_1.AxesConfig(options);
         const { x, y, z } = this.config;
-        if (x) this.x = new Axis(new three_1.Vector3(1, 0, 0), this.lengthX * 1.1, x, exports.NamedAxis.x.name);
-        if (y) this.y = new Axis(new three_1.Vector3(0, 1, 0), this.lengthY * 1.1, y, exports.NamedAxis.y.name);
-        if (z) this.z = new Axis(new three_1.Vector3(0, 0, 1), this.lengthZ * 1.1, z, exports.NamedAxis.z.name);
+        if (x) this.x = new Axis(exports.NamedAxis.x.unit, this.lengthX * 1.1, x, exports.NamedAxis.x.name);
+        if (y) this.y = new Axis(exports.NamedAxis.y.unit, this.lengthY * 1.1, y, exports.NamedAxis.y.name);
+        if (z) this.z = new Axis(exports.NamedAxis.z.unit, this.lengthZ * 1.1, z, exports.NamedAxis.z.name);
         this.setGrids();
     }
     setGrids() {
@@ -31783,11 +31784,11 @@ class Axes {
         this.gridXY = new three_1.GridHelper(Math.max(this.lengthX, this.lengthY));
         this.gridXY.position.setX(this.lengthX / 2);
         this.gridXY.position.setY(this.lengthY / 2);
-        this.gridXY.rotateOnAxis(new three_1.Vector3(1, 0, 0), Math.PI / 2);
+        this.gridXY.rotateOnAxis(exports.NamedAxis.x.unit, Math.PI / 2);
         this.gridYZ = new three_1.GridHelper(Math.max(this.lengthY, this.lengthZ));
         this.gridYZ.position.setY(this.lengthY / 2);
         this.gridYZ.position.setZ(this.lengthZ / 2);
-        this.gridYZ.rotateOnAxis(new three_1.Vector3(0, 0, 1), Math.PI / 2);
+        this.gridYZ.rotateOnAxis(exports.NamedAxis.z.unit, Math.PI / 2);
     }
 }
 exports.Axes = Axes;
@@ -32792,31 +32793,31 @@ exports.AxesConfig = AxesConfig;
 class AxisConfig extends base_config_1.BaseConfig {
     constructor(params, identifier){
         super();
-        const { width, label, color } = params;
-        if (label) this.label = this.defaultIfTrue(label, exports.defaultAxisConfig[identifier].label);
-        if (width) this.width = this.defaultIfTrue(width, exports.defaultAxisConfig[identifier].width);
-        if (color) this.color = this.defaultIfTrue(color, exports.defaultAxisConfig[identifier].color);
+        const { width, label, color } = params || {};
+        if (label !== false) this.label = this.defaultIfTrueOrUndefined(label, exports.defaultAxisConfig[identifier].label);
+        this.width = this.defaultIfNullish(width, exports.defaultAxisConfig[identifier].width);
+        this.color = this.defaultIfNullish(color, exports.defaultAxisConfig[identifier].color);
     }
 }
 exports.AxisConfig = AxisConfig;
 exports.defaultAxisConfig = {
     x: {
         color: 0xff0000,
-        width: 0.001,
+        width: 0.01,
         label: {
             text: "x"
         }
     },
     y: {
         color: 0x00ff00,
-        width: 0.001,
+        width: 0.01,
         label: {
             text: "y"
         }
     },
     z: {
         color: 0x0000ff,
-        width: 0.001,
+        width: 0.01,
         label: {
             text: "z"
         }
@@ -32832,6 +32833,9 @@ exports.BaseConfig = void 0;
 class BaseConfig {
     defaultIfTrue(value, defaultValue) {
         return value === true ? defaultValue : value;
+    }
+    defaultIfNullish(value, defaultValue) {
+        return value === undefined || value === null ? defaultValue : value;
     }
     defaultIfTrueOrUndefined(value, defaultValue) {
         return value === undefined || value === true || isEmpty(value) ? defaultValue : value;

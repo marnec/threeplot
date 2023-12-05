@@ -27,7 +27,7 @@ class Axis extends Line2 {
   config: AxisConfig;
 
   constructor(direction: Vector3, length: number, params: AxisParams, axisIdentifier: keyof typeof NamedAxis) {
-    const points = [new Vector3(), direction.multiplyScalar(length)];
+    const points = [new Vector3(), direction.clone().multiplyScalar(length)];
 
     const geometry = new LineGeometry();
     geometry.setPositions(points.flatMap((p) => p.toArray()));
@@ -55,9 +55,9 @@ export class Axes {
 
     const { x, y, z } = this.config;
 
-    if (x) this.x = new Axis(new Vector3(1, 0, 0), this.lengthX * 1.1, x, NamedAxis.x.name);
-    if (y) this.y = new Axis(new Vector3(0, 1, 0), this.lengthY * 1.1, y, NamedAxis.y.name);
-    if (z) this.z = new Axis(new Vector3(0, 0, 1), this.lengthZ * 1.1, z, NamedAxis.z.name);
+    if (x) this.x = new Axis(NamedAxis.x.unit, this.lengthX * 1.1, x, NamedAxis.x.name);
+    if (y) this.y = new Axis(NamedAxis.y.unit, this.lengthY * 1.1, y, NamedAxis.y.name);
+    if (z) this.z = new Axis(NamedAxis.z.unit, this.lengthZ * 1.1, z, NamedAxis.z.name);
 
     this.setGrids();
   }
@@ -70,11 +70,11 @@ export class Axes {
     this.gridXY = new GridHelper(Math.max(this.lengthX, this.lengthY));
     this.gridXY.position.setX(this.lengthX / 2);
     this.gridXY.position.setY(this.lengthY / 2);
-    this.gridXY.rotateOnAxis(new Vector3(1, 0, 0), Math.PI / 2);
+    this.gridXY.rotateOnAxis(NamedAxis.x.unit, Math.PI / 2);
 
     this.gridYZ = new GridHelper(Math.max(this.lengthY, this.lengthZ));
     this.gridYZ.position.setY(this.lengthY / 2);
     this.gridYZ.position.setZ(this.lengthZ / 2);
-    this.gridYZ.rotateOnAxis(new Vector3(0, 0, 1), Math.PI / 2);
+    this.gridYZ.rotateOnAxis(NamedAxis.z.unit, Math.PI / 2);
   }
 }
