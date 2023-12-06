@@ -1,5 +1,5 @@
 import { test, expect } from "vitest";
-import { Axes, Axis } from "../../src/axes";
+import { Axes, Axis, NamedAxis } from "../../src/axes";
 import { GridHelper } from "three";
 
 test("should create an instance of Axes with given lengths and options", () => {
@@ -14,9 +14,9 @@ test("should create an instance of Axes with given lengths and options", () => {
 
   const axes = new Axes(lengthX, lengthY, lengthZ, options);
 
-  expect(axes.x).toBeInstanceOf(Axis);
-  expect(axes.y).toBeInstanceOf(Axis);
-  expect(axes.z).toBeInstanceOf(Axis);
+  expect(axes.getDrawables().find((a) => (a as Axis).axisIdentifier === NamedAxis.x.name)).toBeInstanceOf(Axis);
+  expect(axes.getDrawables().find((a) => (a as Axis).axisIdentifier === NamedAxis.y.name)).toBeInstanceOf(Axis);
+  expect(axes.getDrawables().find((a) => (a as Axis).axisIdentifier === NamedAxis.z.name)).toBeInstanceOf(Axis);
   expect(axes.gridXZ).toBeInstanceOf(GridHelper);
   expect(axes.gridXY).toBeInstanceOf(GridHelper);
   expect(axes.gridYZ).toBeInstanceOf(GridHelper);
@@ -34,9 +34,9 @@ test("should create an instance of Axis for each non-false axis in options", () 
 
   const axes = new Axes(lengthX, lengthY, lengthZ, options);
 
-  expect(axes.x).toBeInstanceOf(Axis);
-  expect(axes.y).toBeUndefined();
-  expect(axes.z).toBeInstanceOf(Axis);
+  expect(axes.getDrawables().find((a) => (a as Axis).axisIdentifier === NamedAxis.x.name)).toBeInstanceOf(Axis);
+  expect(axes.getDrawables().find((a) => (a as Axis).axisIdentifier === NamedAxis.y.name)).toBeUndefined();
+  expect(axes.getDrawables().find((a) => (a as Axis).axisIdentifier === NamedAxis.z.name)).toBeInstanceOf(Axis);
 });
 
 test("should create an instance of GridHelper for each grid", () => {
@@ -63,9 +63,9 @@ test("should create an instance of Axes with no options", () => {
 
   const axes = new Axes(lengthX, lengthY, lengthZ);
 
-  expect(axes.x).toBeInstanceOf(Axis);
-  expect(axes.y).toBeInstanceOf(Axis);
-  expect(axes.z).toBeInstanceOf(Axis);
+  expect(axes.getDrawables().find((a) => (a as Axis).axisIdentifier === NamedAxis.x.name)).toBeInstanceOf(Axis);
+  expect(axes.getDrawables().find((a) => (a as Axis).axisIdentifier === NamedAxis.y.name)).toBeInstanceOf(Axis);
+  expect(axes.getDrawables().find((a) => (a as Axis).axisIdentifier === NamedAxis.z.name)).toBeInstanceOf(Axis);
   expect(axes.gridXZ).toBeInstanceOf(GridHelper);
   expect(axes.gridXY).toBeInstanceOf(GridHelper);
   expect(axes.gridYZ).toBeInstanceOf(GridHelper);
@@ -83,9 +83,7 @@ test("should create an instance of Axes with false options", () => {
 
   const axes = new Axes(lengthX, lengthY, lengthZ, options);
 
-  expect(axes.x).toBeUndefined();
-  expect(axes.y).toBeUndefined();
-  expect(axes.z).toBeUndefined();
+  expect(axes.getDrawables()).toHaveLength(0);
   expect(axes.gridXZ).toBeInstanceOf(GridHelper);
   expect(axes.gridXY).toBeInstanceOf(GridHelper);
   expect(axes.gridYZ).toBeInstanceOf(GridHelper);
@@ -103,9 +101,9 @@ test("should create an instance of Axis with zero length", () => {
 
   const axes = new Axes(lengthX, lengthY, lengthZ, options);
 
-  expect(axes.x).toBeInstanceOf(Axis);
-  expect(axes.y).toBeInstanceOf(Axis);
-  expect(axes.z).toBeInstanceOf(Axis);
+  expect(axes.getDrawables().find((a) => (a as Axis).axisIdentifier === NamedAxis.x.name)).toBeInstanceOf(Axis);
+  expect(axes.getDrawables().find((a) => (a as Axis).axisIdentifier === NamedAxis.y.name)).toBeInstanceOf(Axis);
+  expect(axes.getDrawables().find((a) => (a as Axis).axisIdentifier === NamedAxis.z.name)).toBeInstanceOf(Axis);
   expect(axes.gridXZ).toBeInstanceOf(GridHelper);
   expect(axes.gridXY).toBeInstanceOf(GridHelper);
   expect(axes.gridYZ).toBeInstanceOf(GridHelper);

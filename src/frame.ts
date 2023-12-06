@@ -1,7 +1,7 @@
 import { Color, PerspectiveCamera, Scene, WebGLRenderer } from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { Axes } from "./axes";
-import { Plot } from "./plot";
+import { Frameable, Plot } from "./plot";
 import { Label } from "./label";
 import { AxesParams } from "./axes.params";
 
@@ -9,7 +9,6 @@ export class Frame extends Scene {
   protected scene: Scene;
   protected renderer: WebGLRenderer;
   protected camera: PerspectiveCamera;
-  protected axes: Axes;
   protected controls: OrbitControls;
   protected observer: ResizeObserver = new ResizeObserver(() => this.onCanvasResize());
   protected width: number;
@@ -39,7 +38,8 @@ export class Frame extends Scene {
 
   private setCamera(width: number, height: number) {
     this.camera = new PerspectiveCamera(45, width / height, 0.1, 1000);
-    this.camera.position.set(this.size * 1.5, this.size * 1.2, this.size * 2.5);
+    
+    this.camera.position.set(this.size * 1.7, this.size * 1.5, this.size * 2.7);
     this.scene.add(this.camera);
   }
 
@@ -49,17 +49,13 @@ export class Frame extends Scene {
   }
 
   private setAxes(params?: AxesParams) {
-    this.axes = new Axes(this.size, this.size, this.size, params);
+    const axes = new Axes(this.size, this.size, this.size, params);
 
-    const {x, y, z} = this.axes;
+    this.addFrameable(axes);
 
-    if (x) this.scene.add(x);
-    if (y) this.scene.add(y);
-    if (z) this.scene.add(z);
-
-    this.scene.add(this.axes.gridXY);
-    this.scene.add(this.axes.gridXZ);
-    this.scene.add(this.axes.gridYZ);
+    this.scene.add(axes.gridXY);
+    this.scene.add(axes.gridXZ);
+    this.scene.add(axes.gridYZ);
   }
 
   updateOnChanges() {
@@ -81,11 +77,15 @@ export class Frame extends Scene {
     return base64;
   }
 
-  public async addPlot(plot: Plot) {
-    this.scene.add(...plot.getDrawables());
-    plot.getWritables().forEach((l) => this.addLabel(l));
+  private addFrameable(frameable: Frameable) {
+    this.scene.add(...frameable.getDrawables());
+    frameable.getWritables().forEach((l) => this.addLabel(l));
 
     this.update();
+  }
+
+  public addPlot(plot: Plot) {
+    this.addFrameable(plot);
   }
 
   public addLabel(text: Label) {

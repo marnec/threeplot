@@ -2,8 +2,10 @@ import { GridHelper, Vector3 } from "three";
 import { Line2 } from "three/examples/jsm/lines/Line2";
 import { LineGeometry } from "three/examples/jsm/lines/LineGeometry";
 import { LineMaterial } from "three/examples/jsm/lines/LineMaterial";
-import { AxesParams, AxisParams } from "./axes.params";
 import { AxesConfig, AxisConfig } from "./axes.config";
+import { AxesParams, AxisParams } from "./axes.params";
+import { Framed } from "./plot";
+import { Label, LabelProperties } from "./label";
 
 export const UnitVector = {
   i: new Vector3(1, 0, 0),
@@ -26,7 +28,7 @@ export const NamedAxis = {
 export class Axis extends Line2 {
   config: AxisConfig;
 
-  constructor(direction: Vector3, length: number, params: AxisParams, axisIdentifier: keyof typeof NamedAxis) {
+  constructor(direction: Vector3, private length: number, params: AxisParams, public axisIdentifier: keyof typeof NamedAxis) {
     const points = [new Vector3(), direction.clone().multiplyScalar(length)];
 
     const geometry = new LineGeometry();
@@ -39,25 +41,43 @@ export class Axis extends Line2 {
 
     super.computeLineDistances();
   }
+
+  getLabel(params: LabelProperties) {
+    return new Label(
+      NamedAxis[this.axisIdentifier].unit.clone().multiplyScalar(this.length + (params.fontSize || 1)),
+      params
+    );
+  }
 }
 
-export class Axes {
-  public x: Line2;
-  public y: Line2;
-  public z: Line2;
+export class Axes extends Framed {
   public gridXZ: GridHelper;
   public gridXY: GridHelper;
   public gridYZ: GridHelper;
   private config: AxesConfig;
 
   constructor(private lengthX: number, private lengthY: number, private lengthZ: number, options?: AxesParams) {
+    super();
+
     this.config = new AxesConfig(options);
 
     const { x, y, z } = this.config;
 
-    if (x) this.x = new Axis(NamedAxis.x.unit, this.lengthX * 1.1, x, NamedAxis.x.name);
-    if (y) this.y = new Axis(NamedAxis.y.unit, this.lengthY * 1.1, y, NamedAxis.y.name);
-    if (z) this.z = new Axis(NamedAxis.z.unit, this.lengthZ * 1.1, z, NamedAxis.z.name);
+    if (x) {
+      const xAxis = new Axis(NamedAxis.x.unit, lengthX * 1.1, x, NamedAxis.x.name);
+      this.drawables.push(xAxis);
+      if (x.label) this.writables.push(xAxis.getLabel(x.label));
+    }
+    if (y) {
+      const yAxis = new Axis(NamedAxis.y.unit, lengthY * 1.1, y, NamedAxis.y.name);
+      this.drawables.push(yAxis);
+      if (y.label) this.writables.push(yAxis.getLabel(y.label));
+    }
+    if (z) {
+      const zAxis = new Axis(NamedAxis.z.unit, lengthZ * 1.1, z, NamedAxis.z.name);
+      this.drawables.push(zAxis);
+      if (z.label) this.writables.push(zAxis.getLabel(z.label));
+    }
 
     this.setGrids();
   }

@@ -9,7 +9,7 @@ const canvas4 = document.getElementById("canvas4") as HTMLCanvasElement;
 const points = getRandomPoints(200);
 const scatterPlot = new ScatterPlot(points);
 
-const frame1 = new Frame(canvas1, 10, { x: false, y: { width: 0.025, label: { text: Greek.betaSymbol } } });
+new Frame(canvas1, 10, { x: false, y: { width: 0.025, label: { text: Greek.betaSymbol } } });
 
 const frame2 = new Frame(canvas2, 10);
 frame2.addPlot(scatterPlot);

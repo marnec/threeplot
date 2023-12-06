@@ -1,6 +1,6 @@
 {
   "name": "threeplot",
-  "version": "0.4.3",
+  "version": "0.5.0",
   "description": "programmatically create 3d plots with threejs",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

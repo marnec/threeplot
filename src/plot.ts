@@ -1,12 +1,12 @@
 import { Object3D } from "three";
 import { Label } from "./label";
 
-export interface FramedObject {
+export interface Frameable {
   getDrawables(): Object3D[];
   getWritables(): Label[];
 }
 
-export abstract class Plot implements FramedObject {
+export abstract class Framed implements Frameable {
   protected drawables: Object3D[];
   protected writables: Label[];
 
@@ -23,3 +23,5 @@ export abstract class Plot implements FramedObject {
     this.writables = [];
   }
 }
+
+export abstract class Plot extends Framed {}
