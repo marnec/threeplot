@@ -1,0 +1,16 @@
+canvas[id^="canvas"] {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.grid {
+  grid-template-columns: repeat(3, 1fr);
+  gap: 5px;
+  display: grid;
+}
+
+.grid-item {
+  height: 33vw;
+}
+
+/*# sourceMappingURL=index.a1f5851f.css.map */
