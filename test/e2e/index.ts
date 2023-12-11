@@ -9,7 +9,7 @@ const canvas4 = document.getElementById("canvas4") as HTMLCanvasElement;
 const points = getRandomPoints(200);
 const scatterPlot = new ScatterPlot(points);
 
-new Frame(canvas1, 10, { x: false, y: { width: 0.025, label: { text: Greek.betaSymbol } } });
+new Frame(canvas1, 10, { x: false, y: { width: 0.025, label: { text: Greek.betaSymbol } } }, { yz: false });
 
 const frame2 = new Frame(canvas2, 10);
 frame2.addPlot(scatterPlot);
@@ -19,7 +19,7 @@ frame3.addLabel(
   new Label(new Vector3(3, 3, 3), { text: `${Greek.lowercaseAlpha}=1/2${Greek.lowercasePi}`, fontSize: 1 })
 );
 
-const frame4 = new Frame(canvas4, 10);
+const frame4 = new Frame(canvas4, 10, {}, { xy: false, xz: false, yz: false });
 frame4.addPlot(
   new VectorPlot(new Vector3(0, 0, 0), new Vector3(7, 6.4, 4.6), {
     angle: { label: { text: Greek.uppercasePhi, anchorY: "top" } },
