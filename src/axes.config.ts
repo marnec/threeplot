@@ -1,5 +1,5 @@
 import { NamedAxis } from "./axes";
-import { AxesParams, AxisParams } from "./axes.params";
+import { AxesParams, AxisParams, GridParams } from "./axes.params";
 import { LabelProperties } from "./label";
 import { BaseConfig } from "./plots/base.config";
 
@@ -32,6 +32,22 @@ export class AxisConfig extends BaseConfig implements Required<AxisParams> {
     if (label !== false) this.label = this.defaultIfTrueOrUndefined(label, defaultAxisConfig[identifier].label);
     this.width = this.defaultIfNullish(width, defaultAxisConfig[identifier].width);
     this.color = this.defaultIfNullish(color, defaultAxisConfig[identifier].color);
+  }
+}
+
+export class GridConfig extends BaseConfig implements Required<GridParams> {
+  xy: boolean;
+  xz: boolean;
+  yz: boolean;
+
+  constructor(params?: GridParams) {
+    super();
+
+    const { xy, yz, xz } = params || {}
+
+    this.xy = this.defaultIfNullish(xy, true)
+    this.xz = this.defaultIfNullish(xz, true)
+    this.yz = this.defaultIfNullish(yz, true)
   }
 }
 

@@ -3,7 +3,7 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { Axes } from "./axes";
 import { Frameable, Plot } from "./plot";
 import { Label } from "./label";
-import { AxesParams } from "./axes.params";
+import { AxesParams, GridParams } from "./axes.params";
 
 export class Frame extends Scene {
   protected scene: Scene;
@@ -16,7 +16,12 @@ export class Frame extends Scene {
 
   // TODO: at the moment only one size bc grid can only be squared
   // look into this for solution https://discourse.threejs.org/t/rectangular-gridhelper-possibility/37812
-  constructor(protected canvas: HTMLCanvasElement, protected size = 10, axesParams?: AxesParams) {
+  constructor(
+    protected canvas: HTMLCanvasElement,
+    protected size = 10,
+    axesParams?: AxesParams,
+    gridParams?: GridParams
+  ) {
     super();
     this.scene = new Scene();
     this.scene.background = new Color(0xffffff);
@@ -30,7 +35,7 @@ export class Frame extends Scene {
 
     this.setCamera(clientWidth, clientHeight);
     this.setControls();
-    this.setAxes(axesParams);
+    this.setAxesAndGrids(axesParams, gridParams);
 
     this.updateOnChanges();
     this.update();
@@ -38,7 +43,7 @@ export class Frame extends Scene {
 
   private setCamera(width: number, height: number) {
     this.camera = new PerspectiveCamera(45, width / height, 0.1, 1000);
-    
+
     this.camera.position.set(this.size * 1.7, this.size * 1.5, this.size * 2.7);
     this.scene.add(this.camera);
   }
@@ -48,14 +53,9 @@ export class Frame extends Scene {
     this.controls.target.set(0, 0, 0);
   }
 
-  private setAxes(params?: AxesParams) {
-    const axes = new Axes(this.size, this.size, this.size, params);
-
+  private setAxesAndGrids(params?: AxesParams, gridParams?: GridParams) {
+    const axes = new Axes(this.size, this.size, this.size, params, gridParams);
     this.addFrameable(axes);
-
-    this.scene.add(axes.gridXY);
-    this.scene.add(axes.gridXZ);
-    this.scene.add(axes.gridYZ);
   }
 
   updateOnChanges() {
