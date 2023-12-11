@@ -1,4 +1,4 @@
-import { NamedAxis } from "./axes";
+import { NamedAxis, PlaneAxes } from "./axes";
 import { LabelProperties } from "./label";
 
 export type AxesParams = Partial<Record<keyof typeof NamedAxis, AxisParams | boolean>>;
@@ -9,4 +9,4 @@ export type AxisParams = {
   width?: number;
 };
 
-export type GridParams = {};
+export type GridParams = Partial<Record<keyof typeof PlaneAxes, boolean>>;

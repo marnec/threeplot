@@ -2,8 +2,8 @@ import { GridHelper, Vector3 } from "three";
 import { Line2 } from "three/examples/jsm/lines/Line2";
 import { LineGeometry } from "three/examples/jsm/lines/LineGeometry";
 import { LineMaterial } from "three/examples/jsm/lines/LineMaterial";
-import { AxesConfig, AxisConfig } from "./axes.config";
-import { AxesParams, AxisParams } from "./axes.params";
+import { AxesConfig, AxisConfig, GridConfig } from "./axes.config";
+import { AxesParams, AxisParams, GridParams } from "./axes.params";
 import { Framed } from "./plot";
 import { Label, LabelProperties } from "./label";
 
@@ -28,7 +28,12 @@ export const NamedAxis = {
 export class Axis extends Line2 {
   config: AxisConfig;
 
-  constructor(direction: Vector3, private length: number, params: AxisParams, public axisIdentifier: keyof typeof NamedAxis) {
+  constructor(
+    direction: Vector3,
+    private length: number,
+    params: AxisParams,
+    public axisIdentifier: keyof typeof NamedAxis
+  ) {
     const points = [new Vector3(), direction.clone().multiplyScalar(length)];
 
     const geometry = new LineGeometry();
@@ -51,17 +56,22 @@ export class Axis extends Line2 {
 }
 
 export class Axes extends Framed {
-  public gridXZ: GridHelper;
-  public gridXY: GridHelper;
-  public gridYZ: GridHelper;
-  private config: AxesConfig;
+  private axesConfig: AxesConfig;
+  private gridsConfig: GridConfig;
 
-  constructor(private lengthX: number, private lengthY: number, private lengthZ: number, options?: AxesParams) {
+  constructor(
+    private lengthX: number,
+    private lengthY: number,
+    private lengthZ: number,
+    axesParams?: AxesParams,
+    gridsParams?: GridParams
+  ) {
     super();
 
-    this.config = new AxesConfig(options);
+    this.axesConfig = new AxesConfig(axesParams);
+    this.gridsConfig = new GridConfig(gridsParams);
 
-    const { x, y, z } = this.config;
+    const { x, y, z } = this.axesConfig;
 
     if (x) {
       const xAxis = new Axis(NamedAxis.x.unit, lengthX * 1.1, x, NamedAxis.x.name);
@@ -83,18 +93,27 @@ export class Axes extends Framed {
   }
 
   private setGrids() {
-    this.gridXZ = new GridHelper(Math.max(this.lengthX, this.lengthZ));
-    this.gridXZ.position.setX(this.lengthX / 2);
-    this.gridXZ.position.setZ(this.lengthZ / 2);
+    if (this.gridsConfig.xz) {
+      const gridXZ = new GridHelper(Math.max(this.lengthX, this.lengthZ));
+      gridXZ.position.setX(this.lengthX / 2);
+      gridXZ.position.setZ(this.lengthZ / 2);
+      this.drawables.push(gridXZ);
+    }
 
-    this.gridXY = new GridHelper(Math.max(this.lengthX, this.lengthY));
-    this.gridXY.position.setX(this.lengthX / 2);
-    this.gridXY.position.setY(this.lengthY / 2);
-    this.gridXY.rotateOnAxis(NamedAxis.x.unit, Math.PI / 2);
+    if (this.gridsConfig.xy) {
+      const gridXY = new GridHelper(Math.max(this.lengthX, this.lengthY));
+      gridXY.position.setX(this.lengthX / 2);
+      gridXY.position.setY(this.lengthY / 2);
+      gridXY.rotateOnAxis(NamedAxis.x.unit, Math.PI / 2);
+      this.drawables.push(gridXY);
+    }
 
-    this.gridYZ = new GridHelper(Math.max(this.lengthY, this.lengthZ));
-    this.gridYZ.position.setY(this.lengthY / 2);
-    this.gridYZ.position.setZ(this.lengthZ / 2);
-    this.gridYZ.rotateOnAxis(NamedAxis.z.unit, Math.PI / 2);
+    if (this.gridsConfig.yz) {
+      const gridYZ = new GridHelper(Math.max(this.lengthY, this.lengthZ));
+      gridYZ.position.setY(this.lengthY / 2);
+      gridYZ.position.setZ(this.lengthZ / 2);
+      gridYZ.rotateOnAxis(NamedAxis.z.unit, Math.PI / 2);
+      this.drawables.push(gridYZ);
+    }
   }
 }
