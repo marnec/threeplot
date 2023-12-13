@@ -591,6 +591,8 @@ new (0, _index.Frame)(canvas1, 10, {
             text: (0, _index.Greek).betaSymbol
         }
     }
+}, {
+    yz: false
 });
 const frame2 = new (0, _index.Frame)(canvas2, 10);
 frame2.addPlot(scatterPlot);
@@ -599,7 +601,11 @@ frame3.addLabel(new (0, _index.Label)(new (0, _three.Vector3)(3, 3, 3), {
     text: `${(0, _index.Greek).lowercaseAlpha}=1/2${(0, _index.Greek).lowercasePi}`,
     fontSize: 1
 }));
-const frame4 = new (0, _index.Frame)(canvas4, 10);
+const frame4 = new (0, _index.Frame)(canvas4, 10, {}, {
+    xy: false,
+    xz: false,
+    yz: false
+});
 frame4.addPlot(new (0, _index.VectorPlot)(new (0, _three.Vector3)(0, 0, 0), new (0, _three.Vector3)(7, 6.4, 4.6), {
     angle: {
         label: {
@@ -30877,7 +30883,7 @@ const axes_1 = require("6eba5448da69cec");
 class Frame extends three_1.Scene {
     // TODO: at the moment only one size bc grid can only be squared
     // look into this for solution https://discourse.threejs.org/t/rectangular-gridhelper-possibility/37812
-    constructor(canvas, size = 10, axesParams){
+    constructor(canvas, size = 10, axesParams, gridParams){
         super();
         this.canvas = canvas;
         this.size = size;
@@ -30893,7 +30899,7 @@ class Frame extends three_1.Scene {
         this.renderer.setSize(clientWidth, clientHeight);
         this.setCamera(clientWidth, clientHeight);
         this.setControls();
-        this.setAxes(axesParams);
+        this.setAxesAndGrids(axesParams, gridParams);
         this.updateOnChanges();
         this.update();
     }
@@ -30906,12 +30912,9 @@ class Frame extends three_1.Scene {
         this.controls = new OrbitControls_1.OrbitControls(this.camera, this.canvas);
         this.controls.target.set(0, 0, 0);
     }
-    setAxes(params) {
-        const axes = new axes_1.Axes(this.size, this.size, this.size, params);
+    setAxesAndGrids(params, gridParams) {
+        const axes = new axes_1.Axes(this.size, this.size, this.size, params, gridParams);
         this.addFrameable(axes);
-        this.scene.add(axes.gridXY);
-        this.scene.add(axes.gridXZ);
-        this.scene.add(axes.gridYZ);
     }
     updateOnChanges() {
         this.controls.addEventListener("change", ()=>this.update());
@@ -31784,13 +31787,14 @@ class Axis extends Line2_1.Line2 {
 }
 exports.Axis = Axis;
 class Axes extends plot_1.Framed {
-    constructor(lengthX, lengthY, lengthZ, options){
+    constructor(lengthX, lengthY, lengthZ, axesParams, gridsParams){
         super();
         this.lengthX = lengthX;
         this.lengthY = lengthY;
         this.lengthZ = lengthZ;
-        this.config = new axes_config_1.AxesConfig(options);
-        const { x, y, z } = this.config;
+        this.axesConfig = new axes_config_1.AxesConfig(axesParams);
+        this.gridsConfig = new axes_config_1.GridConfig(gridsParams);
+        const { x, y, z } = this.axesConfig;
         if (x) {
             const xAxis = new Axis(exports.NamedAxis.x.unit, lengthX * 1.1, x, exports.NamedAxis.x.name);
             this.drawables.push(xAxis);
@@ -31809,17 +31813,26 @@ class Axes extends plot_1.Framed {
         this.setGrids();
     }
     setGrids() {
-        this.gridXZ = new three_1.GridHelper(Math.max(this.lengthX, this.lengthZ));
-        this.gridXZ.position.setX(this.lengthX / 2);
-        this.gridXZ.position.setZ(this.lengthZ / 2);
-        this.gridXY = new three_1.GridHelper(Math.max(this.lengthX, this.lengthY));
-        this.gridXY.position.setX(this.lengthX / 2);
-        this.gridXY.position.setY(this.lengthY / 2);
-        this.gridXY.rotateOnAxis(exports.NamedAxis.x.unit, Math.PI / 2);
-        this.gridYZ = new three_1.GridHelper(Math.max(this.lengthY, this.lengthZ));
-        this.gridYZ.position.setY(this.lengthY / 2);
-        this.gridYZ.position.setZ(this.lengthZ / 2);
-        this.gridYZ.rotateOnAxis(exports.NamedAxis.z.unit, Math.PI / 2);
+        if (this.gridsConfig.xz) {
+            const gridXZ = new three_1.GridHelper(Math.max(this.lengthX, this.lengthZ));
+            gridXZ.position.setX(this.lengthX / 2);
+            gridXZ.position.setZ(this.lengthZ / 2);
+            this.drawables.push(gridXZ);
+        }
+        if (this.gridsConfig.xy) {
+            const gridXY = new three_1.GridHelper(Math.max(this.lengthX, this.lengthY));
+            gridXY.position.setX(this.lengthX / 2);
+            gridXY.position.setY(this.lengthY / 2);
+            gridXY.rotateOnAxis(exports.NamedAxis.x.unit, Math.PI / 2);
+            this.drawables.push(gridXY);
+        }
+        if (this.gridsConfig.yz) {
+            const gridYZ = new three_1.GridHelper(Math.max(this.lengthY, this.lengthZ));
+            gridYZ.position.setY(this.lengthY / 2);
+            gridYZ.position.setZ(this.lengthZ / 2);
+            gridYZ.rotateOnAxis(exports.NamedAxis.z.unit, Math.PI / 2);
+            this.drawables.push(gridYZ);
+        }
     }
 }
 exports.Axes = Axes;
@@ -32808,7 +32821,7 @@ class LineGeometry extends (0, _lineSegmentsGeometryJs.LineSegmentsGeometry) {
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-exports.defaultAxisConfig = exports.AxisConfig = exports.AxesConfig = void 0;
+exports.defaultAxisConfig = exports.GridConfig = exports.AxisConfig = exports.AxesConfig = void 0;
 const axes_1 = require("fe7467ba214384b1");
 const base_config_1 = require("a367913ee86fbd91");
 class AxesConfig extends base_config_1.BaseConfig {
@@ -32831,6 +32844,16 @@ class AxisConfig extends base_config_1.BaseConfig {
     }
 }
 exports.AxisConfig = AxisConfig;
+class GridConfig extends base_config_1.BaseConfig {
+    constructor(params){
+        super();
+        const { xy, yz, xz } = params || {};
+        this.xy = this.defaultIfNullish(xy, true);
+        this.xz = this.defaultIfNullish(xz, true);
+        this.yz = this.defaultIfNullish(yz, true);
+    }
+}
+exports.GridConfig = GridConfig;
 exports.defaultAxisConfig = {
     x: {
         color: 0xff0000,
