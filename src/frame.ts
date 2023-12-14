@@ -8,8 +8,8 @@ import { AxesParams, GridParams } from "./axes.params";
 export class Frame extends Scene {
   protected scene: Scene;
   protected renderer: WebGLRenderer;
-  protected camera: PerspectiveCamera;
-  protected controls: OrbitControls;
+  protected camera!: PerspectiveCamera;
+  protected controls!: OrbitControls;
   protected observer: ResizeObserver = new ResizeObserver(() => this.onCanvasResize());
   protected width: number;
   protected height: number;

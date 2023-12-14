@@ -1,12 +1,9 @@
 import { z } from "zod";
 
-const markersizeType = z.number().lte(10).gte(0.01);
+const markersizeTypeZod = z.number().lte(10).gte(0.01);
 
-const scatterplotParams = z.object({
-  markerSize: z.union([markersizeType, z.array(markersizeType)]),
+export const scatterplotParams = z.object({
+  markerSize: z.optional(z.union([markersizeTypeZod, z.array(markersizeTypeZod)])).default(0.1),
 });
 
-export type ScatterplotParams = {
-  markerSize: number | number[];
-  markerColor: number | number[];
-};
+export type ScatterPlotParams = z.infer<typeof scatterplotParams>;

@@ -26,7 +26,6 @@ export const NamedAxis = {
 } as const;
 
 export class Axis extends Line2 {
-  config: AxisConfig;
 
   constructor(
     direction: Vector3,

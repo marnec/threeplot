@@ -924,11 +924,13 @@ parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "ScatterPlot", ()=>ScatterPlot);
 var _three = require("three");
 var _plot = require("../plot");
+var _scatterplotConfig = require("./scatterplot.config");
 class ScatterPlot extends (0, _plot.Plot) {
-    constructor(points, pointRadius = 0.2){
+    constructor(points, params){
         super();
-        this.drawables = points.map((v)=>{
-            const geometry = new (0, _three.SphereGeometry)(pointRadius);
+        this.config = new (0, _scatterplotConfig.ScatterPlotConfig)(points.length, params);
+        this.drawables = points.map((v, i)=>{
+            const geometry = new (0, _three.SphereGeometry)(this.config.markerSize[i]);
             const material = new (0, _three.MeshBasicMaterial)({
                 color: 0x00ff00
             });
@@ -939,7 +941,73 @@ class ScatterPlot extends (0, _plot.Plot) {
     }
 }
 
-},{"three":"ktPTu","../plot":"hsxxN","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"83AEn":[function(require,module,exports) {
+},{"three":"ktPTu","../plot":"hsxxN","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./scatterplot.config":"g39Br"}],"g39Br":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "ScatterPlotConfig", ()=>ScatterPlotConfig);
+var _typeMagic = require("../type-magic");
+var _baseConfig = require("./base.config");
+var _scatterplotParams = require("./scatterplot.params");
+class ScatterPlotConfig extends (0, _baseConfig.BaseConfig) {
+    constructor(nPoints, params){
+        super();
+        if (!params) params = (0, _typeMagic.getDefaults)((0, _scatterplotParams.scatterplotParams));
+        const result = (0, _scatterplotParams.scatterplotParams).safeParse(params);
+        if (!result.success) throw new Error(result.error.message);
+        const { markerSize } = result.data;
+        this.markerSize = typeof markerSize === "number" ? Array.from({
+            length: nPoints
+        }, ()=>markerSize) : markerSize;
+    }
+}
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./scatterplot.params":"fgjyM","./base.config":"aklxY","../type-magic":"7YjAw"}],"fgjyM":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "scatterplotParams", ()=>scatterplotParams);
+var _zod = require("zod");
+const markersizeTypeZod = (0, _zod.z).number().lte(10).gte(0.01);
+const scatterplotParams = (0, _zod.z).object({
+    markerSize: (0, _zod.z).optional((0, _zod.z).union([
+        markersizeTypeZod,
+        (0, _zod.z).array(markersizeTypeZod)
+    ])).default(0.1)
+});
+
+},{"zod":"aoXZ0","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"7YjAw":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+// https://github.com/colinhacks/zod/discussions/1953
+parcelHelpers.export(exports, "getDefaults", ()=>getDefaults);
+var _zod = require("zod");
+function getDefaults(schema) {
+    // Check if it's a ZodEffect
+    if (schema instanceof (0, _zod.z).ZodEffects) {
+        // Check if it's a recursive ZodEffect
+        if (schema.innerType() instanceof (0, _zod.z).ZodEffects) return getDefaults(schema.innerType());
+        // return schema inner shape as a fresh zodObject
+        return getDefaults((0, _zod.z).ZodObject.create(schema.innerType().shape));
+    }
+    function getDefaultValue(schema) {
+        if (schema instanceof (0, _zod.z).ZodDefault) return schema._def.defaultValue();
+        // return an empty array if it is
+        if (schema instanceof (0, _zod.z).ZodArray) return [];
+        // return an empty string if it is
+        if (schema instanceof (0, _zod.z).ZodString) return "";
+        // return an content of object recursivly
+        if (schema instanceof (0, _zod.z).ZodObject) return getDefaults(schema);
+        if (!("innerType" in schema._def)) return undefined;
+        return getDefaultValue(schema._def.innerType);
+    }
+    return Object.fromEntries(Object.entries(schema.shape).map(([key, value])=>{
+        return [
+            key,
+            getDefaultValue(value)
+        ];
+    }));
+}
+
+},{"zod":"aoXZ0","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"83AEn":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "VectorPlot", ()=>VectorPlot);

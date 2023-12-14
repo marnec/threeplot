@@ -1,3 +1,4 @@
+
 export class BaseConfig {
   protected defaultIfTrue<T extends NonNullable<unknown>>(value: T | true, defaultValue: T): T {
     return value === true ? defaultValue : value;
