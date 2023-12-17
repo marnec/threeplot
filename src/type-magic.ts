@@ -21,7 +21,7 @@ export function getDefaults<T extends z.ZodTypeAny>(schema: z.AnyZodObject | z.Z
     return getDefaults(z.ZodObject.create(schema.innerType().shape));
   }
 
-  function getDefaultValue(schema: z.ZodTypeAny): unknown {
+  function getDefaultValue(schema: any) {
     if (schema instanceof z.ZodDefault) return schema._def.defaultValue();
     // return an empty array if it is
     if (schema instanceof z.ZodArray) return [];
@@ -36,7 +36,7 @@ export function getDefaults<T extends z.ZodTypeAny>(schema: z.AnyZodObject | z.Z
 
   return Object.fromEntries(
     Object.entries(schema.shape).map(([key, value]) => {
-      return [key, getDefaultValue(value as z.ZodTypeAny)];
+      return [key, getDefaultValue(value)];
     })
   );
 }

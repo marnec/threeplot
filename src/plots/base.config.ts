@@ -1,4 +1,3 @@
-
 export class BaseConfig {
   protected defaultIfTrue<T extends NonNullable<unknown>>(value: T | true, defaultValue: T): T {
     return value === true ? defaultValue : value;
@@ -13,6 +12,14 @@ export class BaseConfig {
     defaultValue: D
   ) {
     return value === undefined || value === true || isEmpty(value) ? defaultValue! : value!;
+  }
+
+  protected reproduceNTimes<Item, N extends number>(item: Item, n: N): Item[] {
+    return Array.from({ length: n }, () => item);
+  }
+
+  protected expandDefaultIfNotExpanded<T>(item: T | T[], n: number): T[] {
+    return Array.isArray(item) ? item : this.reproduceNTimes(item, n);
   }
 }
 

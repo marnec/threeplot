@@ -1,7 +1,7 @@
 import { Mesh, MeshBasicMaterial, SphereGeometry, Vector3 } from "three";
 import { Plot } from "../plot";
-import { ScatterPlotParams, scatterplotParams } from "./scatterplot.params";
 import { ScatterPlotConfig } from "./scatterplot.config";
+import { ScatterPlotParams } from "./scatterplot.params";
 
 export class ScatterPlot extends Plot {
   config!: ScatterPlotConfig;
@@ -13,7 +13,7 @@ export class ScatterPlot extends Plot {
 
     this.drawables = points.map((v, i) => {
       const geometry = new SphereGeometry(this.config.markerSize[i]);
-      const material = new MeshBasicMaterial({ color: 0x00ff00 });
+      const material = new MeshBasicMaterial({ color: this.config.markerColor[i] });
       const obj = new Mesh(geometry, material);
       obj.position.set(v.x, v.y, v.z);
       return obj;
