@@ -6,12 +6,13 @@ const canvas2 = document.getElementById("canvas2") as HTMLCanvasElement;
 const canvas3 = document.getElementById("canvas3") as HTMLCanvasElement;
 const canvas4 = document.getElementById("canvas4") as HTMLCanvasElement;
 
-const points = getRandomPoints(200);
-const scatterPlot = new ScatterPlot(points);
-
 new Frame(canvas1, 10, { x: false, y: { width: 0.025, label: { text: Greek.betaSymbol } } }, { yz: false });
 
 const frame2 = new Frame(canvas2, 10);
+const points = getRandomPoints(200);
+const scatterPlot = new ScatterPlot(points, {
+  markerColor: Array.from(Array(200).keys()).map((n) => n * 100000),
+});
 frame2.addPlot(scatterPlot);
 
 const frame3 = new Frame(canvas3, 10);

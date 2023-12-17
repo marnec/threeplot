@@ -13,6 +13,14 @@ export class BaseConfig {
   ) {
     return value === undefined || value === true || isEmpty(value) ? defaultValue! : value!;
   }
+
+  protected reproduceNTimes<Item, N extends number>(item: Item, n: N): Item[] {
+    return Array.from({ length: n }, () => item);
+  }
+
+  protected expandDefaultIfNotExpanded<T>(item: T | T[], n: number): T[] {
+    return Array.isArray(item) ? item : this.reproduceNTimes(item, n);
+  }
 }
 
 const isEmpty = <T extends object>(v: T) => {

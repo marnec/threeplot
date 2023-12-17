@@ -4,9 +4,9 @@ import { LabelProperties } from "./label";
 import { BaseConfig } from "./plots/base.config";
 
 export class AxesConfig extends BaseConfig implements AxesParams {
-  x: AxisConfig | false;
-  y: AxisConfig | false;
-  z: AxisConfig | false;
+  x!: AxisConfig | false;
+  y!: AxisConfig | false;
+  z!: AxisConfig | false;
 
   constructor(params?: AxesParams) {
     super();
@@ -20,7 +20,7 @@ export class AxesConfig extends BaseConfig implements AxesParams {
 }
 
 export class AxisConfig extends BaseConfig implements Required<AxisParams> {
-  label: LabelProperties | false;
+  label!: LabelProperties | false;
   color: number;
   width: number;
 
