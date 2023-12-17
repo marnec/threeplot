@@ -52,7 +52,7 @@ test("config falls-back to defaults when params are unspecified", () => {
   const nPoints = 10;
   const config = new ScatterPlotConfig(nPoints);
   expect(config.markerSize).toHaveLength(nPoints);
-  expect(config.markerSize.at(0)).toEqual(0.01);
+  expect(config.markerSize.at(0)).toEqual(0.25);
   expect(config.markerColor).toHaveLength(nPoints);
   expect(config.markerColor.at(0)).toEqual(0x00ff00);
 });
@@ -63,5 +63,5 @@ test("config falls-back to defaults when params are partially specified", () => 
 
 
   expect(config.markerSize).toHaveLength(nPoints);
-  expect(config.markerSize.at(0)).toEqual(0.01);
+  expect(config.markerSize.at(0)).toEqual(0.25);
 });
