@@ -1,8 +1,6 @@
 import { expect, test } from "vitest";
 import { ScatterPlotConfig } from "../../src/plots/scatterplot.config";
 import { ScatterPlotParams } from "../../src/plots/scatterplot.params";
-import { scatterplotParams } from "../../dist/plots/scatterplot.params";
-import { getDefaults } from "../../src/type-magic";
 
 test("config correctly instantiates with markersize = 0.01", () => {
   const params: ScatterPlotParams = { markerSize: 0.01, markerColor: 0x000000 };
