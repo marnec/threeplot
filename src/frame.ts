@@ -5,6 +5,16 @@ import { Frameable, Plot } from "./plot";
 import { Label } from "./label";
 import { AxesParams, GridParams } from "./axes.params";
 
+type Background =
+  | {
+      transparent: true;
+      color?: never;
+    }
+  | {
+      transparent?: never | false;
+      color: number;
+    };
+
 export class Frame extends Scene {
   protected scene: Scene;
   protected renderer: WebGLRenderer;
@@ -20,17 +30,18 @@ export class Frame extends Scene {
     protected canvas: HTMLCanvasElement,
     protected size = 10,
     axesParams?: AxesParams,
-    gridParams?: GridParams
+    gridParams?: GridParams,
+    background?: Background,
   ) {
     super();
     this.scene = new Scene();
-    this.scene.background = new Color(0xffffff);
+    this.scene.background = new Color(background?.color || 0xffffff);
 
     const { clientWidth, clientHeight } = canvas;
     this.width = clientWidth;
     this.height = clientHeight;
 
-    this.renderer = new WebGLRenderer({ canvas });
+    this.renderer = new WebGLRenderer({ canvas, alpha: background?.transparent });
     this.renderer.setSize(clientWidth, clientHeight);
 
     this.setCamera(clientWidth, clientHeight);

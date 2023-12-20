@@ -6,7 +6,13 @@ const canvas2 = document.getElementById("canvas2") as HTMLCanvasElement;
 const canvas3 = document.getElementById("canvas3") as HTMLCanvasElement;
 const canvas4 = document.getElementById("canvas4") as HTMLCanvasElement;
 
-new Frame(canvas1, 10, { x: false, y: { width: 0.025, label: { text: Greek.betaSymbol } } }, { yz: false });
+new Frame(
+  canvas1,
+  10,
+  { x: false, y: { width: 0.025, label: { text: Greek.betaSymbol } } },
+  { yz: false },
+  { color: 0xfaf0f0 }
+);
 
 const frame2 = new Frame(canvas2, 10);
 const points = getRandomPoints(200);
