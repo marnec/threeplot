@@ -1,10 +1,11 @@
 import { Vector3 } from "three";
-import { Frame, Greek, Label, ScatterPlot, VectorPlot, getRandomPoints } from "../../dist/index";
+import { Frame, Greek, Label, PlanePlot, ScatterPlot, VectorPlot, getRandomPoints } from "../../dist/index";
 
 const canvas1 = document.getElementById("canvas1") as HTMLCanvasElement;
 const canvas2 = document.getElementById("canvas2") as HTMLCanvasElement;
 const canvas3 = document.getElementById("canvas3") as HTMLCanvasElement;
 const canvas4 = document.getElementById("canvas4") as HTMLCanvasElement;
+const canvas5 = document.getElementById("canvas5") as HTMLCanvasElement;
 
 new Frame(
   canvas1,
@@ -43,3 +44,8 @@ frame4.addPlot(
     },
   })
 );
+
+const frame5 = new Frame(canvas5, 10);
+const coplanarPoints = [new Vector3(1, 5, 1), new Vector3(10, 3, 10), new Vector3(1, 5, 10)] as const;
+frame5.addPlot(new PlanePlot(...coplanarPoints));
+frame5.addPlot(new ScatterPlot([...coplanarPoints]));
