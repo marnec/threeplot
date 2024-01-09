@@ -658,7 +658,7 @@ frame4.addPlot(new (0, _index.VectorPlot)(new (0, _three.Vector3)(0, 0, 0), new 
 const frame5 = new (0, _index.Frame)(canvas5, 10);
 const coplanarPoints = [
     new (0, _three.Vector3)(1, 5, 1),
-    new (0, _three.Vector3)(10, 3, 10),
+    new (0, _three.Vector3)(9, 3, 10),
     new (0, _three.Vector3)(1, 5, 10)
 ];
 frame5.addPlot(new (0, _index.PlanePlot)(...coplanarPoints));
@@ -44816,7 +44816,7 @@ class PlanePlot extends plot_1.Plot {
         super();
         const plane = new three_1.Plane();
         plane.setFromCoplanarPoints(p1, p2, p3);
-        const size = 10;
+        const size = 20;
         const max = p1.clone().max(p2).max(p3);
         const min = p1.clone().min(p2).min(p3);
         const avg = new three_1.Vector3().subVectors(max, min).divideScalar(2);
@@ -44827,10 +44827,11 @@ class PlanePlot extends plot_1.Plot {
         const focalPoints = new three_1.Vector3().copy(coplanaraPoint).add(plane.normal);
         geometry.lookAt(focalPoints);
         geometry.translate(...coplanaraPoint.toArray());
-        geometry.translate(avg.x, -avg.y, avg.z);
         const material = new three_1.MeshLambertMaterial({
             color: 0xffff00,
-            side: three_1.DoubleSide
+            side: three_1.DoubleSide,
+            transparent: true,
+            opacity: 0.1
         });
         const mesh = new three_1.Mesh(geometry, material);
         // mesh.quaternion.setFromUnitVectors(new Vector3(0, 0, 1), plane.normal);

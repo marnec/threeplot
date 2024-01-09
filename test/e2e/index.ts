@@ -46,6 +46,6 @@ frame4.addPlot(
 );
 
 const frame5 = new Frame(canvas5, 10);
-const coplanarPoints = [new Vector3(1, 5, 1), new Vector3(10, 3, 10), new Vector3(1, 5, 10)] as const;
+const coplanarPoints = [new Vector3(1, 5, 1), new Vector3(9, 3, 10), new Vector3(1, 5, 10)] as const;
 frame5.addPlot(new PlanePlot(...coplanarPoints));
 frame5.addPlot(new ScatterPlot([...coplanarPoints]));

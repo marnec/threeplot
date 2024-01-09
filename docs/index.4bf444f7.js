@@ -1351,7 +1351,7 @@ class PlanePlot extends (0, _plot.Plot) {
         super();
         const plane = new (0, _three.Plane)();
         plane.setFromCoplanarPoints(p1, p2, p3);
-        const size = 10;
+        const size = 20;
         const max = p1.clone().max(p2).max(p3);
         const min = p1.clone().min(p2).min(p3);
         const avg = new (0, _three.Vector3)().subVectors(max, min).divideScalar(2);
@@ -1362,10 +1362,11 @@ class PlanePlot extends (0, _plot.Plot) {
         const focalPoints = new (0, _three.Vector3)().copy(coplanaraPoint).add(plane.normal);
         geometry.lookAt(focalPoints);
         geometry.translate(...coplanaraPoint.toArray());
-        geometry.translate(avg.x, -avg.y, avg.z);
         const material = new (0, _three.MeshLambertMaterial)({
             color: 0xffff00,
-            side: (0, _three.DoubleSide)
+            side: (0, _three.DoubleSide),
+            transparent: true,
+            opacity: 0.1
         });
         const mesh = new (0, _three.Mesh)(geometry, material);
         // mesh.quaternion.setFromUnitVectors(new Vector3(0, 0, 1), plane.normal);
