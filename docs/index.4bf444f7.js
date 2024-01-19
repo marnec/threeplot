@@ -1347,11 +1347,10 @@ parcelHelpers.export(exports, "PlanePlot", ()=>PlanePlot);
 var _three = require("three");
 var _plot = require("../plot");
 class PlanePlot extends (0, _plot.Plot) {
-    constructor(p1, p2, p3){
+    constructor(p1, p2, p3, size){
         super();
         const plane = new (0, _three.Plane)();
         plane.setFromCoplanarPoints(p1, p2, p3);
-        const size = 20;
         const max = p1.clone().max(p2).max(p3);
         const min = p1.clone().min(p2).min(p3);
         const avg = new (0, _three.Vector3)().subVectors(max, min).divideScalar(2);
@@ -1369,6 +1368,8 @@ class PlanePlot extends (0, _plot.Plot) {
             opacity: 0.1
         });
         const mesh = new (0, _three.Mesh)(geometry, material);
+        mesh.updateMatrixWorld() // .set(avg.x, avg.y, avg.z)
+        ;
         // mesh.quaternion.setFromUnitVectors(new Vector3(0, 0, 1), plane.normal);
         this.drawables.push(mesh);
     }

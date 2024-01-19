@@ -2,12 +2,11 @@ import { DoubleSide, Mesh, MeshLambertMaterial, Plane, PlaneGeometry, Vector3 } 
 import { Plot } from "../plot";
 
 export class PlanePlot extends Plot {
-  constructor(p1: Vector3, p2: Vector3, p3: Vector3) {
+  constructor(p1: Vector3, p2: Vector3, p3: Vector3, size: number) {
     super();
 
     const plane = new Plane();
     plane.setFromCoplanarPoints(p1, p2, p3);
-    const size = 20;
 
     const max = p1.clone().max(p2).max(p3);
     const min = p1.clone().min(p2).min(p3);
@@ -26,10 +25,10 @@ export class PlanePlot extends Plot {
     geometry.lookAt(focalPoints);
 
     geometry.translate(...coplanaraPoint.toArray());
-    
 
     const material = new MeshLambertMaterial({ color: 0xffff00, side: DoubleSide, transparent: true, opacity: 0.1 });
     const mesh = new Mesh(geometry, material);
+    mesh.updateMatrixWorld()// .set(avg.x, avg.y, avg.z)
 
     // mesh.quaternion.setFromUnitVectors(new Vector3(0, 0, 1), plane.normal);
     this.drawables.push(mesh);

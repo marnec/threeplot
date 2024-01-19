@@ -582,7 +582,8 @@ const canvas2 = document.getElementById("canvas2");
 const canvas3 = document.getElementById("canvas3");
 const canvas4 = document.getElementById("canvas4");
 const canvas5 = document.getElementById("canvas5");
-new (0, _index.Frame)(canvas1, 10, {
+const size = 10;
+new (0, _index.Frame)(canvas1, size, {
     x: false,
     y: {
         width: 0.025,
@@ -592,21 +593,19 @@ new (0, _index.Frame)(canvas1, 10, {
     }
 }, {
     yz: false
-}, {
-    color: 0xfaf0f0
 });
-const frame2 = new (0, _index.Frame)(canvas2, 10);
+const frame2 = new (0, _index.Frame)(canvas2, size);
 const points = (0, _index.getRandomPoints)(200);
 const scatterPlot = new (0, _index.ScatterPlot)(points, {
     markerColor: Array.from(Array(200).keys()).map((n)=>n * 100000)
 });
 frame2.addPlot(scatterPlot);
-const frame3 = new (0, _index.Frame)(canvas3, 10);
+const frame3 = new (0, _index.Frame)(canvas3, size);
 frame3.addLabel(new (0, _index.Label)(new (0, _three.Vector3)(3, 3, 3), {
     text: `${(0, _index.Greek).lowercaseAlpha}=1/2${(0, _index.Greek).lowercasePi}`,
     fontSize: 1
 }));
-const frame4 = new (0, _index.Frame)(canvas4, 10, {}, {
+const frame4 = new (0, _index.Frame)(canvas4, size, {}, {
     xy: false,
     xz: false,
     yz: false
@@ -655,13 +654,13 @@ frame4.addPlot(new (0, _index.VectorPlot)(new (0, _three.Vector3)(0, 0, 0), new 
         component: false
     }
 }));
-const frame5 = new (0, _index.Frame)(canvas5, 10);
+const frame5 = new (0, _index.Frame)(canvas5, size);
 const coplanarPoints = [
     new (0, _three.Vector3)(1, 5, 1),
     new (0, _three.Vector3)(9, 3, 10),
     new (0, _three.Vector3)(1, 5, 10)
 ];
-frame5.addPlot(new (0, _index.PlanePlot)(...coplanarPoints));
+frame5.addPlot(new (0, _index.PlanePlot)(...coplanarPoints, size * 2));
 frame5.addPlot(new (0, _index.ScatterPlot)([
     ...coplanarPoints
 ]));
@@ -44812,11 +44811,10 @@ exports.PlanePlot = void 0;
 const three_1 = require("8ecf71e8973e1e6d");
 const plot_1 = require("82861178b49c15ea");
 class PlanePlot extends plot_1.Plot {
-    constructor(p1, p2, p3){
+    constructor(p1, p2, p3, size){
         super();
         const plane = new three_1.Plane();
         plane.setFromCoplanarPoints(p1, p2, p3);
-        const size = 20;
         const max = p1.clone().max(p2).max(p3);
         const min = p1.clone().min(p2).min(p3);
         const avg = new three_1.Vector3().subVectors(max, min).divideScalar(2);
@@ -44834,6 +44832,7 @@ class PlanePlot extends plot_1.Plot {
             opacity: 0.1
         });
         const mesh = new three_1.Mesh(geometry, material);
+        mesh.updateMatrixWorld(); // .set(avg.x, avg.y, avg.z)
         // mesh.quaternion.setFromUnitVectors(new Vector3(0, 0, 1), plane.normal);
         this.drawables.push(mesh);
     }
